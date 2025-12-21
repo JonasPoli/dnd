@@ -23,7 +23,7 @@ class ImportTrinketsCommand extends Command
         private EntityManagerInterface $entityManager,
         private RulesSourceRepository $rulesSourceRepository,
         private TrinketRepository $trinketRepository,
-        private string $projectDir
+        private \Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface $params
     ) {
         parent::__construct();
     }
@@ -31,7 +31,7 @@ class ImportTrinketsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $filePath = $this->projectDir . '/docs/bugigangas.md';
+        $filePath = $this->params->get('kernel.project_dir') . '/docs/bugigangas.md';
 
         if (!file_exists($filePath)) {
             $io->error("File not found: $filePath");

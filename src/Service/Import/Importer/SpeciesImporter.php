@@ -18,7 +18,8 @@ class SpeciesImporter implements ImporterInterface
         private EntityManagerInterface $entityManager,
         private ExternalReferenceRepository $externalRefRepo,
         private SpeciesRepository $speciesRepo,
-        private Hasher $hasher
+        private Hasher $hasher,
+        private \App\Service\Import\FeatureExtractor $featureExtractor
     ) {
     }
 
@@ -101,6 +102,25 @@ class SpeciesImporter implements ImporterInterface
             $ref->setExternalId($record->getExternalId());
             $ref->setLocalEntityId($species->getId());
             $this->entityManager->persist($ref);
+        } else {
+            $this->entityManager->flush();
+        }
+
+        // --- Feature Extraction ---
+        if (!empty($payload['traits'])) {
+            foreach ($payload['traits'] as $trait) {
+                // Ensure description is mapped correctly if it comes as 'desc'
+                if (!isset($trait['description']) && isset($trait['desc'])) {
+                    $trait['description'] = $trait['desc'];
+                }
+
+                $this->featureExtractor->extract(
+                    $trait,
+                    $ctx->getRulesSource(),
+                    'species',
+                    $species->getId()
+                );
+            }
         }
 
         $ref->setContentHash($hash);

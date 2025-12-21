@@ -18,7 +18,8 @@ class ClassImporter implements ImporterInterface
         private EntityManagerInterface $entityManager,
         private ExternalReferenceRepository $externalRefRepo,
         private ClassDefRepository $classDefRepo,
-        private Hasher $hasher
+        private Hasher $hasher,
+        private \App\Service\Import\FeatureExtractor $featureExtractor
     ) {
     }
 
@@ -54,6 +55,13 @@ class ClassImporter implements ImporterInterface
             'spellcastingAbility' => $raw['spellcasting_ability'] ?? null,
             'subtypesName' => $raw['subtypes_name'] ?? null,
             'savingThrowProficiencies' => $savingThrows,
+            // Pass through raw data for features extraction
+            'archetypes' => $raw['archetypes'] ?? [],
+            // Note: Open5e usually has 'archetypes'. Core features often need parsing or are in a specific keys.
+            // For this implementation, I'll assume we might want to extract Subclass features if they are nested here,
+            // OR if there's a separate 'features' key in the repo data.
+            // Let's add 'features' key if it exists in raw, just in case.
+            'features' => $raw['features'] ?? [],
         ];
 
         return new NormalizedRecord($this->getEntityType(), $raw['slug'], $payload);
@@ -108,14 +116,36 @@ class ClassImporter implements ImporterInterface
         $class->setIsActive(true);
 
         if (!$ref) {
-            $this->entityManager->flush();
+            $this->entityManager->flush(); // Need ID for ownerId
             $ref = new ExternalReference();
             $ref->setRulesSource($ctx->getRulesSource());
             $ref->setEntityType($this->getEntityType());
             $ref->setExternalId($record->getExternalId());
             $ref->setLocalEntityId($class->getId());
             $this->entityManager->persist($ref);
+        } else {
+            $this->entityManager->flush(); // Ensure class exists/updated
         }
+
+        // --- Feature Extraction ---
+        // 1. Core Class Features (if present in 'features' key)
+        if (!empty($payload['features'])) {
+            foreach ($payload['features'] as $featData) {
+                $this->featureExtractor->extract(
+                    $featData,
+                    $ctx->getRulesSource(),
+                    'class',
+                    $class->getId()
+                );
+            }
+        }
+
+        // 2. Archetypes (Subclasses) often have features inside
+        // NOTE: SubclassImporter handles the Subclass entity itself, but if features are nested here,
+        // we might want to extract them. However, they should ideally be linked to the Subclass, not the Class.
+        // If we are strictly populating 'Feature' entity for the Class, we look for class features.
+        // For now, I will NOT extract Archetype features here to avoid owner confusion. 
+        // SubclassImporter should handle its own features.
 
         $ref->setContentHash($hash);
         $ref->setLastImportedAt(new \DateTimeImmutable());
