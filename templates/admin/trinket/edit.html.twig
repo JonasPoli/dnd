@@ -1,0 +1,21 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}Editar Trinket{% endblock %}
+
+{% block body %}
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <a href="{{ path('admin_trinket_index') }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-primary transition-colors mb-4">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4 mr-2'}) }}
+            Voltar para a lista
+        </a>
+        <h1 class="text-2xl font-bold dark:text-white">Editar Trinket</h1>
+    </div>
+    
+    {{ include('admin/trinket/_delete_form.html.twig') }}
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-8 shadow-sm max-w-4xl">
+    {{ include('admin/trinket/_form.html.twig', {'button_label': 'Salvar Alterações'}) }}
+</div>
+{% endblock %}

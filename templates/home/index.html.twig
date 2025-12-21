@@ -1,0 +1,132 @@
+{% extends 'base_public.html.twig' %}
+
+{% block title %}Bem-vindo | Nova Entidade{% endblock %}
+
+{% block body %}
+    <!-- Hero Slider -->
+    <section x-data="{ 
+        activeSlide: 0, 
+        slides: [
+            { title: 'Excelência em Cuidado Médico', subtitle: 'Tecnologia de ponta aliada ao toque humano.', image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop' },
+            { title: 'Sua Saúde é Nossa Prioridade', subtitle: 'Atendimento humanizado e especializado.', image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop' },
+            { title: 'Equipe Multidisciplinar', subtitle: 'Os melhores profissionais para você.', image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=2068&auto=format&fit=crop' }
+        ],
+        next() { this.activeSlide = (this.activeSlide + 1) % this.slides.length },
+        prev() { this.activeSlide = (this.activeSlide - 1 + this.slides.length) % this.slides.length },
+        init() { setInterval(() => this.next(), 6000) }
+    }" class="relative h-[85vh] overflow-hidden">
+        
+        <template x-for="(slide, index) in slides" :key="index">
+            <div x-show="activeSlide === index" 
+                 x-transition:enter="transition ease-out duration-1000"
+                 x-transition:enter-start="opacity-0 scale-105"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-1000"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="absolute inset-0">
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-900/80 to-transparent z-10"></div>
+                <img :src="slide.image" class="w-full h-full object-cover" alt="">
+                
+                <div class="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
+                    <div class="max-w-2xl text-white">
+                        <h1 x-text="slide.title" class="text-5xl md:text-7xl font-bold mb-6 !text-white leading-tight"></h1>
+                        <p x-text="slide.subtitle" class="text-xl md:text-2xl text-slate-200 mb-10"></p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="bg-primary text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/30">Agendar Consulta</a>
+                            <a href="#" class="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all">Saber Mais</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Slider Controls -->
+        <div class="absolute bottom-10 right-10 z-30 flex space-x-4">
+            <button @click="prev()" class="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center text-white hover:bg-white/10 transition-all">
+                {{ ux_icon('lucide:chevron-left', {class: 'w-6 h-6'}) }}
+            </button>
+            <button @click="next()" class="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center text-white hover:bg-white/10 transition-all">
+                {{ ux_icon('lucide:chevron-right', {class: 'w-6 h-6'}) }}
+            </button>
+        </div>
+    </section>
+
+    <!-- Info Cards -->
+    <section class="container mx-auto px-4 -mt-16 relative z-30">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-primary p-8 rounded-3xl text-white shadow-2xl flex items-start space-x-6">
+                <div class="bg-white/20 p-4 rounded-2xl">
+                    {{ ux_icon('lucide:clock', {class: 'w-8 h-8'}) }}
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 !text-white">Horário</h3>
+                    <p class="text-blue-100 text-sm">Seg - Sex: 08:00 às 18:00</p>
+                    <p class="text-blue-100 text-sm">Sábados: 08:00 às 12:00</p>
+                </div>
+            </div>
+            <div class="bg-slate-900 p-8 rounded-3xl text-white shadow-2xl flex items-start space-x-6">
+                <div class="bg-white/10 p-4 rounded-2xl">
+                    {{ ux_icon('lucide:users', {class: 'w-8 h-8'}) }}
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 !text-white">Equipe</h3>
+                    <p class="text-slate-400 text-sm">Mais de 50 especialistas altamente qualificados.</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl text-slate-900 dark:text-white shadow-2xl flex items-start space-x-6 border border-border">
+                <div class="bg-primary/10 p-4 rounded-2xl">
+                    {{ ux_icon('lucide:phone-call', {class: 'w-8 h-8 text-primary'}) }}
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 dark:!text-white">Contato</h3>
+                    <p class="text-medical-text text-sm">(11) 4002-8922</p>
+                    <p class="text-medical-text text-sm">contato@novaentidade.com.br</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Grid (Static) -->
+    <section class="py-24 bg-white dark:bg-slate-950">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-4xl font-bold mb-4">Nossos Serviços</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-medical-text">Oferecemos uma ampla gama de serviços médicos com foco em prevenção, diagnóstico e tratamento.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <template x-for="i in [1,2,3,4]">
+                    <div class="group p-8 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:shadow-2xl transition-all duration-500">
+                        <div class="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-primary mb-8 shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+                            {{ ux_icon('lucide:activity', {class: 'w-8 h-8'}) }}
+                        </div>
+                        <h4 class="text-xl font-bold mb-4 group-hover:text-primary transition-colors">Consulta Geral</h4>
+                        <p class="text-medical-text text-sm mb-6 leading-relaxed">Check-ups regulares para garantir que sua saúde esteja sempre em dia.</p>
+                        <a href="#" class="text-primary font-bold text-sm inline-flex items-center">
+                            Ver Mais {{ ux_icon('lucide:arrow-right', {class: 'w-4 h-4 ml-2'}) }}
+                        </a>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-20 container mx-auto px-4 mb-24">
+        <div class="bg-slate-900 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
+            
+            <div class="relative z-10 max-w-2xl mx-auto text-white">
+                <h2 class="text-4xl font-bold mb-6 !text-white">Assine nossa Newsletter</h2>
+                <p class="text-slate-400 mb-10">Receba dicas de saúde, notícias e novidades da NovaEntidade diretamente no seu e-mail.</p>
+                <form class="flex flex-col sm:flex-row gap-4">
+                    <input type="email" placeholder="Seu melhor e-mail" class="flex-grow px-8 py-4 rounded-full bg-white/10 border border-white/20 text-white outline-none focus:bg-white/20 transition-all">
+                    <button class="bg-primary text-white px-10 py-4 rounded-full font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/30">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}Nova Condição{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-8">
+        <a href="{{ path('admin_condition_index') }}" class="text-slate-400 hover:text-primary transition-colors flex items-center space-x-2 text-sm font-bold uppercase tracking-widest">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+            <span>Voltar para Lista</span>
+        </a>
+        <h1 class="text-3xl font-bold mt-4 dark:text-white">Adicionar Condição</h1>
+        <p class="text-slate-500">Defina os efeitos e descrições de uma nova condição de status.</p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-8 shadow-sm">
+        {{ include('admin/condition/_form.html.twig') }}
+    </div>
+</div>
+{% endblock %}

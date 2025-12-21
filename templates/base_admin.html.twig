@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Painel Administrativo{% endblock %}</title>
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+        {% block stylesheets %}
+        {% endblock %}
+
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </head>
+    <body class="min-h-screen bg-slate-50 dark:bg-slate-950 font-jakarta text-slate-900 dark:text-slate-100 flex overflow-hidden">
+        
+        {% set current_route = app.request.get('_route') %}
+
+        <!-- Sidebar -->
+        <aside class="w-72 h-screen flex-shrink-0 border-r border-border bg-white dark:bg-slate-900 flex flex-col z-20 transition-all duration-300">
+            <div class="h-20 flex items-center px-8 border-b border-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">A</div>
+                    <span class="font-bold text-lg tracking-tight">Admin<span class="text-primary">Panel</span></span>
+                </div>
+            </div>
+
+            <div class="flex-grow overflow-y-auto p-4 space-y-8 mt-4">
+                <!-- Session: Gestão -->
+                <div>
+                    <h5 class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Gestão Geral</h5>
+                    <div class="space-y-1">
+                        <a href="{{ path('admin_dashboard') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route == 'admin_dashboard' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:layout-dashboard', {class: 'w-5 h-5'}) }}
+                            <span>Dashboard</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Session: D&D Regras -->
+                <div>
+                    <h5 class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Regras e Importação</h5>
+                    <div class="space-y-1">
+                        <a href="{{ path('admin_rules_source_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_rules_source' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:database', {class: 'w-5 h-5'}) }}
+                            <span>Fontes de Dados</span>
+                        </a>
+
+                        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
+                            {{ ux_icon('lucide:refresh-cw', {class: 'w-5 h-5'}) }}
+                            <span>Importações</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Session: D&D Conteúdo -->
+                <div>
+                    <h5 class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Biblioteca de Regras</h5>
+                    <div class="space-y-1">
+                        <a href="{{ path('admin_class_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_class' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                             {{ ux_icon('lucide:book-open', {class: 'w-5 h-5'}) }}
+                            <span>Classes</span>
+                        </a>
+                        <a href="{{ path('admin_subclass_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_subclass' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:git-branch', {class: 'w-5 h-5'}) }}
+                            <span>Subclasses</span>
+                        </a>
+                        <a href="{{ path('admin_spell_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_spell' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:sparkles', {class: 'w-5 h-5'}) }}
+                            <span>Magias</span>
+                        </a>
+                        <a href="{{ path('admin_monster_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_monster' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:skull', {class: 'w-5 h-5'}) }}
+                            <span>Monstros</span>
+                        </a>
+                        <a href="{{ path('admin_feat_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_feat' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:star', {class: 'w-5 h-5'}) }}
+                            <span>Talentos</span>
+                        </a>
+                        <a href="{{ path('admin_feature_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_feature' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:zap', {class: 'w-5 h-5'}) }}
+                            <span>Features (Traços)</span>
+                        </a>
+                        <a href="{{ path('admin_magic_item_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_magic_item' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:wand-2', {class: 'w-5 h-5'}) }}
+                            <span>Itens Mágicos</span>
+                        </a>
+                        <a href="{{ path('admin_equipment_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_equipment' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:sword', {class: 'w-5 h-5'}) }}
+                            <span>Equipamentos</span>
+                        </a>
+                        <a href="{{ path('admin_trinket_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_trinket' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:gem', {class: 'w-5 h-5'}) }}
+                            <span>Trinkets</span>
+                        </a>
+                        <a href="{{ path('admin_condition_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_condition' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:activity', {class: 'w-5 h-5'}) }}
+                            <span>Condições</span>
+                        </a>
+                        <a href="{{ path('admin_rule_section_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_rule_section' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:file-text', {class: 'w-5 h-5'}) }}
+                            <span>Seções de Regras</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Session: Criação de Personagem -->
+                <div>
+                    <h5 class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Criação de Personagem</h5>
+                    <div class="space-y-1">
+                        <a href="{{ path('admin_species_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_species' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:users', {class: 'w-5 h-5'}) }}
+                            <span>Raças</span>
+                        </a>
+                         <a href="{{ path('admin_subrace_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_subrace' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:users', {class: 'w-5 h-5'}) }}
+                            <span>Sub-raças</span>
+                        </a>
+                        <a href="{{ path('admin_background_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_background' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:scroll', {class: 'w-5 h-5'}) }}
+                            <span>Antecedentes</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Session: Personagens -->
+                <div>
+                    <h5 class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Personagens</h5>
+                    <div class="space-y-1">
+                        <a href="{{ path('admin_character_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_character' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:user-plus', {class: 'w-5 h-5'}) }}
+                            <span>Personagens</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Session: Dados de Referência -->
+                <div>
+                    <h5 class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Dados de Referência</h5>
+                    <div class="space-y-1">
+                        <a href="{{ path('admin_language_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_language' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:languages', {class: 'w-5 h-5'}) }}
+                            <span>Idiomas</span>
+                        </a>
+                        <a href="{{ path('admin_alignment_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_alignment' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:compass', {class: 'w-5 h-5'}) }}
+                            <span>Alinhamentos</span>
+                        </a>
+                        <a href="{{ path('admin_level_up_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_level_up' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:trending-up', {class: 'w-5 h-5'}) }}
+                            <span>Progressão de Nível</span>
+                        </a>
+                        <a href="{{ path('admin_skill_index') }}" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all {{ current_route starts with 'admin_skill' ? 'bg-primary/10 text-primary font-semibold shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                            {{ ux_icon('lucide:award', {class: 'w-5 h-5'}) }}
+                            <span>Perícias</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Session: Plataforma -->
+                <div>
+                    <h5 class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Plataforma</h5>
+                    <div class="space-y-1">
+                        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
+                            {{ ux_icon('lucide:message-square', {class: 'w-5 h-5'}) }}
+                            <span>Mensagens</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
+                            {{ ux_icon('lucide:users', {class: 'w-5 h-5'}) }}
+                            <span>Equipe</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Session: Sistema -->
+                <div>
+                    <h5 class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Sistema</h5>
+                    <div class="space-y-1">
+                        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
+                            {{ ux_icon('lucide:settings', {class: 'w-5 h-5'}) }}
+                            <span>Configurações</span>
+                        </a>
+                        <button onclick="window.toggleTheme()" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
+                            {{ ux_icon('lucide:sun', {class: 'w-5 h-5 block dark:hidden'}) }}
+                            {{ ux_icon('lucide:moon', {class: 'w-5 h-5 hidden dark:block'}) }}
+                            <span>Mudar Tema</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-border">
+                <a href="/logout" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-950/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all font-semibold">
+                    {{ ux_icon('lucide:log-out', {class: 'w-5 h-5'}) }}
+                    <span>Sair</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-grow flex flex-col h-screen overflow-hidden">
+            <!-- Topbar -->
+            <header class="h-20 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-b border-border flex items-center justify-between px-8 flex-shrink-0">
+                <div class="flex items-center">
+                    <h2 class="font-bold text-xl uppercase tracking-tight text-slate-400">{% block header_title %}Painel{% endblock %}</h2>
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-3 border-l border-border pl-6">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold leading-none">Administrador</p>
+                            <p class="text-[10px] text-slate-400 font-medium">admin@novaentidade.com.br</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-white dark:border-slate-700 shadow-sm flex items-center justify-center">
+                            {{ ux_icon('lucide:user', {class: 'w-5 h-5 text-slate-500'}) }}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Page Content -->
+            <main class="flex-grow overflow-y-auto p-8 bg-slate-50 dark:bg-slate-950">
+                <div class="max-w-7xl mx-auto">
+                    {% block body %}{% endblock %}
+                </div>
+            </main>
+        </div>
+
+    </body>
+</html>

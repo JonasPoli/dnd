@@ -1,0 +1,20 @@
+
+Starting Import: Open5e (full)
+==============================
+
+Import Summary
+--------------
+
+ Spell: 1435 processed, 0 inserted, 0 updated, 1435 skipped, 0 errors
+ Classes: 12 processed, 0 inserted, 0 updated, 12 skipped, 0 errors
+ Species: 20 processed, 0 inserted, 0 updated, 20 skipped, 0 errors
+ Backgrounds: 42 processed, 0 inserted, 0 updated, 42 skipped, 0 errors
+ Equipment: 68 processed, 0 inserted, 0 updated, 68 skipped, 0 errors
+ Monster: 3207 processed, 3207 inserted, 0 updated, 0 skipped, 0 errors
+ Feat: 74 processed, 74 inserted, 0 updated, 0 skipped, 0 errors
+ Magicitem: 1618 processed, 1618 inserted, 0 updated, 0 skipped, 0 errors
+ Condition: 15 processed, 15 inserted, 0 updated, 0 skipped, 0 errors
+ Rulesection: 45 processed, 45 inserted, 0 updated, 0 skipped, 0 errors
+
+ [OK] Import completed successfully.         
+

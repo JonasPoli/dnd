@@ -1,0 +1,53 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}{{ alignment.id ? 'Editar' : 'Novo' }} Alinhamento{% endblock %}
+
+{% block body %}
+<div class="mb-8">
+    <a href="{{ path('admin_alignment_index') }}" class="text-slate-500 hover:text-primary transition-colors flex items-center space-x-2 mb-4">
+        {{ ux_icon('lucide:arrow-left', {class: 'w-5 h-5'}) }}
+        <span>Voltar para lista</span>
+    </a>
+    <h1 class="text-2xl font-bold dark:text-white">{{ alignment.id ? 'Editar' : 'Novo' }} Alinhamento</h1>
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-8 shadow-sm">
+    {{ form_start(form) }}
+    
+    <div class="space-y-6">
+        <div>
+            {{ form_label(form.name, 'Nome', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+            {{ form_widget(form.name, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}}) }}
+            {{ form_errors(form.name) }}
+        </div>
+
+        <div>
+            {{ form_label(form.abbreviation, 'Abreviação', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+            {{ form_widget(form.abbreviation, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}}) }}
+            {{ form_errors(form.abbreviation) }}
+        </div>
+
+        <div>
+            {{ form_label(form.description, 'Descrição', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+            {{ form_widget(form.description, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none', 'rows': 4}}) }}
+            {{ form_errors(form.description) }}
+        </div>
+
+        <div class="flex items-center space-x-3">
+            {{ form_widget(form.isActive, {'attr': {'class': 'w-5 h-5 text-primary border-slate-300 rounded focus:ring-primary'}}) }}
+            {{ form_label(form.isActive, 'Ativo', {'label_attr': {'class': 'text-sm font-medium text-slate-700 dark:text-slate-300'}}) }}
+        </div>
+    </div>
+
+    <div class="mt-8 flex items-center justify-between">
+        <a href="{{ path('admin_alignment_index') }}" class="px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-semibold transition-all">
+            Cancelar
+        </a>
+        <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl font-semibold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all">
+            {{ alignment.id ? 'Atualizar' : 'Criar' }} Alinhamento
+        </button>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}

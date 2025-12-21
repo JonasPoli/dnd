@@ -1,0 +1,55 @@
+{{ form_start(form) }}
+    <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                {{ form_row(form.name, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+            <div>
+                {{ form_row(form.ruleSlug, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                {{ form_row(form.classDef, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+            <div>
+                {{ form_row(form.availableFromLevel, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700', 'min': 1, 'max': 20}
+                }) }}
+            </div>
+            <div>
+                {{ form_row(form.rulesSource, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+        </div>
+
+        <div>
+            {{ form_row(form.descriptionMd, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700', 'rows': 6}
+            }) }}
+        </div>
+    </div>
+
+    <div class="mt-10 flex items-center space-x-4">
+        <button class="bg-primary text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            {{ button_label|default('Salvar Subclasse') }}
+        </button>
+        <a href="{{ path('admin_subclass_index') }}" class="px-8 py-4 rounded-2xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            Cancelar
+        </a>
+    </div>
+{{ form_end(form) }}

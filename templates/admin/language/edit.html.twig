@@ -1,0 +1,62 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}{{ language.id ? 'Editar' : 'Novo' }} Idioma{% endblock %}
+
+{% block body %}
+<div class="mb-8">
+    <a href="{{ path('admin_language_index') }}" class="text-slate-500 hover:text-primary transition-colors flex items-center space-x-2 mb-4">
+        {{ ux_icon('lucide:arrow-left', {class: 'w-5 h-5'}) }}
+        <span>Voltar para lista</span>
+    </a>
+    <h1 class="text-2xl font-bold dark:text-white">{{ language.id ? 'Editar' : 'Novo' }} Idioma</h1>
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-8 shadow-sm">
+    {{ form_start(form) }}
+    
+    <div class="space-y-6">
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                {{ form_label(form.name, 'Nome', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.name, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}}) }}
+            </div>
+            <div>
+                {{ form_label(form.languageKey, 'Chave', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.languageKey, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}}) }}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                {{ form_label(form.type, 'Tipo', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.type, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}}) }}
+            </div>
+            <div>
+                {{ form_label(form.script, 'Escrita', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.script, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}}) }}
+            </div>
+        </div>
+
+        <div>
+            {{ form_label(form.typicalSpeakers, 'Falantes Típicos', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+            {{ form_widget(form.typicalSpeakers, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}}) }}
+        </div>
+
+        <div>
+            {{ form_label(form.notes, 'Notas', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2'}}) }}
+            {{ form_widget(form.notes, {'attr': {'class': 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none', 'rows': 3}}) }}
+        </div>
+    </div>
+
+    <div class="mt-8 flex items-center justify-between">
+        <a href="{{ path('admin_language_index') }}" class="px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-semibold transition-all">
+            Cancelar
+        </a>
+        <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl font-semibold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all">
+            {{ language.id ? 'Atualizar' : 'Criar' }} Idioma
+        </button>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}

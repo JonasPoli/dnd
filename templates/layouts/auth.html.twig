@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Login | Nova Entidade{% endblock %}</title>
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+        {% block stylesheets %}
+        {% endblock %}
+
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </head>
+    <body class="bg-slate-50 dark:bg-slate-950 font-jakarta transition-colors duration-300">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="max-w-md w-full">
+                <!-- Brand -->
+                <div class="text-center mb-8">
+                    <a href="/" class="inline-flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-primary/20">N</div>
+                        <span class="font-bold text-2xl tracking-tight dark:text-white">Nova<span class="text-primary">Entidade</span></span>
+                    </a>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Bem-vindo ao portal de gestão</p>
+                </div>
+
+                <!-- Auth Card -->
+                <div class="bg-white dark:bg-slate-900 border border-border rounded-3xl p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
+                    {% block body %}{% endblock %}
+                </div>
+
+                <!-- Footer Links -->
+                <div class="mt-8 text-center space-x-6 text-xs text-slate-400 font-medium">
+                    <a href="/" class="hover:text-primary transition-colors">Voltar para o site</a>
+                    <a href="#" class="hover:text-primary transition-colors">Suporte Técnico</a>
+                    <a href="#" class="hover:text-primary transition-colors">Termos</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

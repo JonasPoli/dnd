@@ -1,0 +1,198 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}Monstros{% endblock %}
+
+{% block body %}
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <h1 class="text-2xl font-bold dark:text-white">Bestiário</h1>
+        <p class="text-slate-500 text-sm">{{ total_items }} criaturas catalogadas.</p>
+    </div>
+    <a href="{{ path('admin_monster_new') }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center space-x-2">
+        {{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
+        <span>Novo Monstro</span>
+    </a>
+</div>
+
+{# Compact Filters Panel #}
+<div class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-border p-4 shadow-sm">
+    <form method="get" class="space-y-3">
+        {# Single Row Filters #}
+        <div class="grid grid-cols-1 lg:grid-cols-6 gap-3">
+            {# Search #}
+            <div class="lg:col-span-2">
+                <input type="text" name="search" value="{{ search }}" placeholder="🔍 Buscar..." 
+                       class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+            </div>
+            
+            {# Type #}
+            <div>
+                <select name="type" class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+                    <option value="">Tipo</option>
+                    {% for type in available_types %}
+                        <option value="{{ type }}" {% if type == type_filter %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {# Size #}
+            <div>
+                <select name="size" class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+                    <option value="">Tamanho</option>
+                    {% for size in available_sizes %}
+                        <option value="{{ size }}" {% if size == size_filter %}selected{% endif %}>{{ size }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {# CR Range #}
+            <div class="flex gap-2">
+                <input type="number" name="cr_min" value="{{ cr_min }}" step="0.125" min="0" max="30" placeholder="CR Min" 
+                       class="w-full px-2 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+                <input type="number" name="cr_max" value="{{ cr_max }}" step="0.125" min="0" max="30" placeholder="CR Max" 
+                       class="w-full px-2 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+            </div>
+            
+            {# Actions #}
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-all">
+                    Filtrar
+                </button>
+                {% if search or type_filter or size_filter or cr_min or cr_max %}
+                <a href="{{ path('admin_monster_index') }}" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all flex items-center" title="Limpar filtros">
+                    {{ ux_icon('lucide:x', {class: 'w-4 h-4'}) }}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        {# Hidden sort/order fields #}
+        <input type="hidden" name="sort" value="{{ sort }}">
+        <input type="hidden" name="order" value="{{ order }}">
+    </form>
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-border">
+                    <th class="px-8 py-5">
+                        <a href="{{ path('admin_monster_index', {sort: 'name', order: (sort == 'name' and order == 'asc') ? 'desc' : 'asc', search: search, type: type_filter, size: size_filter, cr_min: cr_min, cr_max: cr_max, page: current_page}) }}" 
+                           class="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors flex items-center space-x-1">
+                            <span>Nome / Tipo</span>
+                            {% if sort == 'name' %}
+                                {{ ux_icon(order == 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down', {class: 'w-3 h-3'}) }}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-8 py-5">
+                        <a href="{{ path('admin_monster_index', {sort: 'challengeRating', order: (sort == 'challengeRating' and order == 'asc') ? 'desc' : 'asc', search: search, type: type_filter, size: size_filter, cr_min: cr_min, cr_max: cr_max, page: current_page}) }}" 
+                           class="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors flex items-center space-x-1">
+                            <span data-controller="tooltip" data-tooltip-text-value="Challenge Rating: Nível de desafio para encontros" data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">CR</span>
+                            {% if sort == 'challengeRating' %}
+                                {{ ux_icon(order == 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down', {class: 'w-3 h-3'}) }}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-8 py-5">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                            <span data-controller="tooltip" data-tooltip-text-value="Armor Class: Dificuldade para acertar o monstro" data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">AC</span> / 
+                            <span data-controller="tooltip" data-tooltip-text-value="Hit Points: Pontos de vida do monstro" data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">HP</span>
+                        </span>
+                    </th>
+                    <th class="px-8 py-5">
+                        <a href="{{ path('admin_monster_index', {sort: 'size', order: (sort == 'size' and order == 'asc') ? 'desc' : 'asc', search: search, type: type_filter, size: size_filter, cr_min: cr_min, cr_max: cr_max, page: current_page}) }}" 
+                           class="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors flex items-center space-x-1">
+                            <span>Tamanho</span>
+                            {% if sort == 'size' %}
+                                {{ ux_icon(order == 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down', {class: 'w-3 h-3'}) }}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+                {% for monster in monsters %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="px-8 py-5">
+                            <div class="font-bold text-slate-900 dark:text-white">{{ monster.name }}</div>
+                            <div class="text-xs text-slate-400">{{ monster.type }}</div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full font-bold text-sm">{{ monster.challengeRating }}</span>
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="text-sm font-medium">{{ monster.armorClass }} / {{ monster.hitPoints }}</span>
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="text-sm text-slate-600 dark:text-slate-400">{{ monster.size }}</span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex items-center justify-end space-x-3">
+                                <a href="{{ path('admin_monster_show', {'id': monster.id}) }}" class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors" title="Visualizar">
+                                    {{ ux_icon('lucide:eye', {class: 'w-5 h-5'}) }}
+                                </a>
+                                <a href="{{ path('admin_monster_edit', {'id': monster.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors">
+                                    {{ ux_icon('lucide:edit-3', {class: 'w-5 h-5'}) }}
+                                </a>
+                                {{ include('admin/monster/_delete_form.html.twig') }}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="px-8 py-12 text-center text-slate-400">
+                            {% if search or type_filter or size_filter or cr_min or cr_max %}
+                                Nenhum monstro encontrado com os filtros aplicados.
+                            {% else %}
+                                Nenhum monstro encontrado.
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {# Pagination #}
+    {% if total_pages > 1 %}
+    <div class="px-8 py-5 border-t border-border bg-slate-50/50 dark:bg-slate-800/30">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-slate-500">
+                Mostrando {{ monsters|length }} de {{ total_items }} monstros
+            </div>
+            <div class="flex items-center space-x-2">
+                {% if current_page > 1 %}
+                <a href="{{ path('admin_monster_index', {page: current_page - 1, sort: sort, order: order, search: search, type: type_filter, size: size_filter, cr_min: cr_min, cr_max: cr_max}) }}" 
+                   class="px-4 py-2 bg-white dark:bg-slate-800 border border-border rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Anterior
+                </a>
+                {% endif %}
+                
+                {% for page in 1..total_pages %}
+                    {% if page == current_page %}
+                    <span class="px-4 py-2 bg-primary text-white rounded-xl font-semibold">{{ page }}</span>
+                    {% elseif page == 1 or page == total_pages or (page >= current_page - 2 and page <= current_page + 2) %}
+                    <a href="{{ path('admin_monster_index', {page: page, sort: sort, order: order, search: search, type: type_filter, size: size_filter, cr_min: cr_min, cr_max: cr_max}) }}" 
+                       class="px-4 py-2 bg-white dark:bg-slate-800 border border-border rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                        {{ page }}
+                    </a>
+                    {% elseif page == current_page - 3 or page == current_page + 3 %}
+                    <span class="px-2 text-slate-400">...</span>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if current_page < total_pages %}
+                <a href="{{ path('admin_monster_index', {page: current_page + 1, sort: sort, order: order, search: search, type: type_filter, size: size_filter, cr_min: cr_min, cr_max: cr_max}) }}" 
+                   class="px-4 py-2 bg-white dark:bg-slate-800 border border-border rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Próxima
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

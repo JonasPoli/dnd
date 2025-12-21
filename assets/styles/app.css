@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-lato: "Lato", sans-serif;
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-border: hsl(var(--border));
+
+  --color-medical-blue: #0ea5e9;
+  --color-medical-heading: #1e293b;
+  --color-medical-text: #64748b;
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+
+  --primary: 199 89% 48%;
+  /* Medical Blue approx */
+  --primary-foreground: 210 40% 98%;
+
+  --border: 214.3 31.8% 91.4%;
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+
+  --primary: 199 89% 48%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  --border: 217.2 32.6% 17.5%;
+}
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-lato;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-montserrat font-bold text-medical-heading dark:text-white;
+  }
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
+}

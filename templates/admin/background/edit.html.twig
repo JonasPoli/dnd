@@ -1,0 +1,22 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}Editar Antecedente{% endblock %}
+
+{% block body %}
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <a href="{{ path('admin_background_index') }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-primary transition-colors mb-4">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4 mr-2'}) }}
+            Voltar para a lista
+        </a>
+        <h1 class="text-2xl font-bold dark:text-white">Editar Antecedente: {{ background.name }}</h1>
+        <p class="text-slate-500 text-sm">Atualize os detalhes do antecedente selecionado.</p>
+    </div>
+    
+    {{ include('admin/background/_delete_form.html.twig') }}
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-8 shadow-sm max-w-4xl">
+    {{ include('admin/background/_form.html.twig', {'button_label': 'Salvar Alterações'}) }}
+</div>
+{% endblock %}

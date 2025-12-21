@@ -1,0 +1,65 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}Idiomas{% endblock %}
+
+{% block body %}
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <h1 class="text-2xl font-bold dark:text-white">Idiomas D&D</h1>
+        <p class="text-slate-500 text-sm">{{ languages|length }} idiomas disponíveis.</p>
+    </div>
+    <a href="{{ path('admin_language_new') }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center space-x-2">
+        {{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
+        <span>Novo Idioma</span>
+    </a>
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-border">
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Tipo</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Falantes</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Escrita</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+                {% for language in languages %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="px-8 py-5">
+                            <div class="font-bold text-slate-900 dark:text-white">{{ language.name }}</div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="px-3 py-1 {{ language.type == 'Standard' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-200' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-200' }} rounded-full text-sm font-semibold">
+                                {{ language.type }}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="text-sm">{{ language.typicalSpeakers }}</span>
+                        </td>
+                        <td class="px-8 py-5">
+                            <span class="text-sm">{{ language.script ?? '-' }}</span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex items-center justify-end space-x-3">
+                                <a href="{{ path('admin_language_edit', {'id': language.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors">
+                                    {{ ux_icon('lucide:edit-3', {class: 'w-5 h-5'}) }}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="px-8 py-12 text-center text-slate-400">
+                            Nenhum idioma encontrado.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

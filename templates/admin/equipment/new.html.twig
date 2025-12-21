@@ -1,0 +1,18 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}Novo Equipamento{% endblock %}
+
+{% block body %}
+<div class="mb-8">
+    <a href="{{ path('admin_equipment_index') }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-primary transition-colors mb-4">
+        {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4 mr-2'}) }}
+        Voltar para a lista
+    </a>
+    <h1 class="text-2xl font-bold dark:text-white">Cadastrar Novo Equipamento</h1>
+    <p class="text-slate-500 text-sm">Adicione um novo item ao catálogo de equipamentos.</p>
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-8 shadow-sm max-w-4xl">
+    {{ include('admin/equipment/_form.html.twig', {'button_label': 'Criar Equipamento'}) }}
+</div>
+{% endblock %}
