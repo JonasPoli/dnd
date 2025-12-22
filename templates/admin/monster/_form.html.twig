@@ -194,6 +194,18 @@
                 {{ form_widget(form.charismaSave, {'attr': {'class': save_classes}}) }}
             </div>
         </div>
+        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                {{ form_row(form.senses, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+                {{ form_row(form.languages, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+            
         <div class="mt-4">
              {{ form_row(form.perception, {
                 'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
@@ -225,6 +237,9 @@
             {{ form_row(form.legendaryDesc, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none', 'rows': 2}}) }}
             {{ form_row(form.legendaryActionsJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 4}}) }}
             
+            {{ form_row(form.spellList, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 6}}) }}
+            {{ form_row(form.srcJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
+
             {{ form_row(form.environments, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
         </div>
     </div>

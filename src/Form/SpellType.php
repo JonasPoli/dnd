@@ -10,6 +10,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -42,20 +43,27 @@ class SpellType extends AbstractType
                 'label' => 'Alcance',
                 'attr' => ['class' => 'form-input'],
             ])
+            ->add('targetRangeSort', null, [
+                'label' => 'Range Sort Order',
+                'attr' => ['class' => 'form-input'],
+                'required' => false,
+            ])
             ->add('duration', null, [
                 'label' => 'Duração',
                 'attr' => ['class' => 'form-input'],
             ])
-            ->add('componentsJson', null, [
+            ->add('componentsJson', TextareaType::class, [
                 'label' => 'Componentes (JSON)',
                 'attr' => ['class' => 'form-textarea', 'rows' => 3],
                 'help' => 'Ex: ["V", "S", "M"]',
+                'required' => false,
             ])
-            ->add('descriptionMd', null, [
+            ->add('descriptionMd', TextareaType::class, [
                 'label' => 'Descrição (Markdown)',
                 'attr' => ['class' => 'form-textarea', 'rows' => 8],
+                'required' => false,
             ])
-            ->add('higherLevelsMd', null, [
+            ->add('higherLevelsMd', TextareaType::class, [
                 'label' => 'Em Níveis Superiores (Markdown)',
                 'attr' => ['class' => 'form-textarea', 'rows' => 4],
                 'required' => false,
@@ -125,6 +133,19 @@ class SpellType extends AbstractType
                 'required' => false,
             ])
         ;
+
+
+        $builder->get('componentsJson')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($array) {
+                    return empty($array) ? '' : json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                },
+                function ($string) {
+                    if (empty($string)) return [];
+                    $decoded = json_decode($string, true);
+                    return is_array($decoded) ? $decoded : [];
+                }
+            ));
     }
 
     public function configureOptions(OptionsResolver $resolver): void

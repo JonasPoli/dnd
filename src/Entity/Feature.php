@@ -24,7 +24,7 @@ class Feature
     #[ORM\Column(nullable: true)]
     private ?int $ownerId = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(name: 'feature_key', length: 100)]
     private ?string $key = null;
 
     #[ORM\Column(length: 255)]

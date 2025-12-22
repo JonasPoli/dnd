@@ -1,126 +1,183 @@
 {{ form_start(form) }}
-    <div class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {# Basic Information Section #}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-900 dark:text-white">
+            {{ ux_icon('lucide:info', {class: 'w-5 h-5 text-primary'}) }}
+            <span>Informações Básicas</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 {{ form_row(form.name, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
             <div>
                 {{ form_row(form.ruleSlug, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
                 {{ form_row(form.level, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
             <div>
                 {{ form_row(form.school, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
             <div>
                 {{ form_row(form.rulesSource, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
-        </div>
-
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div>
+             <div>
                 {{ form_row(form.page, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
-                }) }}
-            </div>
-            <div>
-                {{ form_row(form.archetype, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
-                }) }}
-            </div>
-            <div class="md:col-span-2">
-                {{ form_row(form.circles, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
         </div>
+    </div>
 
-        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
-             <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Propriedades</label>
+    {# Casting Details #}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-900 dark:text-white">
+            {{ ux_icon('lucide:wand-2', {class: 'w-5 h-5 text-purple-500'}) }}
+            <span>Detalhes de Conjuração</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+             <div>
+                {{ form_row(form.castingTime, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+             <div>
+                {{ form_row(form.spellRange, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+             <div>
+                {{ form_row(form.duration, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+            <div>
+                {{ form_row(form.targetRangeSort, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+             <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Propriedades Especiais</label>
              <div class="flex flex-wrap gap-6">
                 {{ form_widget(form.isRitual) }}
                 {{ form_widget(form.isConcentration) }}
-                {{ form_widget(form.isVerbal) }}
-                {{ form_widget(form.isSomatic) }}
-                {{ form_widget(form.isMaterial) }}
              </div>
         </div>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {# Components #}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-900 dark:text-white">
+            {{ ux_icon('lucide:flask-conical', {class: 'w-5 h-5 text-green-500'}) }}
+            <span>Componentes</span>
+        </h3>
+        
+        <div class="flex flex-wrap gap-6 mb-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+            {{ form_widget(form.isVerbal) }}
+            {{ form_widget(form.isSomatic) }}
+            {{ form_widget(form.isMaterial) }}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                {{ form_row(form.components, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                 {{ form_row(form.components, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
+                <div class="mt-4">
+                     {{ form_row(form.componentsJson, {
+                        'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                        'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}
+                    }) }}
+                </div>
             </div>
             <div>
                  {{ form_row(form.material, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700', 'rows': 2}
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none', 'rows': 5}
                 }) }}
             </div>
         </div>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {# Classification #}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-900 dark:text-white">
+            {{ ux_icon('lucide:book-open', {class: 'w-5 h-5 text-blue-500'}) }}
+            <span>Classificação</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                {{ form_row(form.castingTime, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                {{ form_row(form.archetype, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
             <div>
-                {{ form_row(form.spellRange, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                {{ form_row(form.circles, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
         </div>
-
-        <div>
-            {{ form_row(form.descriptionMd, {
-                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700', 'rows': 6}
-            }) }}
-        </div>
-
-        <div>
-            {{ form_row(form.classes, {
-                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700', 'style': 'height: 150px'}
+        <div class="mt-4">
+             {{ form_row(form.classes, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none', 'style': 'height: 150px'}
             }) }}
         </div>
     </div>
 
-    <div class="mt-10 flex items-center space-x-4">
-        <button class="bg-primary text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all">
-            {{ button_label|default('Salvar Magia') }}
-        </button>
-        <a href="{{ path('admin_spell_index') }}" class="px-8 py-4 rounded-2xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-            Cancelar
+    {# Descriptions #}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-900 dark:text-white">
+            {{ ux_icon('lucide:file-text', {class: 'w-5 h-5 text-slate-500'}) }}
+            <span>Descrição</span>
+        </h3>
+        
+        <div class="space-y-6">
+             {{ form_row(form.descriptionMd, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm font-mono', 'rows': 8}
+            }) }}
+
+            {{ form_row(form.higherLevelsMd, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm font-mono', 'rows': 4}
+            }) }}
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-border">
+        <a href="{{ path('admin_spell_index') }}" class="px-6 py-3 rounded-xl font-semibold text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 transition-all flex items-center space-x-2">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+            <span>Cancelar</span>
         </a>
+        <button type="submit" class="bg-primary text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center space-x-2">
+            {{ ux_icon('lucide:save', {class: 'w-5 h-5'}) }}
+            <span>{{ button_label|default('Salvar Magia') }}</span>
+        </button>
     </div>
 {{ form_end(form) }}

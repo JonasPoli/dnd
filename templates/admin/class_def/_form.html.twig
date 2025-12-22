@@ -30,10 +30,71 @@
             </div>
         </div>
 
-        <div>
+        </div>
+            
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+                {{ form_row(form.subtypesName, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+            <div>
+                 {{ form_row(form.spellcastingAbility, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+                {{ form_row(form.hpAt1stLevel, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+            <div>
+                 {{ form_row(form.hpAtHigherLevels, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            {{ form_row(form.primaryAbilities, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700 font-mono text-sm', 'rows': 3}
+            }) }}
+            {{ form_row(form.savingThrowProficiencies, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700 font-mono text-sm', 'rows': 3}
+            }) }}
+        </div>
+        
+        <div class="space-y-6 mt-6">
+            <h3 class="font-bold text-lg text-slate-700 dark:text-slate-200 border-b pb-2">Proficiências e Equipamento</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {{ form_row(form.profArmor, {'attr': {'class': 'form-textarea block w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800', 'rows': 3}}) }}
+                {{ form_row(form.profWeapons, {'attr': {'class': 'form-textarea block w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800', 'rows': 3}}) }}
+                {{ form_row(form.profTools, {'attr': {'class': 'form-textarea block w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800', 'rows': 3}}) }}
+                {{ form_row(form.profSkills, {'attr': {'class': 'form-textarea block w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800', 'rows': 3}}) }}
+            </div>
+            
+            {{ form_row(form.equipment, {'attr': {'class': 'form-textarea block w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800', 'rows': 4}}) }}
+        </div>
+
+        <div class="space-y-6 mt-6">
+             <h3 class="font-bold text-lg text-slate-700 dark:text-slate-200 border-b pb-2">Detalhes</h3>
             {{ form_row(form.descriptionMd, {
                 'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700', 'rows': 5}
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700', 'rows': 6}
+            }) }}
+            
+            {{ form_row(form.classTableMd, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700 font-mono text-xs', 'rows': 10}
             }) }}
         </div>
     </div>

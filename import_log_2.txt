@@ -1,4 +1,4 @@
-18:53:01 INFO      [deprecation] User Deprecated: Version detection logic for MySQL will change in DBAL 4. Please specify the version as the server reports it, e.g. "8.0.31" instead of "8". (AbstractMySQLDriver.php:94 called by AbstractDriverMiddleware.php:68, https://github.com/doctrine/dbal/pull/5779, package doctrine/orm)
+18:54:13 INFO      [deprecation] User Deprecated: Version detection logic for MySQL will change in DBAL 4. Please specify the version as the server reports it, e.g. "8.0.31" instead of "8". (AbstractMySQLDriver.php:94 called by AbstractDriverMiddleware.php:68, https://github.com/doctrine/dbal/pull/5779, package doctrine/orm)
 [
   "exception" => ErrorException {
     #message: "User Deprecated: Version detection logic for MySQL will change in DBAL 4. Please specify the version as the server reports it, e.g. "8.0.31" instead of "8". (AbstractMySQLDriver.php:94 called by AbstractDriverMiddleware.php:68, https://github.com/doctrine/dbal/pull/5779, package doctrine/orm)"
@@ -41,25 +41,24 @@
 Starting Import: Open5e (incremental)
 =====================================
 
-18:53:01 ERROR     [app] Error importing species: Warning: foreach() argument must be of type array|object, string given
-18:53:01 ERROR     [app] Error importing species: An exception occurred while executing a query: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'content_hash' cannot be null
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
-18:53:01 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: An exception occurred while executing a query: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'key, name, level_required, description_md, grants_json, rules_source_id) VALUES ' at line 1
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
+18:54:13 ERROR     [app] Error importing species: The EntityManager is closed.
  [ERROR] The EntityManager is closed.              
 

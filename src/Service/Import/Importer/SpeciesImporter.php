@@ -69,6 +69,14 @@ class SpeciesImporter implements ImporterInterface
         }
 
         if (!$species) {
+            // Check if species already exists (crash recovery)
+            $species = $this->speciesRepo->findOneBy([
+                'rulesSource' => $ctx->getRulesSource(),
+                'ruleSlug' => $record->getExternalId()
+            ]);
+        }
+
+        if (!$species) {
             $species = new Species();
             $species->setRulesSource($ctx->getRulesSource());
             $species->setRuleSlug($record->getExternalId());
@@ -106,26 +114,37 @@ class SpeciesImporter implements ImporterInterface
             $this->entityManager->flush();
         }
 
-        // --- Feature Extraction ---
-        if (!empty($payload['traits'])) {
-            foreach ($payload['traits'] as $trait) {
-                // Ensure description is mapped correctly if it comes as 'desc'
-                if (!isset($trait['description']) && isset($trait['desc'])) {
-                    $trait['description'] = $trait['desc'];
-                }
-
-                $this->featureExtractor->extract(
-                    $trait,
-                    $ctx->getRulesSource(),
-                    'species',
-                    $species->getId()
-                );
-            }
-        }
-
+        // Set these immediately to avoid "content_hash cannot be null" if flush happens later
         $ref->setContentHash($hash);
         $ref->setLastImportedAt(new \DateTimeImmutable());
         $ref->setStatus('active');
+
+        // --- Feature Extraction ---
+        if (!empty($payload['traits'])) {
+            $traits = $payload['traits'];
+            if (is_string($traits)) {
+                // If traits is a string, it might be a description or malformed.
+                // We should probably skip iteration or try to parse if json.
+                // For now, treat as single trait with description=string if it looks like text.
+                 $traits = [['name' => 'Traits', 'description' => $traits]];
+            }
+
+            if (is_array($traits)) {
+                foreach ($traits as $trait) {
+                    // Ensure description is mapped correctly if it comes as 'desc'
+                    if (!isset($trait['description']) && isset($trait['desc'])) {
+                        $trait['description'] = $trait['desc'];
+                    }
+
+                    $this->featureExtractor->extract(
+                        $trait,
+                        $ctx->getRulesSource(),
+                        'species',
+                        $species->getId()
+                    );
+                }
+            }
+        }
 
         return $species->getId();
     }
