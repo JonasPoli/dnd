@@ -62,7 +62,36 @@ Lê e importa a lista de bugigangas do arquivo local `docs/bugigangas.md`.
 **Comando:** `app:seed:trinkets`
 **Uso:** `php bin/console app:seed:trinkets`
 
-Uma alternativa ao comando de importação acima, que popula as bugigangas a partir de uma lista hardcoded (fixa no código) em vez de ler do arquivo markdown. Útil para inicialização rápida sem dependência de arquivos externos.
+65: Uma alternativa ao comando de importação acima, que popula as bugigangas a partir de uma lista hardcoded (fixa no código) em vez de ler do arquivo markdown. Útil para inicialização rápida sem dependência de arquivos externos.
+66: 
+67: ### 6. Sistema de Backup
+68: O sistema possui um mecanismo robusto de backup e restauração que suporta tanto MySQL quanto SQLite.
+69: 
+70: #### Fazer Backup
+71: **Comando:** `app:database:backup`
+72: **Uso:** `php bin/console app:database:backup`
+73: 
+74: Exporta todas as tabelas do banco de dados para um arquivo SQL na pasta `sql/backups`. O arquivo é nomeado com a data atual (ex: `backup_2025-12-23.sql`).
+75: 
+76: #### Restaurar Backup
+77: **Comando:** `app:database:restore`
+78: **Uso:** `php bin/console app:database:restore [arquivo]`
+79: 
+80: Restaura o banco de dados a partir de um arquivo de backup.
+81: - O argumento `arquivo` pode ser o nome do arquivo em `sql/backups` ou um caminho absoluto.
+82: - **Segurança:** O comando cria automaticamente um "backup de segurança" (estado atual) antes de iniciar a restauração.
+83: - **Limpeza:** O banco de dados é limpo (drop/recreate no MySQL ou recriação do arquivo no SQLite) antes da importação para garantir integridade.
+84: 
+85: #### Testar Backup
+86: **Comando:** `app:database:test-backup`
+87: **Uso:** `php bin/console app:database:test-backup`
+88: 
+89: Executa um ciclo completo de teste e verificação:
+90: 1. Gera um novo backup.
+91: 2. Identifica o arquivo gerado.
+92: 3. Executa a restauração usando esse arquivo.
+93: Útil para garantir que o sistema de backup está funcionado corretamente (ex: crons, CI/CD).
+94: 
 
 ## 🛠️ Instalação e Configuração
 
