@@ -1,7 +1,22 @@
 {{ form_start(form) }}
     <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                {{ form_row(form.name, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+            <div>
+                {{ form_row(form.ruleSlug, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
+                }) }}
+            </div>
+        </div>
+
         <div>
-            {{ form_row(form.name, {
+            {{ form_row(form.rulesSource, {
                 'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
                 'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
             }) }}

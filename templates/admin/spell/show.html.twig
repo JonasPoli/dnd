@@ -1,0 +1,145 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}{{ spell.name }}{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    {# Header Actions #}
+    <div class="mb-6 flex items-center justify-between">
+        <a href="{{ path('admin_spell_index') }}" class="text-slate-400 hover:text-primary transition-colors flex items-center space-x-2 text-sm font-bold uppercase tracking-widest">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+            <span>Voltar para Lista</span>
+        </a>
+        <div class="flex items-center space-x-3">
+            <a href="{{ path('admin_spell_edit', {'id': spell.id}) }}" class="px-4 py-2 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center space-x-2">
+                {{ ux_icon('lucide:edit-3', {class: 'w-4 h-4'}) }}
+                <span>Editar</span>
+            </a>
+        </div>
+    </div>
+
+    {# Spell Card #}
+    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-4 border-indigo-900 dark:border-indigo-700 shadow-2xl overflow-hidden">
+        {# Header #}
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-6 border-b-4 border-indigo-950">
+            <h1 class="text-4xl font-bold text-indigo-50 mb-2 font-serif">{{ spell.name }}</h1>
+            <p class="text-indigo-200 text-lg italic flex items-center space-x-2">
+                {% if spell.level == 0 %}
+                    <span>Truque de {{ spell.school }}</span>
+                {% else %}
+                    <span>{{ spell.level }}º Nível de {{ spell.school }}</span>
+                {% endif %}
+                
+                {% if spell.isRitual %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-800 text-indigo-100 ml-2 border border-indigo-400">
+                        {{ ux_icon('lucide:book-open', {class: 'w-3 h-3 mr-1'}) }} Ritual
+                    </span>
+                {% endif %}
+                
+                {% if spell.isConcentration %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-800 text-purple-100 ml-2 border border-purple-400">
+                        {{ ux_icon('lucide:brain-circuit', {class: 'w-3 h-3 mr-1'}) }} Concentração
+                    </span>
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="px-8 py-6 space-y-6">
+            {# Casting Info Bar #}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-6 border-b-2 border-indigo-900/30 dark:border-indigo-700/30">
+                <div class="text-center p-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                    <div class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-1">Tempo</div>
+                    <div class="font-bold text-indigo-950 dark:text-indigo-100 text-sm md:text-base">{{ spell.castingTime }}</div>
+                </div>
+                <div class="text-center p-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                    <div class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-1">Alcance</div>
+                    <div class="font-bold text-indigo-950 dark:text-indigo-100 text-sm md:text-base">{{ spell.spellRange }}</div>
+                </div>
+                <div class="text-center p-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                    <div class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-1">Componentes</div>
+                    <div class="font-bold text-indigo-950 dark:text-indigo-100 text-sm md:text-base cursor-help" title="{{ spell.materials|default('') }}">
+                        {{ spell.components }}
+                        {% if spell.material %}
+                        <span class="text-xs text-indigo-700 dark:text-indigo-400 block truncate max-w-full hidden md:block" title="{{ spell.material }}">({{ spell.material }})</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="text-center p-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                    <div class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-1">Duração</div>
+                    <div class="font-bold text-indigo-950 dark:text-indigo-100 text-sm md:text-base">{{ spell.duration }}</div>
+                </div>
+            </div>
+
+            {# Material Component Full Text #}
+            {% if spell.material %}
+             <div class="text-sm text-indigo-900 dark:text-indigo-300 italic bg-white/30 dark:bg-slate-800/30 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800/50 md:hidden">
+                <span class="font-bold">Material:</span> {{ spell.material }}
+             </div>
+            {% endif %}
+
+            {# Description #}
+            {% if spell.descriptionMd %}
+            <div class="prose prose-indigo dark:prose-invert max-w-none bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-indigo-900/10 dark:border-indigo-700/10 shadow-sm">
+                <div class="text-indigo-950 dark:text-indigo-100 leading-relaxed">
+                    {{ spell.descriptionMd|markdown_to_html|raw }}
+                </div>
+            </div>
+            {% endif %}
+
+            {# Higher Levels #}
+            {% if spell.higherLevelsMd %}
+            <div class="mt-4">
+                <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-300 mb-2 flex items-center space-x-2">
+                    {{ ux_icon('lucide:chevrons-up', {class: 'w-5 h-5'}) }}
+                    <span>Em Níveis Superiores</span>
+                </h3>
+                <div class="prose prose-indigo dark:prose-invert max-w-none bg-indigo-50/50 dark:bg-slate-800/30 rounded-xl p-4 border border-indigo-200 dark:border-indigo-800 text-sm">
+                    <div class="text-indigo-950 dark:text-indigo-100">
+                        {{ spell.higherLevelsMd|markdown_to_html|raw }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t-2 border-indigo-900/30 dark:border-indigo-700/30">
+                {# Classes #}
+                <div>
+                     <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-2">Classes</h3>
+                     <div class="flex flex-wrap gap-2">
+                        {% for class in spell.classes %}
+                            <a href="{{ path('admin_class_show', {id: class.id}) }}" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-200 rounded-lg text-sm font-semibold hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors">
+                                {{ class.name }}
+                            </a>
+                        {% else %}
+                            <span class="text-slate-400 italic text-sm">Nenhuma classe vinculada</span>
+                        {% endfor %}
+                     </div>
+                </div>
+
+                {# Archetypes #}
+                {% if spell.archetype %}
+                <div>
+                     <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-2">Arquétipos</h3>
+                     <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 rounded-lg text-sm font-semibold">
+                            {{ spell.archetype }}
+                        </span>
+                     </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Footer #}
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-4 border-t-4 border-indigo-950">
+            <div class="flex items-center justify-between text-indigo-200 text-sm">
+                <span>Fonte: {{ spell.rulesSource.name }}</span>
+                <span class="font-mono">
+                    {% if spell.page %}p. {{ spell.page }} | {% endif %}
+                    {{ spell.ruleSlug }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

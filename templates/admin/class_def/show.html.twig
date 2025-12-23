@@ -57,7 +57,73 @@
                 {% endif %}
             </div>
 
-            {# Description #}
+            {# Additional Stats #}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b-2 border-indigo-900/30 dark:border-indigo-700/30">
+                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/20 dark:border-indigo-700/20 space-y-3">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 border-b border-indigo-200 dark:border-indigo-700 pb-2 mb-3">Pontos de Vida</h3>
+                    <div class="grid grid-cols-[1fr,2fr] gap-4 text-sm">
+                        <span class="font-bold text-slate-600 dark:text-slate-400">Nível 1:</span>
+                        <span class="text-slate-900 dark:text-slate-100 font-mono">{{ class_def.hpAt1stLevel }}</span>
+                        
+                        <span class="font-bold text-slate-600 dark:text-slate-400">Níveis Superiores:</span>
+                        <span class="text-slate-900 dark:text-slate-100 font-mono">{{ class_def.hpAtHigherLevels }}</span>
+                    </div>
+                </div>
+
+                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/20 dark:border-indigo-700/20 space-y-3">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 border-b border-indigo-200 dark:border-indigo-700 pb-2 mb-3">Proficiências</h3>
+                    <div class="space-y-2 text-sm">
+                        {% if class_def.profArmor %}
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-600 dark:text-slate-400 text-xs uppercase">Armaduras</span>
+                            <span class="text-slate-900 dark:text-slate-100">{{ class_def.profArmor }}</span>
+                        </div>
+                        {% endif %}
+                        {% if class_def.profWeapons %}
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-600 dark:text-slate-400 text-xs uppercase">Armas</span>
+                            <span class="text-slate-900 dark:text-slate-100">{{ class_def.profWeapons }}</span>
+                        </div>
+                        {% endif %}
+                        {% if class_def.profTools %}
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-600 dark:text-slate-400 text-xs uppercase">Ferramentas</span>
+                            <span class="text-slate-900 dark:text-slate-100">{{ class_def.profTools }}</span>
+                        </div>
+                        {% endif %}
+                        {% if class_def.profSkills %}
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-600 dark:text-slate-400 text-xs uppercase">Perícias</span>
+                            <span class="text-slate-900 dark:text-slate-100">{{ class_def.profSkills }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if class_def.equipment %}
+            <div class="pb-6 border-b-2 border-indigo-900/30 dark:border-indigo-700/30">
+                <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-300 mb-3 flex items-center space-x-2">
+                    {{ ux_icon('lucide:backpack', {class: 'w-5 h-5'}) }}
+                    <span>Equipamento Inicial</span>
+                </h3>
+                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/20 dark:border-indigo-700/20 text-slate-900 dark:text-slate-100 markdown-content">
+                    {{ class_def.equipment|markdown_to_html|raw }}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if class_def.classTableMd %}
+            <div class="pb-6 border-b-2 border-indigo-900/30 dark:border-indigo-700/30">
+                 <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-300 mb-3 flex items-center space-x-2">
+                    {{ ux_icon('lucide:table', {class: 'w-5 h-5'}) }}
+                    <span>Tabela da Classe</span>
+                </h3>
+                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/20 dark:border-indigo-700/20 overflow-x-auto text-sm markdown-table">
+                    {{ class_def.classTableMd|markdown_to_html|raw }}
+                </div>
+            </div>
+            {% endif %}
             {% if class_def.descriptionMd %}
             <div>
                 <h3 class="text-2xl font-bold text-indigo-900 dark:text-indigo-300 mb-4 flex items-center space-x-2">

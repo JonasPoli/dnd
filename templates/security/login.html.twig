@@ -16,20 +16,21 @@
         <div>
             <label for="inputEmail" class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">E-mail</label>
             <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 z-10">
                     {{ ux_icon('lucide:mail', {class: 'w-5 h-5'}) }}
                 </div>
-                <input type="email" value="{{ last_username }}" name="_username" id="inputEmail" class="block w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none" autocomplete="email" required autofocus placeholder="exemplo@email.com">
+                <!-- Added relative and z-20 to ensure input is above everything else if needed, though pointer-events-none on icon handles it. -->
+                <input type="email" value="{{ last_username }}" name="_username" id="inputEmail" class="relative z-20 block w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none" autocomplete="email" required placeholder="exemplo@email.com">
             </div>
         </div>
 
         <div>
             <label for="inputPassword" class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Senha</label>
             <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 z-10">
                     {{ ux_icon('lucide:lock', {class: 'w-5 h-5'}) }}
                 </div>
-                <input type="password" name="_password" id="inputPassword" class="block w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none" autocomplete="current-password" required placeholder="••••••••">
+                <input type="password" name="_password" id="inputPassword" class="relative z-20 block w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none" autocomplete="current-password" required placeholder="••••••••">
             </div>
         </div>
 

@@ -64,6 +64,8 @@ class MonsterType extends AbstractType
             ->add('environments', TextareaType::class, ['required' => false, 'label' => 'Environments (JSON)'])
             ->add('imgMain', TextType::class, ['required' => false])
             ->add('pageNo', IntegerType::class, ['required' => false])
+            ->add('spellList', TextareaType::class, ['required' => false, 'label' => 'Spell List (JSON)'])
+            ->add('srcJson', TextareaType::class, ['required' => false, 'label' => 'Sources (JSON)'])
             ->add('rulesSource', EntityType::class, [
                 'class' => RulesSource::class,
                 'choice_label' => 'name',
@@ -93,6 +95,8 @@ class MonsterType extends AbstractType
         $builder->get('reactionsJson')->addModelTransformer($jsonTransformer);
         $builder->get('legendaryActionsJson')->addModelTransformer($jsonTransformer);
         $builder->get('environments')->addModelTransformer($jsonTransformer);
+        $builder->get('spellList')->addModelTransformer($jsonTransformer);
+        $builder->get('srcJson')->addModelTransformer($jsonTransformer);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
