@@ -6,6 +6,7 @@ use App\Entity\ClassDef;
 use App\Entity\RulesSource;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -19,7 +20,7 @@ class ClassDefType extends AbstractType
         $builder
             ->add('ruleSlug', TextType::class, ['label' => 'Slug', 'attr' => ['class' => 'form-input']])
             ->add('name', TextType::class, ['label' => 'Nome', 'attr' => ['class' => 'form-input']])
-            ->add('hitDie', null, ['label' => 'Dado de Vida (Ex: 8)', 'attr' => ['class' => 'form-input']])
+            ->add('hitDie', IntegerType::class, ['label' => 'Dado de Vida (Ex: 8)', 'attr' => ['class' => 'form-input']])
             ->add('subtypesName', TextType::class, ['label' => 'Nome da Subclasse (Ex: Arquétipo Marcial)', 'required' => false, 'attr' => ['class' => 'form-input']])
             ->add('spellcastingAbility', TextType::class, ['label' => 'Habilidade de Conjuração', 'required' => false, 'attr' => ['class' => 'form-input']])
             ->add('hpAt1stLevel', TextType::class, ['label' => 'PV no Nível 1', 'required' => false, 'attr' => ['class' => 'form-input']])
@@ -36,8 +37,10 @@ class ClassDefType extends AbstractType
             
             ->add('descriptionMd', TextareaType::class, ['label' => 'Descrição (MD)', 'required' => false, 'attr' => ['rows' => 6]])
             ->add('classTableMd', TextareaType::class, ['label' => 'Tabela da Classe (MD)', 'required' => false, 'attr' => ['rows' => 6]])
+            ->add('characterCreationHelp', TextareaType::class, ['label' => 'Ajuda ao Criar Personagem (MD)', 'required' => false, 'attr' => ['rows' => 6]])
             
-            ->add('rulesSource', null, [
+            ->add('rulesSource', EntityType::class, [
+                'class' => RulesSource::class,
                 'choice_label' => 'name',
                 'label' => 'Fonte de Regras',
             ])
@@ -62,6 +65,7 @@ class ClassDefType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ClassDef::class,
+            'csrf_protection' => false, // FIXME: Persisting CSRF error with Turbo on HTTPS. Disabled to unblock.
         ]);
     }
 }

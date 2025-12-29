@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251222185444 extends AbstractMigration
+final class Version20251228233532 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,12 +20,12 @@ final class Version20251222185444 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE feature CHANGE `key` feature_key VARCHAR(100) NOT NULL');
+        $this->addSql('ALTER TABLE magic_item ADD name_pt VARCHAR(255) DEFAULT NULL, ADD description_md_pt LONGTEXT DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE feature CHANGE feature_key `key` VARCHAR(100) NOT NULL');
+        $this->addSql('ALTER TABLE magic_item DROP name_pt, DROP description_md_pt');
     }
 }

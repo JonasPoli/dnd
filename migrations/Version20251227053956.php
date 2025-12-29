@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251221045609 extends AbstractMigration
+final class Version20251227053956 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,12 +20,12 @@ final class Version20251221045609 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE language ADD type VARCHAR(20) DEFAULT NULL, ADD typical_speakers VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE class_def ADD character_creation_help LONGTEXT DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE language DROP type, DROP typical_speakers');
+        $this->addSql('ALTER TABLE class_def DROP character_creation_help');
     }
 }

@@ -69,6 +69,9 @@ class ClassDef
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $classTableMd = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $characterCreationHelp = null;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $spellcastingAbility = null;
 
@@ -404,6 +407,18 @@ class ClassDef
     public function setSubtypesName(?string $subtypesName): static
     {
         $this->subtypesName = $subtypesName;
+
+        return $this;
+    }
+
+    public function getCharacterCreationHelp(): ?string
+    {
+        return $this->characterCreationHelp;
+    }
+
+    public function setCharacterCreationHelp(?string $characterCreationHelp): static
+    {
+        $this->characterCreationHelp = $characterCreationHelp;
 
         return $this;
     }

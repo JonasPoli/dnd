@@ -7,7 +7,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FeatRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_SOURCE_FEAT', fields: ['rulesSource', 'ruleSlug'])]
 class Feat
 {
     #[ORM\Id]
@@ -18,15 +17,11 @@ class Feat
     #[ORM\Column(options: ['default' => true])]
     private ?bool $isActive = true;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?RulesSource $rulesSource = null;
-
-    #[ORM\Column(length: 100)]
-    private ?string $ruleSlug = null;
-
     #[ORM\Column(length: 255)]
     private ?string $name = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $type = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $prerequisite = null;
@@ -50,27 +45,7 @@ class Feat
         return $this;
     }
 
-    public function getRulesSource(): ?RulesSource
-    {
-        return $this->rulesSource;
-    }
 
-    public function setRulesSource(?RulesSource $rulesSource): static
-    {
-        $this->rulesSource = $rulesSource;
-        return $this;
-    }
-
-    public function getRuleSlug(): ?string
-    {
-        return $this->ruleSlug;
-    }
-
-    public function setRuleSlug(string $ruleSlug): static
-    {
-        $this->ruleSlug = $ruleSlug;
-        return $this;
-    }
 
     public function getName(): ?string
     {
@@ -80,6 +55,17 @@ class Feat
     public function setName(string $name): static
     {
         $this->name = $name;
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
         return $this;
     }
 

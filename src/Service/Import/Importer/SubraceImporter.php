@@ -64,8 +64,6 @@ class SubraceImporter implements ImporterInterface
 
         if (!$subrace) {
             $subrace = new Subrace();
-            $subrace->setRulesSource($ctx->getRulesSource());
-            $subrace->setRuleSlug($record->getExternalId());
             $this->entityManager->persist($subrace);
             $ctx->addStats($this->getEntityType(), 'inserted');
         }
@@ -73,9 +71,6 @@ class SubraceImporter implements ImporterInterface
         $payload = $record->getPayload();
         $subrace->setName($payload['name']);
         $subrace->setDescriptionMd($payload['description']);
-        $subrace->setAsiDescription($payload['asiDescription']);
-        $subrace->setAsi($payload['asi']);
-        $subrace->setTraits($payload['traits']);
 
         // Resolve Species
         $species = $this->speciesRepo->findOneBy(['ruleSlug' => $payload['speciesSlug'], 'rulesSource' => $ctx->getRulesSource()]);

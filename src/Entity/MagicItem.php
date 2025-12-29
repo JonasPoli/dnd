@@ -132,4 +132,32 @@ class MagicItem
         $this->descriptionMd = $descriptionMd;
         return $this;
     }
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $namePt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionMdPt = null;
+
+    public function getNamePt(): ?string
+    {
+        return $this->namePt;
+    }
+
+    public function setNamePt(?string $namePt): static
+    {
+        $this->namePt = $namePt;
+        return $this;
+    }
+
+    public function getDescriptionMdPt(): ?string
+    {
+        return $this->descriptionMdPt;
+    }
+
+    public function setDescriptionMdPt(?string $descriptionMdPt): static
+    {
+        $this->descriptionMdPt = $descriptionMdPt;
+        return $this;
+    }
 }

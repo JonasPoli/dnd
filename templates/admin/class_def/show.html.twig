@@ -107,8 +107,7 @@
                     {{ ux_icon('lucide:backpack', {class: 'w-5 h-5'}) }}
                     <span>Equipamento Inicial</span>
                 </h3>
-                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/20 dark:border-indigo-700/20 text-slate-900 dark:text-slate-100 markdown-content">
-                    {{ class_def.equipment|markdown_to_html|raw }}
+                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/20 dark:border-indigo-700/20 text-slate-900 dark:text-slate-100 prose prose-indigo dark:prose-invert max-w-none js-markdown-content markdown-formatted" data-content="{{ class_def.equipment|e('html_attr') }}">
                 </div>
             </div>
             {% endif %}
@@ -119,11 +118,24 @@
                     {{ ux_icon('lucide:table', {class: 'w-5 h-5'}) }}
                     <span>Tabela da Classe</span>
                 </h3>
-                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/20 dark:border-indigo-700/20 overflow-x-auto text-sm markdown-table">
-                    {{ class_def.classTableMd|markdown_to_html|raw }}
+                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/20 dark:border-indigo-700/20 overflow-x-auto text-sm prose prose-indigo dark:prose-invert max-w-none js-markdown-content markdown-formatted" data-content="{{ class_def.classTableMd|e('html_attr') }}">
                 </div>
             </div>
             {% endif %}
+
+            {% if class_def.characterCreationHelp %}
+            <div class="pb-6 border-b-2 border-indigo-900/30 dark:border-indigo-700/30">
+                <h3 class="text-2xl font-bold text-indigo-900 dark:text-indigo-300 mb-4 flex items-center space-x-2">
+                    {{ ux_icon('lucide:help-circle', {class: 'w-6 h-6'}) }}
+                    <span>Ajuda na Criação</span>
+                </h3>
+                <div class="prose prose-indigo dark:prose-invert max-w-none bg-white/30 dark:bg-slate-800/30 rounded-2xl p-6 border border-indigo-900/20 dark:border-indigo-700/20">
+                    <div class="text-indigo-950 dark:text-indigo-100 leading-relaxed js-markdown-content markdown-formatted" data-content="{{ class_def.characterCreationHelp|e('html_attr') }}">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             {% if class_def.descriptionMd %}
             <div>
                 <h3 class="text-2xl font-bold text-indigo-900 dark:text-indigo-300 mb-4 flex items-center space-x-2">
@@ -131,8 +143,7 @@
                     <span>Descrição da Classe</span>
                 </h3>
                 <div class="prose prose-indigo dark:prose-invert max-w-none bg-white/30 dark:bg-slate-800/30 rounded-2xl p-6 border border-indigo-900/20 dark:border-indigo-700/20">
-                    <div class="text-indigo-950 dark:text-indigo-100 leading-relaxed">
-                        {{ class_def.descriptionMd|markdown_to_html|raw }}
+                    <div class="text-indigo-950 dark:text-indigo-100 leading-relaxed js-markdown-content markdown-formatted" data-content="{{ class_def.descriptionMd|e('html_attr') }}">
                     </div>
                 </div>
             </div>
@@ -148,4 +159,22 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    function renderMarkdown() {
+        document.querySelectorAll('.js-markdown-content').forEach(el => {
+            if (el.dataset.content && !el.dataset.rendered) {
+                el.innerHTML = marked.parse(el.dataset.content);
+                el.dataset.rendered = 'true';
+            }
+        });
+    }
+    
+    // Initial load
+    renderMarkdown();
+    
+    // Turbo navigation
+    document.addEventListener('turbo:load', renderMarkdown);
+</script>
 {% endblock %}

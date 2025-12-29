@@ -17,11 +17,17 @@ class MagicItemType extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('namePt', null, ['label' => 'Nome (PT)'])
             ->add('ruleSlug')
             ->add('type')
             ->add('rarity')
             ->add('requiresAttunement')
             ->add('descriptionMd', TextareaType::class, [
+                'required' => false,
+                'attr' => ['rows' => 10]
+            ])
+            ->add('descriptionMdPt', TextareaType::class, [
+                'label' => 'Descrição (PT)',
                 'required' => false,
                 'attr' => ['rows' => 10]
             ])

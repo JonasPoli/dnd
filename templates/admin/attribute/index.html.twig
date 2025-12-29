@@ -1,16 +1,16 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block header_title %}Antecedentes{% endblock %}
+{% block header_title %}Atributos{% endblock %}
 
 {% block body %}
 <div class="mb-8 flex items-center justify-between">
     <div>
-        <h1 class="text-2xl font-bold dark:text-white">Antecedentes (Backgrounds)</h1>
-        <p class="text-slate-500 text-sm">Gerencie a origem e história pregressa dos personagens.</p>
+        <h1 class="text-2xl font-bold dark:text-white">Atributos</h1>
+        <p class="text-slate-500 text-sm">{{ attributes|length }} atributos disponíveis.</p>
     </div>
-    <a href="{{ path('admin_background_new') }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center space-x-2">
+    <a href="{{ path('admin_attribute_new') }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center space-x-2">
         {{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
-        <span>Novo Antecedente</span>
+        <span>Novo Atributo</span>
     </a>
 </div>
 
@@ -24,24 +24,23 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-border">
-                {% for background in backgrounds %}
+                {% for attribute in attributes %}
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-8 py-5">
-                            <div class="font-bold text-slate-900 dark:text-white">{{ background.name }}</div>
+                            <div class="font-bold text-slate-900 dark:text-white">{{ attribute.name }}</div>
                         </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex items-center justify-end space-x-3">
-                                <a href="{{ path('admin_background_edit', {'id': background.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors">
+                                <a href="{{ path('admin_attribute_edit', {'id': attribute.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors">
                                     {{ ux_icon('lucide:edit-3', {class: 'w-5 h-5'}) }}
                                 </a>
-                                {{ include('admin/background/_delete_form.html.twig') }}
                             </div>
                         </td>
                     </tr>
                 {% else %}
                     <tr>
                         <td colspan="2" class="px-8 py-12 text-center text-slate-400">
-                            Nenhum antecedente encontrado.
+                            Nenhum atributo encontrado.
                         </td>
                     </tr>
                 {% endfor %}

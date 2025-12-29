@@ -2,26 +2,24 @@
 
 namespace App\Form;
 
-use App\Entity\Feat;
+use App\Entity\Attribute;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class FeatType extends AbstractType
+class AttributeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name')
-            ->add('type')
-            ->add('prerequisite', TextareaType::class, [
-                'required' => false,
-                'attr' => ['rows' => 2]
+            ->add('name', null, [
+                'label' => 'Nome',
+                'attr' => ['class' => 'form-input']
             ])
-            ->add('descriptionMd', TextareaType::class, [
+            ->add('description', null, [
+                'label' => 'Descrição',
                 'required' => false,
-                'attr' => ['rows' => 8]
+                'attr' => ['class' => 'form-textarea', 'rows' => 4]
             ])
         ;
     }
@@ -29,7 +27,7 @@ class FeatType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Feat::class,
+            'data_class' => Attribute::class,
         ]);
     }
 }

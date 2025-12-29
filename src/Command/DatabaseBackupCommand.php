@@ -33,7 +33,7 @@ class DatabaseBackupCommand extends Command
             mkdir($backupDir, 0755, true);
         }
 
-        $filename = 'backup_' . date('Y-m-d') . '.sql';
+        $filename = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
         $backupFile = $backupDir . '/' . $filename;
 
         if (str_starts_with($this->databaseUrl, 'sqlite://')) {

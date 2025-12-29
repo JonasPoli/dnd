@@ -58,8 +58,6 @@ class BackgroundImporter implements ImporterInterface
 
         if (!$background) {
             $background = new Background();
-            $background->setRulesSource($ctx->getRulesSource());
-            $background->setRuleSlug($record->getExternalId());
 
             $this->entityManager->persist($background);
             $ctx->addStats($this->getEntityType(), 'inserted');

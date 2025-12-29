@@ -45,7 +45,7 @@
                                 <a href="{{ path('admin_class_show', {'id': class_def.id}) }}" class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors" title="Visualizar">
                                     {{ ux_icon('lucide:eye', {class: 'w-5 h-5'}) }}
                                 </a>
-                                <a href="{{ path('admin_class_edit', {'id': class_def.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors">
+                                <a href="{{ path('admin_class_edit', {'id': class_def.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors" data-turbo="false">
                                     {{ ux_icon('lucide:edit-3', {class: 'w-5 h-5'}) }}
                                 </a>
                                 {{ include('admin/class_def/_delete_form.html.twig') }}

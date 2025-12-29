@@ -75,6 +75,9 @@
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-8 py-5">
                             <div class="font-bold text-slate-900 dark:text-white">{{ item.name }}</div>
+                            {% if item.namePt %}
+                                <div class="text-xs text-indigo-600 dark:text-indigo-400 font-medium mb-1">{{ item.namePt }}</div>
+                            {% endif %}
                             <div class="text-xs text-slate-400">{{ item.type }}</div>
                         </td>
                         <td class="px-8 py-5">
