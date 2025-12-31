@@ -13,7 +13,19 @@
                 }) }}
             </div>
             <div>
+                {{ form_row(form.namePt, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+            <div>
                 {{ form_row(form.ruleSlug, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+            <div>
+                {{ form_row(form.rulesSource, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
@@ -25,7 +37,19 @@
                 }) }}
             </div>
             <div>
+                {{ form_row(form.typePt, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+            <div>
                 {{ form_row(form.subtype, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+            <div>
+                {{ form_row(form.subtypePt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
@@ -37,7 +61,19 @@
                 }) }}
             </div>
             <div>
+                {{ form_row(form.groupPt, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+            <div>
                 {{ form_row(form.size, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+            <div>
+                {{ form_row(form.sizePt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
@@ -49,10 +85,48 @@
                 }) }}
             </div>
             <div>
-                {{ form_row(form.rulesSource, {
+                {{ form_row(form.alignmentPt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
+            </div>
+        </div>
+    </div>
+    
+    {# Image Management #}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-900 dark:text-white">
+            {{ ux_icon('lucide:image', {class: 'w-5 h-5 text-pink-500'}) }}
+            <span>Imagem</span>
+        </h3>
+        
+        <div class="flex flex-col md:flex-row gap-6 items-start">
+            {% if form.vars.value.imgMain %}
+                <div class="w-full md:w-48 flex-shrink-0">
+                    <div class="relative group">
+                        <img src="/{{ form.vars.value.imgMain }}" alt="Monster Image" class="w-full h-48 object-cover rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center text-white text-xs font-bold text-center p-2">
+                            {{ form.vars.value.imgMain }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="flex-grow space-y-4 w-full">
+                {{ form_row(form.imgMain, {
+                    'label': 'Caminho da Imagem',
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm font-mono'}
+                }) }}
+                
+                {% if form.removeImage is defined %}
+                    <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/50">
+                        {{ form_row(form.removeImage, {
+                            'label_attr': {'class': 'text-sm font-bold text-red-700 dark:text-red-400 ml-2'},
+                            'attr': {'class': 'w-4 h-4 text-red-600 rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:ring-red-500'}
+                        }) }}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -81,8 +155,14 @@
                 }) }}
             </div>
             <div>
-                <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Armor Desc</label>
+                 <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Armor Desc</label>
                 {{ form_widget(form.armorDesc, {
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+            </div>
+             <div>
+                 <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Armor Desc (PT)</label>
+                {{ form_widget(form.armorDescPt, {
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
@@ -144,10 +224,16 @@
             {{ ux_icon('lucide:file-text', {class: 'w-5 h-5 text-blue-500'}) }}
             <span>Descrição</span>
         </h3>
-        {{ form_row(form.descriptionMd, {
-            'label': false,
-            'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-sm', 'rows': 8, 'placeholder': 'Descrição do monstro em Markdown...'}
-        }) }}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+             {{ form_row(form.descriptionMd, {
+                'label': false,
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-sm', 'rows': 8, 'placeholder': 'Descrição do monstro em Markdown...'}
+            }) }}
+             {{ form_row(form.descriptionMdPt, {
+                'label': false,
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-sm', 'rows': 8, 'placeholder': 'Descrição Traduzida (PT) em Markdown...'}
+            }) }}
+        </div>
     </div>
 
     {# Action Buttons #}
@@ -225,7 +311,7 @@
                 {{ form_row(form.speedJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 4}}) }}
                 {{ form_row(form.skillsJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 4}}) }}
             </div>
-            
+            >>
             {{ form_row(form.specialAbilitiesJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 6}}) }}
             {{ form_row(form.actionsJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 6}}) }}
             
@@ -239,6 +325,7 @@
             
             {{ form_row(form.spellList, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 6}}) }}
             {{ form_row(form.srcJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
+            {{ form_row(form.srcJsonPt, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
 
             {{ form_row(form.environments, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
         </div>

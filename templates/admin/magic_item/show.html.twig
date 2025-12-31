@@ -1,0 +1,118 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}{{ magic_item.namePt|default(magic_item.name) }}{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    {# Header Actions #}
+    <div class="mb-6 flex items-center justify-between">
+        <a href="{{ path('admin_magic_item_index') }}" class="text-slate-400 hover:text-primary transition-colors flex items-center space-x-2 text-sm font-bold uppercase tracking-widest">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+            <span>Voltar para Lista</span>
+        </a>
+        <div class="flex items-center space-x-3">
+            <a href="{{ path('admin_magic_item_edit', {'id': magic_item.id}) }}" class="px-4 py-2 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center space-x-2">
+                {{ ux_icon('lucide:edit-3', {class: 'w-4 h-4'}) }}
+                <span>Editar</span>
+            </a>
+        </div>
+    </div>
+
+    {# Magic Item Sheet #}
+    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-4 border-indigo-900 dark:border-indigo-700 shadow-2xl overflow-hidden">
+        {# Header #}
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-6 border-b-4 border-indigo-950">
+            <h1 class="text-4xl font-bold text-indigo-50 mb-2 font-serif">{{ magic_item.namePt|default(magic_item.name) }}</h1>
+            <p class="text-indigo-200 text-lg italic">
+                {{ magic_item.rarityPt|default(magic_item.rarity) }} 
+                {% if magic_item.typePt or magic_item.type %}
+                    ({{ magic_item.typePt|default(magic_item.type) }})
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="px-8 py-6 space-y-6">
+            {# Original Name if translated #}
+            {% if magic_item.namePt and magic_item.name != magic_item.namePt %}
+            <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-4 border-2 border-indigo-900/10 dark:border-indigo-700/10">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 block mb-1">Nome Original</span>
+                <span class="text-lg font-bold text-slate-700 dark:text-slate-300">{{ magic_item.name }}</span>
+            </div>
+            {% endif %}
+
+            {# Stats Grid #}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% if magic_item.requiresAttunementPt or magic_item.requiresAttunement %}
+                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/10 dark:border-indigo-700/10">
+                    <div class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-2">Sintonização</div>
+                    <div class="text-lg font-bold text-indigo-950 dark:text-indigo-100 leading-snug">
+                        {{ magic_item.requiresAttunementPt|default(magic_item.requiresAttunement) }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border-2 border-indigo-900/10 dark:border-indigo-700/10">
+                    <div class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-2">Fonte</div>
+                    <div class="text-lg font-bold text-indigo-950 dark:text-indigo-100">
+                        {{ magic_item.rulesSource.name }}
+                    </div>
+                </div>
+            </div>
+
+            {# Description PT #}
+            {% if magic_item.descriptionMdPt %}
+            <div class="pb-6 border-b-2 border-indigo-900/30 dark:border-indigo-700/30">
+                <h3 class="text-2xl font-bold text-indigo-900 dark:text-indigo-300 mb-4 flex items-center space-x-2">
+                    {{ ux_icon('lucide:book-open', {class: 'w-6 h-6'}) }}
+                    <span>Descrição</span>
+                </h3>
+                <div class="prose prose-indigo dark:prose-invert max-w-none bg-white/30 dark:bg-slate-800/30 rounded-2xl p-6 border border-indigo-900/20 dark:border-indigo-700/20">
+                    <div class="text-indigo-950 dark:text-indigo-100 leading-relaxed js-markdown-content markdown-formatted" data-content="{{ magic_item.descriptionMdPt|e('html_attr') }}">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {# Description EN (if differs or PT missing) #}
+            {% if magic_item.descriptionMd and (not magic_item.descriptionMdPt or magic_item.descriptionMd != magic_item.descriptionMdPt) %}
+            <div>
+                 <h3 class="text-xl font-bold text-slate-500 dark:text-slate-400 mb-4 flex items-center space-x-2 mt-8">
+                    {{ ux_icon('lucide:languages', {class: 'w-5 h-5'}) }}
+                    <span>Descrição original (Inglês)</span>
+                </h3>
+                <div class="prose prose-slate dark:prose-invert max-w-none bg-slate-100/50 dark:bg-slate-800/30 rounded-2xl p-6 border border-slate-300/30 dark:border-slate-700/30 opacity-80">
+                    <div class="text-slate-800 dark:text-slate-200 leading-relaxed js-markdown-content markdown-formatted" data-content="{{ magic_item.descriptionMd|e('html_attr') }}">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {# Footer #}
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-4 border-t-4 border-indigo-950">
+            <div class="flex items-center justify-between text-indigo-200 text-sm">
+                <span class="font-mono">ID: {{ magic_item.id }}</span>
+                <span class="font-mono">{{ magic_item.ruleSlug }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    function renderMarkdown() {
+        document.querySelectorAll('.js-markdown-content').forEach(el => {
+            if (el.dataset.content && !el.dataset.rendered) {
+                el.innerHTML = marked.parse(el.dataset.content);
+                el.dataset.rendered = 'true';
+            }
+        });
+    }
+    
+    // Initial load
+    renderMarkdown();
+    
+    // Turbo navigation
+    document.addEventListener('turbo:load', renderMarkdown);
+</script>
+{% endblock %}

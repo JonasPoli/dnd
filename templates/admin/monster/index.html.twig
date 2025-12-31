@@ -8,11 +8,20 @@
         <h1 class="text-2xl font-bold dark:text-white">Bestiário</h1>
         <p class="text-slate-500 text-sm">{{ total_items }} criaturas catalogadas.</p>
     </div>
-    <a href="{{ path('admin_monster_new') }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center space-x-2">
-        {{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
-        <span>Novo Monstro</span>
-    </a>
+    <div class="flex items-center space-x-3">
+        <button onclick="document.getElementById('fieldGuideModal').showModal()" class="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary border border-slate-200 dark:border-slate-700 px-4 py-3 rounded-2xl font-bold hover:shadow-lg transition-all flex items-center space-x-2" title="Guia de Campos">
+            {{ ux_icon('lucide:help-circle', {class: 'w-5 h-5'}) }}
+            <span class="hidden sm:inline">Guia</span>
+        </button>
+
+        <a href="{{ path('admin_monster_new') }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center space-x-2">
+            {{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
+            <span>Novo Monstro</span>
+        </a>
+    </div>
 </div>
+
+{{ include('admin/monster/_field_guide.html.twig') }}
 
 {# Compact Filters Panel #}
 <div class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-border p-4 shadow-sm">
@@ -117,8 +126,19 @@
                 {% for monster in monsters %}
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-8 py-5">
-                            <div class="font-bold text-slate-900 dark:text-white">{{ monster.name }}</div>
-                            <div class="text-xs text-slate-400">{{ monster.type }}</div>
+                            <div class="flex items-center space-x-4">
+                                {% if monster.imgMain %}
+                                    <img src="/{{ monster.imgMain }}" alt="{{ monster.name }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm">
+                                {% else %}
+                                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400">
+                                        {{ ux_icon('lucide:image', {class: 'w-6 h-6 opacity-30'}) }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="font-bold text-slate-900 dark:text-white">{{ monster.namePt|default(monster.name) }}</div>
+                                    <div class="text-xs text-slate-400">{{ monster.typePt|default(monster.type) }}</div>
+                                </div>
+                            </div>
                         </td>
                         <td class="px-8 py-5">
                             <span class="px-3 py-1 bg-primary/10 text-primary rounded-full font-bold text-sm">{{ monster.challengeRating }}</span>

@@ -78,13 +78,7 @@
             </div>
         </div>
         
-        <div class="mt-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
-             <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Propriedades Especiais</label>
-             <div class="flex flex-wrap gap-6">
-                {{ form_widget(form.isRitual) }}
-                {{ form_widget(form.isConcentration) }}
-             </div>
-        </div>
+
     </div>
 
     {# Components #}
@@ -94,10 +88,46 @@
             <span>Componentes</span>
         </h3>
         
-        <div class="flex flex-wrap gap-6 mb-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
-            {{ form_widget(form.isVerbal) }}
-            {{ form_widget(form.isSomatic) }}
-            {{ form_widget(form.isMaterial) }}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {# Component Switches #}
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Tipos de Componentes</label>
+                <div class="flex flex-col space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">V - Verbal</span>
+                        {{ form_widget(form.isVerbal) }}
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">S - Somático</span>
+                        {{ form_widget(form.isSomatic) }}
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">M - Material</span>
+                        {{ form_widget(form.isMaterial) }}
+                    </div>
+                </div>
+            </div>
+
+            {# Special Properties Switches #}
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 ml-1">Propriedades Especiais</label>
+                <div class="flex flex-col space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="block text-sm font-medium text-slate-700 dark:text-slate-300">Ritual</span>
+                            <span class="text-xs text-slate-500">Pode ser conjurada como ritual (+10 min)</span>
+                        </div>
+                        {{ form_widget(form.isRitual) }}
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="block text-sm font-medium text-slate-700 dark:text-slate-300">Concentração</span>
+                            <span class="text-xs text-slate-500">Exige concentração para manter o efeito</span>
+                        </div>
+                        {{ form_widget(form.isConcentration) }}
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

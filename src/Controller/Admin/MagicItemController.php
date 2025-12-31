@@ -108,6 +108,14 @@ class MagicItemController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}', name: 'admin_magic_item_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function show(MagicItem $magicItem): Response
+    {
+        return $this->render('admin/magic_item/show.html.twig', [
+            'magic_item' => $magicItem,
+        ]);
+    }
+
     #[Route('/{id}/edit', name: 'admin_magic_item_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, MagicItem $item, EntityManagerInterface $entityManager): Response
     {

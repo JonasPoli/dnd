@@ -58,6 +58,30 @@ class Monster
     #[ORM\Column(nullable: true)]
     private ?int $hitPoints = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $namePt = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $sizePt = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $typePt = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $subtypePt = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $groupPt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $alignmentPt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $armorDescPt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionMdPt = null;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $hitDice = null;
 
@@ -159,6 +183,9 @@ class Monster
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $srcJson = [];
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $srcJsonPt = [];
 
     public function getId(): ?int
     {
@@ -401,7 +428,7 @@ class Monster
         return $this->specialAbilitiesJson;
     }
 
-    public function setSpecialAbilities(?array $specialAbilitiesJson): static
+    public function setSpecialAbilitiesJson(?array $specialAbilitiesJson): static
     {
         $this->specialAbilitiesJson = $specialAbilitiesJson;
         return $this;
@@ -423,7 +450,7 @@ class Monster
         return $this->legendaryActionsJson;
     }
 
-    public function setLegendaryActions(?array $legendaryActionsJson): static
+    public function setLegendaryActionsJson(?array $legendaryActionsJson): static
     {
         $this->legendaryActionsJson = $legendaryActionsJson;
         return $this;
@@ -690,6 +717,105 @@ class Monster
     public function setImgMain(?string $imgMain): static
     {
         $this->imgMain = $imgMain;
+        return $this;
+    }
+
+    public function getNamePt(): ?string
+    {
+        return $this->namePt;
+    }
+
+    public function setNamePt(?string $namePt): static
+    {
+        $this->namePt = $namePt;
+        return $this;
+    }
+
+    public function getSizePt(): ?string
+    {
+        return $this->sizePt;
+    }
+
+    public function setSizePt(?string $sizePt): static
+    {
+        $this->sizePt = $sizePt;
+        return $this;
+    }
+
+    public function getTypePt(): ?string
+    {
+        return $this->typePt;
+    }
+
+    public function setTypePt(?string $typePt): static
+    {
+        $this->typePt = $typePt;
+        return $this;
+    }
+
+    public function getSubtypePt(): ?string
+    {
+        return $this->subtypePt;
+    }
+
+    public function setSubtypePt(?string $subtypePt): static
+    {
+        $this->subtypePt = $subtypePt;
+        return $this;
+    }
+
+    public function getGroupPt(): ?string
+    {
+        return $this->groupPt;
+    }
+
+    public function setGroupPt(?string $groupPt): static
+    {
+        $this->groupPt = $groupPt;
+        return $this;
+    }
+
+    public function getAlignmentPt(): ?string
+    {
+        return $this->alignmentPt;
+    }
+
+    public function setAlignmentPt(?string $alignmentPt): static
+    {
+        $this->alignmentPt = $alignmentPt;
+        return $this;
+    }
+
+    public function getArmorDescPt(): ?string
+    {
+        return $this->armorDescPt;
+    }
+
+    public function setArmorDescPt(?string $armorDescPt): static
+    {
+        $this->armorDescPt = $armorDescPt;
+        return $this;
+    }
+
+    public function getDescriptionMdPt(): ?string
+    {
+        return $this->descriptionMdPt;
+    }
+
+    public function setDescriptionMdPt(?string $descriptionMdPt): static
+    {
+        $this->descriptionMdPt = $descriptionMdPt;
+        return $this;
+    }
+
+    public function getSrcJsonPt(): ?array
+    {
+        return $this->srcJsonPt;
+    }
+
+    public function setSrcJsonPt(?array $srcJsonPt): static
+    {
+        $this->srcJsonPt = $srcJsonPt;
         return $this;
     }
 }

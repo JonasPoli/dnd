@@ -1,8 +1,37 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block header_title %}{{ monster.name }}{% endblock %}
+{% block header_title %}{{ monster.srcJsonPt.name|default(monster.namePt)|default(monster.name) }}{% endblock %}
 
 {% block body %}
+{% set mData = monster.srcJsonPt %}
+{% set name = mData.name|default(monster.namePt)|default(monster.name) %}
+{% set size = mData.size|default(monster.sizePt)|default(monster.size) %}
+{% set type = mData.type|default(monster.typePt)|default(monster.type) %}
+{% set subtype = mData.subtype|default(monster.subtypePt)|default(monster.subtype) %}
+{% set alignment = mData.alignment|default(monster.alignmentPt)|default(monster.alignment) %}
+{% set group = mData.group|default(monster.groupPt)|default(monster.group) %}
+{% set armorClass = mData.armorClass|default(monster.armorClass) %}
+{% set armorDesc = mData.armorDesc|default(monster.armorDescPt)|default(monster.armorDesc) %}
+{% set hitPoints = mData.hitPoints|default(monster.hitPoints) %}
+{% set hitDice = mData.hitDice|default(monster.hitDice) %}
+{% set challengeRating = mData.challengeRating|default(monster.challengeRating) %}
+{% set descMd = mData.description|default(monster.descriptionMdPt)|default(monster.descriptionMd) %}
+{% set skills = mData.skills|default(monster.skillsJson) %}
+{% set speed = mData.speed|default(monster.speedJson) %}
+{% set senses = mData.senses|default(monster.senses) %}
+{% set languages = mData.languages|default(monster.languages) %}
+{% set damageImmunities = mData.damageImmunities|default(monster.damageImmunities) %}
+{% set damageResistances = mData.damageResistances|default(monster.damageResistances) %}
+{% set damageVulnerabilities = mData.damageVulnerabilities|default(monster.damageVulnerabilities) %}
+{% set conditionImmunities = mData.conditionImmunities|default(monster.conditionImmunities) %}
+{% set legendaryDesc = mData.legendaryDesc|default(monster.legendaryDesc) %}
+{% set specialAbilities = mData.specialAbilities|default(monster.specialAbilitiesJson) %}
+{% set actions = mData.actions|default(monster.actionsJson) %}
+{% set bonusActions = mData.bonusActions|default(monster.bonusActionsJson) %}
+{% set reactions = mData.reactions|default(monster.reactionsJson) %}
+{% set legendaryActions = mData.legendaryActions|default(monster.legendaryActionsJson) %}
+{% set spellList = mData.spellList|default(monster.spellList) %}
+
 <div class="max-w-4xl mx-auto">
     {# Header Actions #}
     <div class="mb-6 flex items-center justify-between">
@@ -11,31 +40,40 @@
             <span>Voltar para Lista</span>
         </a>
         <div class="flex items-center space-x-3">
+            <button onclick="document.getElementById('fieldGuideModal').showModal()" class="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl font-bold hover:shadow-lg transition-all flex items-center space-x-2" title="Guia de Campos">
+                {{ ux_icon('lucide:help-circle', {class: 'w-4 h-4'}) }}
+                <span class="hidden sm:inline">Guia</span>
+            </button>
+
             <a href="{{ path('admin_monster_edit', {'id': monster.id}) }}" class="px-4 py-2 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center space-x-2">
                 {{ ux_icon('lucide:edit-3', {class: 'w-4 h-4'}) }}
                 <span>Editar</span>
             </a>
         </div>
     </div>
+    
+    {{ include('admin/monster/_field_guide.html.twig') }}
 
     {# Monster Image #}
     {% if image_url %}
-    <div class="mb-6">
-        <img src="{{ image_url }}" alt="{{ monster.name }}" class="w-full h-96 object-cover rounded-3xl shadow-2xl border-4 border-amber-900 dark:border-amber-700">
-        <p class="text-xs text-slate-400 mt-2 text-center">Imagem ilustrativa via Unsplash</p>
+    <div class="mb-6 flex justify-center bg-slate-100 dark:bg-slate-900 rounded-3xl p-4 border-4 border-amber-900 dark:border-amber-700">
+        <img src="{{ image_url }}" alt="{{ name }}" class="max-h-[80vh] w-auto max-w-full object-contain rounded-xl shadow-lg">
     </div>
+    <p class="text-xs text-slate-400 mt-2 text-center mb-6">Imagem ilustrativa</p>
     {% endif %}
 
     {# D&D Stat Block #}
     <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-4 border-amber-900 dark:border-amber-700 shadow-2xl overflow-hidden">
         {# Header #}
         <div class="bg-gradient-to-r from-amber-900 to-orange-900 dark:from-amber-800 dark:to-orange-800 px-8 py-6 border-b-4 border-amber-950">
-            <h1 class="text-4xl font-bold text-amber-50 mb-2 font-serif">{{ monster.name }}</h1>
+            <h1 class="text-4xl font-bold text-amber-50 mb-2 font-serif">{{ name }}</h1>
             <p class="text-amber-200 text-lg italic">
-                {{ monster.size }} {{ monster.type }}{% if monster.subtype %} ({{ monster.subtype }}){% endif %}{% if monster.alignment %}, {{ monster.alignment }}{% endif %}
+                {{ size }} {{ type }}
+                {% if subtype %}({{ subtype }}){% endif %}
+                {% if alignment %}, {{ alignment }}{% endif %}
             </p>
-            {% if monster.group %}
-            <p class="text-amber-300/80 text-sm mt-1 uppercase tracking-wider font-bold">{{ monster.group }}</p>
+            {% if group %}
+            <p class="text-amber-300/80 text-sm mt-1 uppercase tracking-wider font-bold">{{ group }}</p>
             {% endif %}
         </div>
 
@@ -46,22 +84,25 @@
                     <div class="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300 mb-1">
                         <span data-controller="tooltip" data-tooltip-text-value="Armor Class: Dificuldade para acertar o monstro" data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">Classe de Armadura</span>
                     </div>
-                    <div class="text-3xl font-bold text-amber-950 dark:text-amber-100">{{ monster.armorClass ?? '—' }}</div>
+                    <div class="text-3xl font-bold text-amber-950 dark:text-amber-100">{{ armorClass ?? '—' }}</div>
+                    {% if armorDesc %}
+                    <div class="text-xs text-amber-700 dark:text-amber-400 mt-1 italic">{{ armorDesc }}</div>
+                    {% endif %}
                 </div>
                 <div class="text-center">
                     <div class="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300 mb-1">
                         <span data-controller="tooltip" data-tooltip-text-value="Hit Points: Pontos de vida do monstro" data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">Pontos de Vida</span>
                     </div>
-                    <div class="text-3xl font-bold text-red-700 dark:text-red-400">{{ monster.hitPoints ?? '—' }}</div>
-                    {% if monster.hitDice %}
-                    <div class="text-sm text-amber-700 dark:text-amber-400">({{ monster.hitDice }})</div>
+                    <div class="text-3xl font-bold text-red-700 dark:text-red-400">{{ hitPoints ?? '—' }}</div>
+                    {% if hitDice %}
+                    <div class="text-sm text-amber-700 dark:text-amber-400">({{ hitDice }})</div>
                     {% endif %}
                 </div>
                 <div class="text-center">
                     <div class="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300 mb-1">
                         <span data-controller="tooltip" data-tooltip-text-value="Challenge Rating: Nível de desafio para encontros" data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">Nível de Desafio</span>
                     </div>
-                    <div class="text-3xl font-bold text-purple-700 dark:text-purple-400">{{ monster.challengeRating ?? '—' }}</div>
+                    <div class="text-3xl font-bold text-purple-700 dark:text-purple-400">{{ challengeRating ?? '—' }}</div>
                 </div>
             </div>
 
@@ -112,11 +153,11 @@
             {# Skills & Speed #}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b-2 border-amber-900/30 dark:border-amber-700/30">
                 {# Skills #}
-                {% if monster.skillsJson %}
+                {% if skills %}
                 <div>
                      <span class="font-bold text-amber-900 dark:text-amber-300 block mb-1">Perícias:</span>
                      <div class="flex flex-wrap gap-2">
-                        {% for skill, val in monster.skillsJson %}
+                        {% for skill, val in skills %}
                             <span class="text-amber-950 dark:text-amber-100 capitalize">{{ skill }} {{ val >= 0 ? '+' : '' }}{{ val }}</span>{% if not loop.last %}, {% endif %}
                         {% endfor %}
                      </div>
@@ -124,11 +165,11 @@
                 {% endif %}
                 
                 {# Speed #}
-                {% if monster.speedJson %}
+                {% if speed %}
                 <div>
                      <span class="font-bold text-amber-900 dark:text-amber-300 block mb-1">Deslocamento:</span>
                      <div class="flex flex-wrap gap-2">
-                        {% for type, val in monster.speedJson %}
+                        {% for type, val in speed %}
                             <span class="text-amber-950 dark:text-amber-100 capitalize">
                             {% if type == 'walk' %}Caminhada{% else %}{{ type }}{% endif %} {{ val }} ft.
                             </span>{% if not loop.last %}, {% endif %}
@@ -140,58 +181,73 @@
 
             {# Additional Stats #}
             <div class="space-y-3 text-sm pb-4 border-b-2 border-amber-900/30 dark:border-amber-700/30">
-                {% if monster.senses %}
+                {% if senses %}
                 <div class="flex">
                     <span class="font-bold text-amber-900 dark:text-amber-300 min-w-[120px]">Sentidos:</span>
-                    <span class="text-amber-950 dark:text-amber-100">{{ monster.senses }}</span>
+                    <span class="text-amber-950 dark:text-amber-100">{{ senses }}</span>
                 </div>
                 {% endif %}
-                {% if monster.languages %}
+                {% if languages %}
                 <div class="flex">
                     <span class="font-bold text-amber-900 dark:text-amber-300 min-w-[120px]">Idiomas:</span>
-                    <span class="text-amber-950 dark:text-amber-100">{{ monster.languages }}</span>
+                    <span class="text-amber-950 dark:text-amber-100">{{ languages }}</span>
                 </div>
                 {% endif %}
-                {% if monster.damageImmunities %}
+                {% if damageImmunities %}
                 <div class="flex">
                     <span class="font-bold text-amber-900 dark:text-amber-300 min-w-[120px]">Imunidades:</span>
-                    <span class="text-amber-950 dark:text-amber-100">{{ monster.damageImmunities }}</span>
+                    <span class="text-amber-950 dark:text-amber-100">{{ damageImmunities }}</span>
                 </div>
                 {% endif %}
-                {% if monster.damageResistances %}
+                {% if damageResistances %}
                 <div class="flex">
                     <span class="font-bold text-amber-900 dark:text-amber-300 min-w-[120px]">Resistências:</span>
-                    <span class="text-amber-950 dark:text-amber-100">{{ monster.damageResistances }}</span>
+                    <span class="text-amber-950 dark:text-amber-100">{{ damageResistances }}</span>
                 </div>
                 {% endif %}
-                {% if monster.damageVulnerabilities %}
+                {% if damageVulnerabilities %}
                 <div class="flex">
                     <span class="font-bold text-amber-900 dark:text-amber-300 min-w-[120px]">Vulnerabilidades:</span>
-                    <span class="text-amber-950 dark:text-amber-100">{{ monster.damageVulnerabilities }}</span>
+                    <span class="text-amber-950 dark:text-amber-100">{{ damageVulnerabilities }}</span>
                 </div>
                 {% endif %}
-                {% if monster.conditionImmunities %}
+                {% if conditionImmunities %}
                 <div class="flex">
                     <span class="font-bold text-amber-900 dark:text-amber-300 min-w-[120px]">Imun. Condições:</span>
-                    <span class="text-amber-950 dark:text-amber-100">{{ monster.conditionImmunities }}</span>
+                    <span class="text-amber-950 dark:text-amber-100">{{ conditionImmunities }}</span>
                 </div>
                 {% endif %}
             </div>
 
             {# Description #}
-            {% if monster.descriptionMd %}
-            <div class="prose prose-amber dark:prose-invert max-w-none">
-                <div class="text-amber-950 dark:text-amber-100 leading-relaxed">
-                    {{ monster.descriptionMd|markdown_to_html|raw }}
+            {% if descMd %}
+            <div class="mt-6 mb-8">
+                <div class="p-6 bg-[#FDF6E3] dark:bg-slate-800 rounded-lg border-2 border-[#58180D] dark:border-amber-600 shadow-xl overflow-hidden relative">
+                    {# Decorative top bar #}
+                    <div class="absolute top-0 left-0 w-full h-2 bg-[#58180D] dark:bg-amber-600"></div>
+                    
+                    <div class="prose prose-sm md:prose-base max-w-none 
+                        prose-headings:font-serif prose-headings:font-bold prose-headings:text-[#58180D] dark:prose-headings:text-amber-500 
+                        prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:uppercase prose-h3:tracking-wider prose-h3:border-b-2 prose-h3:border-[#58180D] dark:prose-h3:border-amber-500 prose-h3:pb-2
+                        prose-p:text-slate-900 dark:prose-p:text-slate-200 prose-p:leading-relaxed prose-p:my-2
+                        prose-strong:text-[#58180D] dark:prose-strong:text-amber-400 prose-strong:font-bold
+                        prose-hr:border-[#58180D] dark:prose-hr:border-amber-500 prose-hr:border-t-2 prose-hr:opacity-100 prose-hr:my-8
+                        prose-ul:my-2 prose-li:my-1
+                        ">
+                        {{ descMd|markdown_to_html|raw }}
+                    </div>
+                    
+                    {# Decorative bottom bar #}
+                    <div class="absolute bottom-0 left-0 w-full h-2 bg-[#58180D] dark:bg-amber-600"></div>
                 </div>
             </div>
             {% endif %}
 
             <div class="space-y-6 pt-4">
                 {# Special Abilities #}
-                {% if monster.specialAbilitiesJson %}
+                {% if specialAbilities %}
                     <div class="space-y-4">
-                        {% for ability in monster.specialAbilitiesJson %}
+                        {% for ability in specialAbilities %}
                             <div class="text-amber-950 dark:text-amber-100">
                                 <span class="font-bold italic text-amber-900 dark:text-amber-300">{{ ability.name }}.</span>
                                 {{ ability.desc }}
@@ -201,11 +257,11 @@
                 {% endif %}
 
                 {# Actions #}
-                {% if monster.actionsJson %}
+                {% if actions %}
                     <div>
                         <h2 class="text-2xl font-serif font-bold text-amber-900 dark:text-amber-300 border-b-2 border-amber-900/20 mb-4 pb-1">Ações</h2>
                         <div class="space-y-4">
-                            {% for action in monster.actionsJson %}
+                            {% for action in actions %}
                                 <div class="text-amber-950 dark:text-amber-100">
                                     <span class="font-bold italic text-amber-900 dark:text-amber-300">{{ action.name }}.</span>
                                     {{ action.desc }}
@@ -216,11 +272,11 @@
                 {% endif %}
 
                 {# Bonus Actions #}
-                {% if monster.bonusActionsJson %}
+                {% if bonusActions %}
                     <div>
                         <h2 class="text-2xl font-serif font-bold text-amber-900 dark:text-amber-300 border-b-2 border-amber-900/20 mb-4 pb-1">Ações Bônus</h2>
                         <div class="space-y-4">
-                            {% for action in monster.bonusActionsJson %}
+                            {% for action in bonusActions %}
                                 <div class="text-amber-950 dark:text-amber-100">
                                     <span class="font-bold italic text-amber-900 dark:text-amber-300">{{ action.name }}.</span>
                                     {{ action.desc }}
@@ -231,11 +287,11 @@
                 {% endif %}
 
                 {# Reactions #}
-                {% if monster.reactionsJson %}
+                {% if reactions %}
                     <div>
                         <h2 class="text-2xl font-serif font-bold text-amber-900 dark:text-amber-300 border-b-2 border-amber-900/20 mb-4 pb-1">Reações</h2>
                         <div class="space-y-4">
-                            {% for action in monster.reactionsJson %}
+                            {% for action in reactions %}
                                 <div class="text-amber-950 dark:text-amber-100">
                                     <span class="font-bold italic text-amber-900 dark:text-amber-300">{{ action.name }}.</span>
                                     {{ action.desc }}
@@ -246,14 +302,14 @@
                 {% endif %}
                 
                 {# Legendary Actions Loop (if array exists) #}
-                {% if monster.legendaryActionsJson %}
+                {% if legendaryActions %}
                     <div>
                         <h2 class="text-2xl font-serif font-bold text-purple-900 dark:text-purple-300 border-b-2 border-purple-900/20 mb-4 pb-1">Ações Lendárias</h2>
-                        {% if monster.legendaryDesc %}
-                            <p class="mb-4 text-purple-950 dark:text-purple-100">{{ monster.legendaryDesc }}</p>
+                        {% if legendaryDesc %}
+                            <p class="mb-4 text-purple-950 dark:text-purple-100">{{ legendaryDesc }}</p>
                         {% endif %}
                         <div class="space-y-4">
-                            {% for action in monster.legendaryActionsJson %}
+                            {% for action in legendaryActions %}
                                 <div class="text-purple-950 dark:text-purple-100">
                                     <span class="font-bold italic text-purple-900 dark:text-purple-300">{{ action.name }}.</span>
                                     {{ action.desc }}
@@ -264,48 +320,50 @@
                 {% endif %}
             </div>
 
-            {# Legendary Description #}
-            {% if monster.legendaryDesc %}
-            <div class="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border-2 border-purple-300 dark:border-purple-700">
-                <h3 class="text-lg font-bold text-purple-900 dark:text-purple-300 mb-2 flex items-center space-x-2">
-                    {{ ux_icon('lucide:crown', {class: 'w-5 h-5'}) }}
-                    <span>Ações Lendárias</span>
-                </h3>
-                <div class="text-purple-950 dark:text-purple-100">{{ monster.legendaryDesc }}</div>
-            </div>
-            {% endif %}
-
             {# Spell List #}
-            {% if monster.spellList %}
+            {% if spellList %}
             <div class="mt-6">
                 <h3 class="text-lg font-bold text-blue-900 dark:text-blue-300 mb-2 flex items-center space-x-2">
                     {{ ux_icon('lucide:sparkles', {class: 'w-5 h-5'}) }}
                     <span>Magias</span>
                 </h3>
                 <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-300 dark:border-blue-700 font-mono text-xs text-blue-950 dark:text-blue-100 overflow-x-auto">
-                     {{ monster.spellList|json_encode(constant('JSON_PRETTY_PRINT'))|nl2br }}
+                     {{ spellList|json_encode(constant('JSON_PRETTY_PRINT'))|nl2br }}
                 </div>
             </div>
             {% endif %}
 
-            {# Source JSON #}
-            {% if monster.srcJson %}
-            <div class="mt-6">
+            {# Source JSON Section #}
+            <div class="mt-6 space-y-4">
                  <h3 class="text-lg font-bold text-slate-500 dark:text-slate-400 mb-2 flex items-center space-x-2 text-sm uppercase tracking-widest">
                     {{ ux_icon('lucide:database', {class: 'w-4 h-4'}) }}
-                    <span>Dados de Origem (Raw)</span>
+                    <span>Dados de Origem (JSON)</span>
                 </h3>
+                
+                {% if monster.srcJsonPt %}
                 <details class="group">
                     <summary class="cursor-pointer text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors text-sm font-bold flex items-center space-x-2">
-                         <span>Ver JSON Completo</span>
+                         <span>Ver JSON Traduzido (PT)</span>
+                         {{ ux_icon('lucide:chevron-down', {class: 'w-4 h-4 group-open:rotate-180 transition-transform'}) }}
+                    </summary>
+                    <div class="mt-2 p-4 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 font-mono text-xs text-slate-600 dark:text-slate-400 overflow-x-auto whitespace-pre">
+                        {{ monster.srcJsonPt|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}
+                    </div>
+                </details>
+                {% endif %}
+
+                {% if monster.srcJson %}
+                <details class="group">
+                    <summary class="cursor-pointer text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors text-sm font-bold flex items-center space-x-2">
+                         <span>Ver JSON Original (EN)</span>
                          {{ ux_icon('lucide:chevron-down', {class: 'w-4 h-4 group-open:rotate-180 transition-transform'}) }}
                     </summary>
                     <div class="mt-2 p-4 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 font-mono text-xs text-slate-600 dark:text-slate-400 overflow-x-auto whitespace-pre">
                         {{ monster.srcJson|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}
                     </div>
                 </details>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
 
         {# Footer #}

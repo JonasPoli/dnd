@@ -32,10 +32,19 @@ class MagicItem
     private ?string $type = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    private ?string $typePt = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
     private ?string $rarity = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $rarityPt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $requiresAttunement = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $requiresAttunementPt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descriptionMd = null;
@@ -158,6 +167,39 @@ class MagicItem
     public function setDescriptionMdPt(?string $descriptionMdPt): static
     {
         $this->descriptionMdPt = $descriptionMdPt;
+        return $this;
+    }
+
+    public function getTypePt(): ?string
+    {
+        return $this->typePt;
+    }
+
+    public function setTypePt(?string $typePt): static
+    {
+        $this->typePt = $typePt;
+        return $this;
+    }
+
+    public function getRarityPt(): ?string
+    {
+        return $this->rarityPt;
+    }
+
+    public function setRarityPt(?string $rarityPt): static
+    {
+        $this->rarityPt = $rarityPt;
+        return $this;
+    }
+
+    public function getRequiresAttunementPt(): ?string
+    {
+        return $this->requiresAttunementPt;
+    }
+
+    public function setRequiresAttunementPt(?string $requiresAttunementPt): static
+    {
+        $this->requiresAttunementPt = $requiresAttunementPt;
         return $this;
     }
 }

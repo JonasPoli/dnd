@@ -20,8 +20,11 @@ class MagicItemType extends AbstractType
             ->add('namePt', null, ['label' => 'Nome (PT)'])
             ->add('ruleSlug')
             ->add('type')
+            ->add('typePt', null, ['label' => 'Tipo (PT)'])
             ->add('rarity')
+            ->add('rarityPt', null, ['label' => 'Raridade (PT)'])
             ->add('requiresAttunement')
+            ->add('requiresAttunementPt', null, ['label' => 'Requer Sintonização (PT)'])
             ->add('descriptionMd', TextareaType::class, [
                 'required' => false,
                 'attr' => ['rows' => 10]
