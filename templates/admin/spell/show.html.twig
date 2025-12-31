@@ -22,7 +22,12 @@
     <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-4 border-indigo-900 dark:border-indigo-700 shadow-2xl overflow-hidden">
         {# Header #}
         <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-6 border-b-4 border-indigo-950">
-            <h1 class="text-4xl font-bold text-indigo-50 mb-2 font-serif">{{ spell.name }}</h1>
+            <h1 class="text-4xl font-bold text-indigo-50 mb-2 font-serif">
+                {{ spell.namePt|default(spell.name) }}
+                {% if spell.namePt and spell.name != spell.namePt %}
+                    <span class="text-2xl text-indigo-300 block md:inline md:ml-2">({{ spell.name }})</span>
+                {% endif %}
+            </h1>
             <p class="text-indigo-200 text-lg italic flex items-center space-x-2">
                 {% if spell.level == 0 %}
                     <span>Truque de {{ spell.school }}</span>
@@ -78,25 +83,49 @@
             {% endif %}
 
             {# Description #}
-            {% if spell.descriptionMd %}
+            {% if spell.descriptionMdPt or spell.descriptionMd %}
             <div class="prose prose-indigo dark:prose-invert max-w-none bg-white/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-indigo-900/10 dark:border-indigo-700/10 shadow-sm">
-                <div class="text-indigo-950 dark:text-indigo-100 leading-relaxed">
-                    {{ spell.descriptionMd|markdown_to_html|raw }}
-                </div>
+                {% if spell.descriptionMdPt %}
+                    <div class="mb-4 pb-4 border-b border-indigo-100 dark:border-indigo-800">
+                        <div class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2">Português</div>
+                        <div class="text-indigo-950 dark:text-indigo-100 leading-relaxed">
+                            {{ spell.descriptionMdPt|markdown_to_html|raw }}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if spell.descriptionMd %}
+                    <div>
+                        {% if spell.descriptionMdPt %}
+                            <div class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2">Inglês Original</div>
+                        {% endif %}
+                        <div class="text-indigo-950 dark:text-indigo-100 leading-relaxed opacity-90">
+                            {{ spell.descriptionMd|markdown_to_html|raw }}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             {% endif %}
 
             {# Higher Levels #}
-            {% if spell.higherLevelsMd %}
+            {% if spell.higherLevelsMdPt or spell.higherLevelsMd %}
             <div class="mt-4">
                 <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-300 mb-2 flex items-center space-x-2">
                     {{ ux_icon('lucide:chevrons-up', {class: 'w-5 h-5'}) }}
                     <span>Em Níveis Superiores</span>
                 </h3>
                 <div class="prose prose-indigo dark:prose-invert max-w-none bg-indigo-50/50 dark:bg-slate-800/30 rounded-xl p-4 border border-indigo-200 dark:border-indigo-800 text-sm">
-                    <div class="text-indigo-950 dark:text-indigo-100">
-                        {{ spell.higherLevelsMd|markdown_to_html|raw }}
-                    </div>
+                    {% if spell.higherLevelsMdPt %}
+                        <div class="mb-3 pb-3 border-b border-indigo-200 dark:border-indigo-700">
+                            {{ spell.higherLevelsMdPt|markdown_to_html|raw }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if spell.higherLevelsMd %}
+                        <div class="text-indigo-950 dark:text-indigo-100 opacity-90">
+                            {{ spell.higherLevelsMd|markdown_to_html|raw }}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}

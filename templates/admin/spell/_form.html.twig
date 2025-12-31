@@ -200,6 +200,31 @@
         </div>
     </div>
 
+    {# Translation Section #}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-900 dark:text-white">
+            {{ ux_icon('lucide:languages', {class: 'w-5 h-5 text-green-500'}) }}
+            <span>Tradução (PT-BR)</span>
+        </h3>
+        
+        <div class="space-y-6">
+             {{ form_row(form.namePt, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+            }) }}
+
+             {{ form_row(form.descriptionMdPt, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm font-mono', 'rows': 8}
+            }) }}
+
+            {{ form_row(form.higherLevelsMdPt, {
+                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm font-mono', 'rows': 4}
+            }) }}
+        </div>
+    </div>
+
     <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-border">
         <a href="{{ path('admin_spell_index') }}" class="px-6 py-3 rounded-xl font-semibold text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 transition-all flex items-center space-x-2">
             {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}

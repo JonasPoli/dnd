@@ -85,7 +85,12 @@
                 {% for spell in spells %}
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-8 py-5">
-                            <div class="font-bold text-slate-900 dark:text-white">{{ spell.name }}</div>
+                            <div class="font-bold text-slate-900 dark:text-white">
+                                {{ spell.namePt|default(spell.name) }}
+                                {% if spell.namePt and spell.name != spell.namePt %}
+                                    <span class="text-xs text-slate-400 font-normal block md:inline md:ml-1">({{ spell.name }})</span>
+                                {% endif %}
+                            </div>
                             <div class="text-xs text-slate-400">{{ spell.school }}</div>
                         </td>
                         <td class="px-8 py-5">

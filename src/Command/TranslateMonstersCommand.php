@@ -52,6 +52,8 @@ class TranslateMonstersCommand extends Command
         $items = $this->monsterRepository->createQueryBuilder('m')
             ->where('m.srcJsonPt IS NULL')
             ->andWhere('m.srcJson IS NOT NULL')
+            ->orderBy('m.imgMain', 'DESC') // Prioritize records with images (non-null/non-empty usually sorts higher or checking empty)
+            ->addOrderBy('m.id', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -167,15 +169,16 @@ GUIDE;
             }
 
             $prompts = [
-                ['role' => 'system', 'content' => "You are a professional translator for Dungeons & Dragons (D&D) 5e. 
-                Your task is to translate the JSON content from English to Portuguese (Brazil).
-                
-                RULES:
-                1. Keep the JSON structure EXACTLY the same. Do not change keys.
-                2. Translate only the VALUES of the fields.
-                3. Use standard D&D 5e terminology (Pt-BR).
-                4. Refer to the Field Guide below for context on specific fields.
-                
+                ['role' => 'system', 'content' => "You are a specialized D&D 5e translator and editor for Portuguese (Brazil).
+                Your goal is to provide a fluent, natural, and immersive translation, paraphrasing where necessary to convey the true meaning and feel of the text, rather than a literal word-for-word translation.
+
+                GUIDELINES:
+                1. **Paraphrase**: Avoid robotic or Google Translate-style output. Rephrase sentences to sound like a native RPG book (Livro do Jogador / Manual dos Monstros style).
+                2. **Terminology**: Strict adherence to official D&D 5e PT-BR terminology (e.g., 'Saving Throw' -> 'Teste de Resistência', 'Spell' -> 'Magia', 'Grapple' -> 'Agarram').
+                3. **Structure**: Keep the JSON structure EXACTLY identical to the source. Do not add or remove keys.
+                4. **Values**: Translate all text values. For numeric or code values (like 'cr', 'ac'), keep them as is unless it's a descriptive text field.
+
+                CONTEXT (Field Guide):
                 $fieldGuide
 
                 Return ONLY the valid JSON object."],
@@ -247,6 +250,17 @@ GUIDE;
 
             if ($jsonPt) {
                 $item->setSrcJsonPt($jsonPt);
+
+                // Update entity fields from translation (similar to Importer)
+                $item->setNamePt($jsonPt['name'] ?? null);
+                $item->setSizePt($jsonPt['size'] ?? null);
+                $item->setTypePt($jsonPt['type'] ?? null);
+                $item->setSubtypePt($jsonPt['subtype'] ?? null);
+                $item->setGroupPt($jsonPt['group'] ?? null);
+                $item->setAlignmentPt($jsonPt['alignment'] ?? null);
+                $item->setArmorDescPt($jsonPt['armorDesc'] ?? null);
+                $item->setDescriptionMdPt($jsonPt['description'] ?? null);
+
                 $this->entityManager->flush();
 
                 if (count($items) === 1) {

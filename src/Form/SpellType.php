@@ -79,6 +79,22 @@ class SpellType extends AbstractType
                 'attr' => ['class' => 'form-input'],
                 'help' => 'Ex: V, S, M (a pinch of dust)',
             ])
+            // Portuguese Fields
+            ->add('namePt', TextType::class, [
+                'label' => 'Nome (PT-BR)',
+                'required' => false,
+                'attr' => ['class' => 'form-input'],
+            ])
+            ->add('descriptionMdPt', TextareaType::class, [
+                'label' => 'Descrição (PT-BR)',
+                'required' => false,
+                'attr' => ['class' => 'form-textarea', 'rows' => 8],
+            ])
+            ->add('higherLevelsMdPt', TextareaType::class, [
+                'label' => 'Níveis Superiores (PT-BR)',
+                'required' => false,
+                'attr' => ['class' => 'form-textarea', 'rows' => 4],
+            ])
             ->add('material', TextareaType::class, [
                 'label' => 'Material',
                 'required' => false,
