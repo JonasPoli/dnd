@@ -3,8 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Equipment;
-use App\Entity\RulesSource;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -17,15 +15,19 @@ class EquipmentType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('ruleSlug')
+
             ->add('name')
             ->add('type')
+            ->add('typePt', null, ['label' => 'Tipo (PT)'])
             ->add('weaponCategory', null, ['required' => false, 'label' => 'Weapon Category'])
+            ->add('weaponCategoryPt', null, ['required' => false, 'label' => 'Categoria de Arma (PT)'])
             ->add('weaponRange', null, ['required' => false, 'label' => 'Weapon Range'])
             ->add('damageDice', null, ['required' => false, 'label' => 'Damage Dice'])
             ->add('damageType', null, ['required' => false, 'label' => 'Damage Type'])
+            ->add('damageTypePt', null, ['required' => false, 'label' => 'Tipo de Dano (PT)'])
             ->add('costGp')
             ->add('weightLb')
+            ->add('weightKg')
             ->add('propertiesJson', TextareaType::class, [
                 'required' => false,
                 'label' => 'Properties (JSON)',
@@ -35,9 +37,10 @@ class EquipmentType extends AbstractType
                 'required' => false,
                 'attr' => ['rows' => 6]
             ])
-            ->add('rulesSource', EntityType::class, [
-                'class' => RulesSource::class,
-                'choice_label' => 'name',
+            ->add('descriptionMdPt', TextareaType::class, [
+                'required' => false,
+                'label' => 'Descrição (PT)',
+                'attr' => ['rows' => 6]
             ])
         ;
 

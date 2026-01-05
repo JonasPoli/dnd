@@ -32,10 +32,19 @@ class MagicItem
     private ?string $type = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    private ?string $typePt = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
     private ?string $rarity = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $rarityPt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $requiresAttunement = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $requiresAttunementPt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descriptionMd = null;
@@ -130,6 +139,67 @@ class MagicItem
     public function setDescriptionMd(?string $descriptionMd): static
     {
         $this->descriptionMd = $descriptionMd;
+        return $this;
+    }
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $namePt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionMdPt = null;
+
+    public function getNamePt(): ?string
+    {
+        return $this->namePt;
+    }
+
+    public function setNamePt(?string $namePt): static
+    {
+        $this->namePt = $namePt;
+        return $this;
+    }
+
+    public function getDescriptionMdPt(): ?string
+    {
+        return $this->descriptionMdPt;
+    }
+
+    public function setDescriptionMdPt(?string $descriptionMdPt): static
+    {
+        $this->descriptionMdPt = $descriptionMdPt;
+        return $this;
+    }
+
+    public function getTypePt(): ?string
+    {
+        return $this->typePt;
+    }
+
+    public function setTypePt(?string $typePt): static
+    {
+        $this->typePt = $typePt;
+        return $this;
+    }
+
+    public function getRarityPt(): ?string
+    {
+        return $this->rarityPt;
+    }
+
+    public function setRarityPt(?string $rarityPt): static
+    {
+        $this->rarityPt = $rarityPt;
+        return $this;
+    }
+
+    public function getRequiresAttunementPt(): ?string
+    {
+        return $this->requiresAttunementPt;
+    }
+
+    public function setRequiresAttunementPt(?string $requiresAttunementPt): static
+    {
+        $this->requiresAttunementPt = $requiresAttunementPt;
         return $this;
     }
 }

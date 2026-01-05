@@ -1,0 +1,127 @@
+<dialog id="fieldGuideModal" class="backdrop:bg-slate-900/50 open:animate-fade-in bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-4xl p-0 overflow-hidden border border-border">
+    <div class="h-[80vh] flex flex-col">
+        {# Header #}
+        <div class="px-8 py-6 border-b border-border bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between sticky top-0 z-10">
+            <div>
+                <h2 class="text-2xl font-bold flex items-center space-x-3">
+                    {{ ux_icon('lucide:book-open', {class: 'w-6 h-6 text-primary'}) }}
+                    <span>Guia de Campos: API de Monstros D&D 5e</span>
+                </h2>
+                <p class="text-slate-500 mt-1">Referência rápida para interpretação dos atributos.</p>
+            </div>
+            <button onclick="document.getElementById('fieldGuideModal').close()" class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
+                {{ ux_icon('lucide:x', {class: 'w-6 h-6'}) }}
+            </button>
+        </div>
+
+        {# Content #}
+        <div class="flex-grow overflow-y-auto p-8 prose prose-slate dark:prose-invert max-w-none prose-headings:font-serif prose-headings:text-primary dark:prose-headings:text-primary-400 prose-table:border-collapse prose-th:bg-slate-100 dark:prose-th:bg-slate-800 prose-th:p-3 prose-td:p-3 prose-td:border-b prose-td:border-slate-200 dark:prose-td:border-slate-800">
+            
+            <p class="lead">Esta estrutura de dados contém todas as estatísticas necessárias para rodar um encontro de combate ou interpretar uma criatura no sistema Dungeons & Dragons.</p>
+
+            <hr>
+
+            <h3>🛡️ Atributos Principais (Core Stats)</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Tradução/Significado</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>name</strong></td><td>Nome</td><td>O nome da criatura (ex: A-mi-kuk).</td></tr>
+                    <tr><td><strong>size</strong></td><td>Tamanho</td><td>Categoria física (Tiny, Small, Medium, Large, Huge, Gargantuan).</td></tr>
+                    <tr><td><strong>type</strong></td><td>Tipo</td><td>Categoria biológica/mágica (Aberration, Monstrosity, Celestial, etc).</td></tr>
+                    <tr><td><strong>alignment</strong></td><td>Alinhamento</td><td>Tendência moral e ética (ex: Chaotic Evil, Lawful Good, Unaligned).</td></tr>
+                    <tr><td><strong>cr / challengeRating</strong></td><td>Nível de Desafio</td><td>Indica a força do monstro. Um CR 7 é um desafio apropriado para 4 aventureiros de nível 7.</td></tr>
+                    <tr><td><strong>armorClass (AC)</strong></td><td>Classe de Armadura</td><td>O valor necessário para um ataque acertar o monstro.</td></tr>
+                    <tr><td><strong>armorDesc</strong></td><td>Descrição da Armadura</td><td>Fonte da defesa (ex: "natural armor").</td></tr>
+                    <tr><td><strong>hitPoints (HP)</strong></td><td>Pontos de Vida</td><td>A saúde da criatura.</td></tr>
+                    <tr><td><strong>hitDice</strong></td><td>Dados de Vida</td><td>A fórmula usada para calcular o HP (ex: <code>10d12+50</code>).</td></tr>
+                    <tr><td><strong>speed</strong></td><td>Velocidade</td><td>Deslocamento em pés (ft). Inclui <code>walk</code> (andar), <code>swim</code> (nadar), <code>fly</code> (voar) e <code>burrow</code> (escavar).</td></tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <h3>🧠 Atributos de Habilidade (Ability Scores)</h3>
+            <p>Estes são os seis valores fundamentais que definem o que a criatura é capaz de fazer:</p>
+            <ul>
+                <li><strong>Strength (STR):</strong> Força física e atletismo.</li>
+                <li><strong>Dexterity (DEX):</strong> Agilidade, reflexos e equilíbrio.</li>
+                <li><strong>Constitution (CON):</strong> Resistência, saúde e vigor.</li>
+                <li><strong>Intelligence (INT):</strong> Memória, raciocínio e conhecimento.</li>
+                <li><strong>Wisdom (WIS):</strong> Percepção, intuição e sobrevivência.</li>
+                <li><strong>Charisma (CHA):</strong> Força de personalidade e magnetismo social.</li>
+            </ul>
+            <blockquote>
+                <strong>Saves (ex: wisdomSave):</strong> São os bônus de "Testes de Resistência". Se estiver <code>null</code>, o monstro usa apenas o modificador padrão do atributo.
+            </blockquote>
+
+            <hr>
+
+            <h3>🔍 Percepção e Perícias</h3>
+            <ul>
+                <li><strong>senses:</strong> Sentidos especiais como <em>darkvision</em> (visão no escuro), <em>truesight</em> (visão verdadeira) ou <em>tremorsense</em> (sentir vibrações no chão).</li>
+                <li><strong>passivePerception:</strong> O valor de percepção "automático" do monstro quando não está procurando ativamente.</li>
+                <li><strong>skills:</strong> Perícias onde o monstro tem treinamento (ex: <code>stealth</code> para furtividade, <code>athletics</code> para atletismo).</li>
+                <li><strong>languages:</strong> Idiomas que a criatura fala ou entende.</li>
+            </ul>
+
+            <hr>
+
+            <h3>⚔️ Combate e Ações</h3>
+            <ul>
+                <li><strong>actions:</strong> Lista de ataques ou habilidades ativas que o monstro usa no turno dele.
+                    <ul>
+                        <li><em>Multiattack:</em> Capacidade de atacar mais de uma vez por turno.</li>
+                        <li><em>Attack Bonus:</em> O valor somado ao dado (d20) para ver se o ataque acerta.</li>
+                        <li><em>Damage Dice:</em> O dano causado (ex: <code>2d6 + 5</code>).</li>
+                    </ul>
+                </li>
+                <li><strong>specialAbilities:</strong> Habilidades passivas ou características únicas (ex: <em>Amphibious</em> para respirar na água).</li>
+                <li><strong>reactions:</strong> Ações que o monstro pode fazer fora do seu turno em resposta a algo.</li>
+                <li><strong>legendaryActions:</strong> Ações especiais que criaturas muito poderosas fazem ao final do turno dos jogadores.</li>
+            </ul>
+
+            <hr>
+
+            <h3>🌡️ Resistências e Vulnerabilidades</h3>
+            <ul>
+                <li><strong>damageImmunities:</strong> Tipos de dano que <strong>não afetam</strong> o monstro (ex: <code>cold</code> - frio).</li>
+                <li><strong>damageResistances:</strong> Tipos de dano que o monstro recebe apenas pela <strong>metade</strong>.</li>
+                <li><strong>damageVulnerabilities:</strong> Tipos de dano que o monstro recebe em <strong>dobro</strong>.</li>
+                <li><strong>conditionImmunities:</strong> Estados que o monstro não pode sofrer (ex: <code>blinded</code> - cego, <code>charmed</code> - enfeitiçado).</li>
+            </ul>
+
+            <hr>
+
+            <h3>📖 Informações Adicionais</h3>
+            <ul>
+                <li><strong>description:</strong> Texto narrativo (Lore) que descreve a aparência e o comportamento da criatura.</li>
+                <li><strong>pageNo:</strong> Número da página no livro de origem.</li>
+                <li><strong>environments:</strong> Áreas onde o monstro é comumente encontrado (florestas, cavernas, etc).</li>
+                <li><strong>imgMain:</strong> Link para a imagem da criatura (se disponível).</li>
+            </ul>
+        </div>
+        
+        {# Footer #}
+        <div class="px-8 py-4 border-t border-border bg-slate-50 dark:bg-slate-800/50 flex justify-end">
+             <button onclick="document.getElementById('fieldGuideModal').close()" class="px-6 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-xl font-semibold transition-colors">
+                Fechar
+            </button>
+        </div>
+    </div>
+</dialog>
+
+<script>
+    // Close modal when clicking outside
+    document.getElementById('fieldGuideModal').addEventListener('click', (event) => {
+        if (event.target === document.getElementById('fieldGuideModal')) {
+            document.getElementById('fieldGuideModal').close();
+        }
+    });
+</script>

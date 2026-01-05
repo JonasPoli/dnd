@@ -19,15 +19,22 @@ class MonsterType extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('namePt', TextType::class, ['required' => false, 'label' => 'Name (PT)'])
             ->add('ruleSlug')
             ->add('size')
+            ->add('sizePt', TextType::class, ['required' => false, 'label' => 'Size (PT)'])
             ->add('type')
+            ->add('typePt', TextType::class, ['required' => false, 'label' => 'Type (PT)'])
             ->add('subtype', TextType::class, ['required' => false])
+            ->add('subtypePt', TextType::class, ['required' => false, 'label' => 'Subtype (PT)'])
             ->add('group', TextType::class, ['required' => false, 'label' => 'Monster Group'])
+            ->add('groupPt', TextType::class, ['required' => false, 'label' => 'Monster Group (PT)'])
             ->add('alignment')
+            ->add('alignmentPt', TextType::class, ['required' => false, 'label' => 'Alignment (PT)'])
             ->add('challengeRating')
             ->add('armorClass', IntegerType::class, ['required' => false])
             ->add('armorDesc', TextType::class, ['required' => false])
+            ->add('armorDescPt', TextType::class, ['required' => false, 'label' => 'Armor Desc (PT)'])
             ->add('hitPoints', IntegerType::class, ['required' => false])
             ->add('hitDice', TextType::class, ['required' => false])
             ->add('strength', IntegerType::class, ['required' => false])
@@ -53,6 +60,11 @@ class MonsterType extends AbstractType
                 'required' => false,
                 'attr' => ['rows' => 10]
             ])
+            ->add('descriptionMdPt', TextareaType::class, [
+                'required' => false,
+                'label' => 'Description (PT)',
+                'attr' => ['rows' => 10]
+            ])
             ->add('legendaryDesc', TextareaType::class, ['required' => false])
             ->add('speedJson', TextareaType::class, ['required' => false, 'label' => 'Speed (JSON)'])
             ->add('skillsJson', TextareaType::class, ['required' => false, 'label' => 'Skills (JSON)'])
@@ -66,11 +78,27 @@ class MonsterType extends AbstractType
             ->add('pageNo', IntegerType::class, ['required' => false])
             ->add('spellList', TextareaType::class, ['required' => false, 'label' => 'Spell List (JSON)'])
             ->add('srcJson', TextareaType::class, ['required' => false, 'label' => 'Sources (JSON)'])
+            ->add('srcJsonPt', TextareaType::class, ['required' => false, 'label' => 'Sources (PT) (JSON)'])
             ->add('rulesSource', EntityType::class, [
                 'class' => RulesSource::class,
                 'choice_label' => 'name',
             ])
+            ->add('removeImage', \Symfony\Component\Form\Extension\Core\Type\CheckboxType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Remover Imagem Atual',
+                'help' => 'Marque para excluir a imagem associada a este monstro.',
+            ])
         ;
+
+        $builder->addEventListener(\Symfony\Component\Form\FormEvents::POST_SUBMIT, function (\Symfony\Component\Form\FormEvent $event) {
+            $data = $event->getData();
+            $form = $event->getForm();
+
+            if ($form->get('removeImage')->getData()) {
+                $data->setImgMain(null);
+            }
+        });
 
         $jsonTransformer = new CallbackTransformer(
             function ($array) {
@@ -97,6 +125,7 @@ class MonsterType extends AbstractType
         $builder->get('environments')->addModelTransformer($jsonTransformer);
         $builder->get('spellList')->addModelTransformer($jsonTransformer);
         $builder->get('srcJson')->addModelTransformer($jsonTransformer);
+        $builder->get('srcJsonPt')->addModelTransformer($jsonTransformer);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

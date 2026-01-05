@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\RulesSource;
 use App\Entity\ImportRun;
 use App\Repository\RulesSourceRepository;
 use App\Service\Import\ImportContext;
@@ -53,8 +54,12 @@ class RulesImportCommand extends Command
 
         $source = $this->rulesSourceRepo->findOneBy(['slug' => $sourceSlug]);
         if (!$source) {
-            $io->error(sprintf('Rules source "%s" not found in database.', $sourceSlug));
-            return Command::FAILURE;
+            $io->note(sprintf('Rules source "%s" not found. Creating it...', $sourceSlug));
+            $source = new RulesSource();
+            $source->setSlug($sourceSlug);
+            $source->setName(ucfirst($sourceSlug)); // Default name
+            $this->entityManager->persist($source);
+            $this->entityManager->flush();
         }
 
         $dataset = $input->getOption('dataset');

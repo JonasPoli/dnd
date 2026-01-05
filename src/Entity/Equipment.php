@@ -7,7 +7,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EquipmentRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_SOURCE_KEY', fields: ['rulesSource', 'ruleSlug'])]
 class Equipment
 {
     #[ORM\Id]
@@ -20,12 +19,7 @@ class Equipment
 
 
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?RulesSource $rulesSource = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $ruleSlug = null;
 
 
     #[ORM\Column(length: 255)]
@@ -34,17 +28,26 @@ class Equipment
     #[ORM\Column(length: 50)]
     private ?string $type = null; // weapon, armor, gear, tool
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $typePt = null;
+
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $costGp = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $weightLb = null;
 
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $weightKg = null;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $propertiesJson = [];
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descriptionMd = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionMdPt = null;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $damageDice = null;
@@ -53,10 +56,16 @@ class Equipment
     private ?string $damageType = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    private ?string $damageTypePt = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
     private ?string $weaponRange = null;
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $weaponCategory = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $weaponCategoryPt = null;
 
     public function getId(): ?int
     {
@@ -76,29 +85,7 @@ class Equipment
     }
 
 
-    public function getRulesSource(): ?RulesSource
-    {
-        return $this->rulesSource;
-    }
 
-    public function setRulesSource(?RulesSource $rulesSource): static
-    {
-        $this->rulesSource = $rulesSource;
-
-        return $this;
-    }
-
-    public function getRuleSlug(): ?string
-    {
-        return $this->ruleSlug;
-    }
-
-    public function setRuleSlug(string $ruleSlug): static
-    {
-        $this->ruleSlug = $ruleSlug;
-
-        return $this;
-    }
 
 
     public function getName(): ?string
@@ -145,6 +132,18 @@ class Equipment
     public function setWeightLb(?string $weightLb): static
     {
         $this->weightLb = $weightLb;
+
+        return $this;
+    }
+
+    public function getWeightKg(): ?string
+    {
+        return $this->weightKg;
+    }
+
+    public function setWeightKg(?string $weightKg): static
+    {
+        $this->weightKg = $weightKg;
 
         return $this;
     }
@@ -217,6 +216,54 @@ class Equipment
     public function setWeaponCategory(?string $weaponCategory): static
     {
         $this->weaponCategory = $weaponCategory;
+
+        return $this;
+    }
+
+    public function getTypePt(): ?string
+    {
+        return $this->typePt;
+    }
+
+    public function setTypePt(?string $typePt): static
+    {
+        $this->typePt = $typePt;
+
+        return $this;
+    }
+
+    public function getDescriptionMdPt(): ?string
+    {
+        return $this->descriptionMdPt;
+    }
+
+    public function setDescriptionMdPt(?string $descriptionMdPt): static
+    {
+        $this->descriptionMdPt = $descriptionMdPt;
+
+        return $this;
+    }
+
+    public function getDamageTypePt(): ?string
+    {
+        return $this->damageTypePt;
+    }
+
+    public function setDamageTypePt(?string $damageTypePt): static
+    {
+        $this->damageTypePt = $damageTypePt;
+
+        return $this;
+    }
+
+    public function getWeaponCategoryPt(): ?string
+    {
+        return $this->weaponCategoryPt;
+    }
+
+    public function setWeaponCategoryPt(?string $weaponCategoryPt): static
+    {
+        $this->weaponCategoryPt = $weaponCategoryPt;
 
         return $this;
     }

@@ -13,7 +13,7 @@ class Skill
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50, unique: true)]
+    #[ORM\Column(name: '`key`', length: 50, unique: true)]
     private ?string $key = null; // athletics, etc.
 
     #[ORM\Column(length: 100)]
@@ -21,7 +21,10 @@ class Skill
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Ability $ability = null;
+    private ?Attribute $attribute = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
 
     public function getId(): ?int
     {
@@ -52,14 +55,26 @@ class Skill
         return $this;
     }
 
-    public function getAbility(): ?Ability
+    public function getAttribute(): ?Attribute
     {
-        return $this->ability;
+        return $this->attribute;
     }
 
-    public function setAbility(?Ability $ability): static
+    public function setAttribute(?Attribute $attribute): static
     {
-        $this->ability = $ability;
+        $this->attribute = $attribute;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }

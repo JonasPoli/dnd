@@ -3,8 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Feat;
-use App\Entity\RulesSource;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,7 +14,7 @@ class FeatType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('ruleSlug')
+            ->add('type')
             ->add('prerequisite', TextareaType::class, [
                 'required' => false,
                 'attr' => ['rows' => 2]
@@ -24,10 +22,6 @@ class FeatType extends AbstractType
             ->add('descriptionMd', TextareaType::class, [
                 'required' => false,
                 'attr' => ['rows' => 8]
-            ])
-            ->add('rulesSource', EntityType::class, [
-                'class' => RulesSource::class,
-                'choice_label' => 'name',
             ])
         ;
     }

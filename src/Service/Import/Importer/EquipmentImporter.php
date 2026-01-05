@@ -95,9 +95,7 @@ class EquipmentImporter implements ImporterInterface
 
         if (!$equipment) {
             $equipment = new Equipment();
-            $equipment->setRulesSource($ctx->getRulesSource());
-            $equipment->setRuleSlug($record->getExternalId());
-
+            
             $this->entityManager->persist($equipment);
             $ctx->addStats($this->getEntityType(), 'inserted');
         }

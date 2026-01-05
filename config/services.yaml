@@ -34,5 +34,13 @@ services:
         App\Service\Import\Importer\ImporterInterface:
             tags: ['app.importer']
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # Markdown GFM (Tables, etc.)
+    League\CommonMark\GithubFlavoredMarkdownConverter:
+        arguments:
+            - { 'html_input': 'strip', 'allow_unsafe_links': false }
+            
+    # Alias for Twig Markdown Extension
+    Twig\Extra\Markdown\MarkdownInterface:
+        class: Twig\Extra\Markdown\LeagueMarkdown
+        public: true
+        arguments: ['@League\CommonMark\GithubFlavoredMarkdownConverter']

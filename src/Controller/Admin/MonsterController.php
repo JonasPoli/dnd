@@ -129,10 +129,14 @@ class MonsterController extends AbstractController
     #[Route('/{id}', name: 'admin_monster_show', methods: ['GET'])]
     public function show(Monster $monster, \App\Service\UnsplashImageService $imageService): Response
     {
-        $imageUrl = $imageService->searchImage('monster', $monster->getName());
+        if ($monster->getImgMain()) {
+            $imageUrl = '/' . $monster->getImgMain();
+        } else {
+            $imageUrl = $imageService->searchImage('monster', $monster->getName());
 
-        if (!$imageUrl) {
-            $imageUrl = $imageService->getPlaceholderImage('monster');
+            if (!$imageUrl) {
+                $imageUrl = $imageService->getPlaceholderImage('monster');
+            }
         }
 
         return $this->render('admin/monster/show.html.twig', [

@@ -35,14 +35,9 @@ class SpeciesImporter implements ImporterInterface
             'size' => $raw['size'] ?? 'Medium',
             'speedWalk' => (int) ($raw['speed']['walk'] ?? 30),
             'description' => $raw['desc'] ?? '',
-            'asiDescription' => $raw['asi_desc'] ?? null,
-            'asi' => $raw['asi'] ?? [],
             'age' => $raw['age'] ?? null,
-            'alignment' => $raw['alignment'] ?? null,
             'speedDescription' => $raw['speed_desc'] ?? null,
             'languages' => $raw['languages'] ?? null,
-            'vision' => $raw['vision'] ?? null,
-            'traits' => $raw['traits'] ?? null,
         ];
 
         return new NormalizedRecord($this->getEntityType(), $raw['slug'], $payload);
@@ -70,16 +65,17 @@ class SpeciesImporter implements ImporterInterface
 
         if (!$species) {
             // Check if species already exists (crash recovery)
-            $species = $this->speciesRepo->findOneBy([
-                'rulesSource' => $ctx->getRulesSource(),
-                'ruleSlug' => $record->getExternalId()
-            ]);
+            /* $species = $this->speciesRepo->findOneBy([
+                // 'rulesSource' => $ctx->getRulesSource(),
+                // 'ruleSlug' => $record->getExternalId()
+                'name' => $record->getPayload()['name'] // Temporary duplicate check by name? Or just leave it disabled.
+            ]); */
         }
 
         if (!$species) {
             $species = new Species();
-            $species->setRulesSource($ctx->getRulesSource());
-            $species->setRuleSlug($record->getExternalId());
+            // $species->setRulesSource($ctx->getRulesSource());
+            // $species->setRuleSlug($record->getExternalId());
 
             $this->entityManager->persist($species);
             $ctx->addStats($this->getEntityType(), 'inserted');
@@ -91,14 +87,9 @@ class SpeciesImporter implements ImporterInterface
         $species->setSpeedWalk($payload['speedWalk']);
         $species->setDescriptionMd($payload['description']);
 
-        $species->setAsiDescription($payload['asiDescription']);
-        $species->setAsi($payload['asi']);
         $species->setAge($payload['age']);
-        $species->setAlignment($payload['alignment']);
         $species->setSpeedDescription($payload['speedDescription']);
         $species->setLanguages($payload['languages']);
-        $species->setVision($payload['vision']);
-        $species->setTraits($payload['traits']);
 
         $species->setIsActive(true);
 

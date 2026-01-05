@@ -19,7 +19,6 @@ class SubraceType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('ruleSlug')
             ->add('species', EntityType::class, [
                 'class' => Species::class,
                 'choice_label' => 'name',
@@ -30,39 +29,7 @@ class SubraceType extends AbstractType
                 'attr' => ['rows' => 6],
                 'label' => 'Description (Markdown)',
             ])
-            ->add('asiDescription', TextType::class, [
-                'required' => false,
-                'label' => 'ASI Description',
-            ])
-            ->add('asi', TextareaType::class, [
-                'required' => false,
-                'label' => 'ASI (JSON)',
-                'attr' => ['rows' => 3],
-            ])
-            ->add('traits', TextareaType::class, [
-                'required' => false,
-                'attr' => ['rows' => 5],
-                'label' => 'Traits (Markdown/Text)',
-            ])
-            ->add('rulesSource', EntityType::class, [
-                'class' => RulesSource::class,
-                'choice_label' => 'name',
-            ])
         ;
-
-        $builder->get('asi')
-            ->addModelTransformer(new CallbackTransformer(
-                function ($array) {
-                    return empty($array) ? '' : json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                },
-                function ($string) {
-                    if (empty($string)) {
-                        return [];
-                    }
-                    $decoded = json_decode($string, true);
-                    return is_array($decoded) ? $decoded : [];
-                }
-            ));
     }
 
     public function configureOptions(OptionsResolver $resolver): void

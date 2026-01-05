@@ -16,38 +16,11 @@ class BackgroundType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('ruleSlug')
             ->add('name')
             ->add('descriptionMd', TextareaType::class, [
                 'required' => false,
                 'attr' => ['rows' => 5],
                 'label' => 'Description (Markdown)',
-            ])
-            ->add('skillProficiencies', TextType::class, ['required' => false])
-            ->add('toolProficiencies', TextType::class, ['required' => false])
-            ->add('languages', TextType::class, ['required' => false])
-            ->add('equipment', TextareaType::class, [
-                'required' => false,
-                'attr' => ['rows' => 3],
-            ])
-            ->add('feature', TextType::class, ['required' => false])
-            ->add('featureDesc', TextareaType::class, [
-                'required' => false,
-                'attr' => ['rows' => 5],
-                'label' => 'Feature Description',
-            ])
-            ->add('suggestedCharacteristics', TextareaType::class, [
-                'required' => false,
-                'attr' => ['rows' => 5],
-            ])
-            ->add('grantsJson', TextareaType::class, [
-                'required' => false,
-                'attr' => ['rows' => 3],
-                'label' => 'Grants (JSON)',
-            ])
-            ->add('rulesSource', EntityType::class, [
-                'class' => RulesSource::class,
-                'choice_label' => 'name',
             ])
         ;
     }

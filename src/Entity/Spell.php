@@ -58,6 +58,15 @@ class Spell
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $higherLevelsMd = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $namePt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionMdPt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $higherLevelsMdPt = null;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $page = null;
 
@@ -396,6 +405,39 @@ class Spell
     public function setCircles(?string $circles): static
     {
         $this->circles = $circles;
+        return $this;
+    }
+
+    public function getNamePt(): ?string
+    {
+        return $this->namePt;
+    }
+
+    public function setNamePt(?string $namePt): static
+    {
+        $this->namePt = $namePt;
+        return $this;
+    }
+
+    public function getDescriptionMdPt(): ?string
+    {
+        return $this->descriptionMdPt;
+    }
+
+    public function setDescriptionMdPt(?string $descriptionMdPt): static
+    {
+        $this->descriptionMdPt = $descriptionMdPt;
+        return $this;
+    }
+
+    public function getHigherLevelsMdPt(): ?string
+    {
+        return $this->higherLevelsMdPt;
+    }
+
+    public function setHigherLevelsMdPt(?string $higherLevelsMdPt): static
+    {
+        $this->higherLevelsMdPt = $higherLevelsMdPt;
         return $this;
     }
 }
