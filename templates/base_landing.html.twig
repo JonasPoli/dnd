@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}A Aventura Começa{% endblock %}</title>
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <!-- Fantasy Fonts: Cinzel for headers, MedievalSharp for accents, Lato for body -->
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=MedievalSharp&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+        {% block stylesheets %}
+        {% endblock %}
+
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+        
+        <style>
+            .font-fantasy { font-family: 'Cinzel', serif; }
+            .font-medieval { font-family: 'MedievalSharp', cursive; }
+        </style>
+    </head>
+    <body class="min-h-screen flex flex-col font-lato bg-slate-950 text-slate-200 transition-colors duration-300 overflow-x-hidden selection:bg-red-900 selection:text-white">
+        
+        <main class="flex-grow">
+            {% block body %}{% endblock %}
+        </main>
+
+    </body>
+</html>
