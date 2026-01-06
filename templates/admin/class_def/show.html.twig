@@ -21,9 +21,16 @@
     {# D&D Class Sheet #}
     <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-4 border-indigo-900 dark:border-indigo-700 shadow-2xl overflow-hidden">
         {# Header #}
-        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-6 border-b-4 border-indigo-950">
-            <h1 class="text-4xl font-bold text-indigo-50 mb-2 font-serif">{{ class_def.name }}</h1>
-            <p class="text-indigo-200 text-lg italic">Classe de Personagem</p>
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-6 border-b-4 border-indigo-950 flex items-center gap-6">
+            {% if vich_uploader_asset(class_def, 'logoFile') %}
+                <div class="bg-white p-2 rounded-2xl shadow-lg rotate-3 transform transition-transform hover:rotate-0">
+                    <img src="{{ vich_uploader_asset(class_def, 'logoFile') }}" alt="{{ class_def.name }}" class="w-20 h-20 object-contain">
+                </div>
+            {% endif %}
+            <div>
+                <h1 class="text-4xl font-bold text-indigo-50 mb-2 font-serif">{{ class_def.name }}</h1>
+                <p class="text-indigo-200 text-lg italic">Classe de Personagem</p>
+            </div>
         </div>
 
         <div class="px-8 py-6 space-y-6">
@@ -157,6 +164,32 @@
                 <span class="font-mono">{{ class_def.ruleSlug }}</span>
             </div>
         </div>
+
+        {# Skills Section #}
+        <div class="px-8 pb-8">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                {{ ux_icon('lucide:scroll', {class: 'w-6 h-6 text-indigo-500'}) }}
+                Perícias Iniciais
+            </h2>
+            {% if class_def.baseSkills is not empty %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for skill in class_def.baseSkills %}
+                        <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start gap-3">
+                            <div class="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400">
+                                {{ ux_icon('lucide:check', {class: 'w-4 h-4'}) }}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 dark:text-slate-200">{{ skill.name }}</h3>
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">{{ skill.attribute.name|default('Geral') }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-slate-500 italic">Nenhuma perícia inicial definida.</p>
+            {% endif %}
+        </div>
+        
     </div>
 </div>
 

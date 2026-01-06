@@ -36,8 +36,8 @@ class Spell
     #[ORM\Column]
     private ?int $level = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $school = null;
+    #[ORM\Column(length: 100, enumType: \App\Enum\SpellSchool::class)]
+    private ?\App\Enum\SpellSchool $school = null;
 
     #[ORM\Column(length: 255)]
     private ?string $castingTime = null;
@@ -178,12 +178,14 @@ class Spell
         return $this;
     }
 
-    public function getSchool(): ?string
+
+
+    public function getSchool(): ?\App\Enum\SpellSchool
     {
         return $this->school;
     }
 
-    public function setSchool(string $school): static
+    public function setSchool(\App\Enum\SpellSchool $school): static
     {
         $this->school = $school;
 

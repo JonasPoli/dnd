@@ -11,22 +11,24 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: ClassDefRepository::class)]
-#[Vich\Uploadable]
+// #[Vich\Uploadable]
 #[ORM\UniqueConstraint(name: 'UNIQ_SOURCE_KEY', fields: ['rulesSource', 'ruleSlug'])]
 class ClassDef
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    /*
+        #[ORM\Id]
+        #[ORM\GeneratedValue]
+        #[ORM\Column]
+        private ?int $id = null;
 
-    #[ORM\Column(options: ['default' => true])]
-    private ?bool $isActive = true;
+        #[ORM\Column(options: ['default' => true])]
+        private ?bool $isActive = true;
+    */
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logoName = null;
 
-    #[Vich\UploadableField(mapping: 'class_logo', fileNameProperty: 'logoName')]
+    // #[Vich\UploadableField(mapping: 'class_logo', fileNameProperty: 'logoName')]
     private ?File $logoFile = null;
 
     #[ORM\ManyToOne]
@@ -102,20 +104,12 @@ class ClassDef
     #[ORM\OneToMany(targetEntity: SubclassDef::class, mappedBy: 'classDef', orphanRemoval: true)]
     private Collection $subclasses;
 
-    /**
-     * @var Collection<int, Skill>
-     */
-    #[ORM\ManyToMany(targetEntity: Skill::class)]
-    #[ORM\JoinTable(name: 'class_def_skill')]
-    private Collection $baseSkills;
-
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->classLevels = new ArrayCollection();
         $this->subclasses = new ArrayCollection();
-        $this->baseSkills = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -312,30 +306,6 @@ class ClassDef
             $this->subclasses->add($subclass);
             $subclass->setClassDef($this);
         }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Skill>
-     */
-    public function getBaseSkills(): Collection
-    {
-        return $this->baseSkills;
-    }
-
-    public function addBaseSkill(Skill $baseSkill): static
-    {
-        if (!$this->baseSkills->contains($baseSkill)) {
-            $this->baseSkills->add($baseSkill);
-        }
-
-        return $this;
-    }
-
-    public function removeBaseSkill(Skill $baseSkill): static
-    {
-        $this->baseSkills->removeElement($baseSkill);
 
         return $this;
     }

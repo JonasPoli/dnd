@@ -19,6 +19,7 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-border">
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Logo</th>
                     <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome / Chave</th>
                     <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Dado de Vida</th>
                     <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Fonte</th>
@@ -28,6 +29,15 @@
             <tbody class="divide-y divide-border">
                 {% for class_def in class_defs %}
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="px-8 py-5">
+                            {% if vich_uploader_asset(class_def, 'logoFile') %}
+                                <img src="{{ vich_uploader_asset(class_def, 'logoFile') }}" alt="{{ class_def.name }}" class="w-10 h-10 object-contain rounded-lg bg-white p-1 ring-1 ring-slate-200 dark:ring-slate-700">
+                            {% else %}
+                                <div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                                    {{ ux_icon('lucide:image-off', {class: 'w-5 h-5'}) }}
+                                </div>
+                            {% endif %}
+                        </td>
                         <td class="px-8 py-5">
                             <div class="font-bold text-slate-900 dark:text-white">{{ class_def.name }}</div>
                             <div class="text-xs text-slate-400">{{ class_def.ruleSlug }}</div>
@@ -45,6 +55,9 @@
                                 <a href="{{ path('admin_class_show', {'id': class_def.id}) }}" class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors" title="Visualizar">
                                     {{ ux_icon('lucide:eye', {class: 'w-5 h-5'}) }}
                                 </a>
+                                <a href="{{ path('admin_class_skill_index', {'id': class_def.id}) }}" class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors" title="Gerenciar Perícias">
+                                    {{ ux_icon('lucide:scroll', {class: 'w-5 h-5'}) }}
+                                </a>
                                 <a href="{{ path('admin_class_edit', {'id': class_def.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors" data-turbo="false">
                                     {{ ux_icon('lucide:edit-3', {class: 'w-5 h-5'}) }}
                                 </a>
@@ -54,7 +67,7 @@
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="4" class="px-8 py-12 text-center text-slate-400">
+                        <td colspan="5" class="px-8 py-12 text-center text-slate-400">
                             Nenhuma classe encontrada.
                         </td>
                     </tr>

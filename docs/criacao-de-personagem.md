@@ -13,13 +13,41 @@ Cada passso deve ter a ID do personagem que está sendo criado ou editado e o pa
 
 ---
 
+A criação de um personagem deve criar um registro na entidade `Character`. Todos os campos existentes na entidade devem ser verificados se devem ser removidos da entidade, caso não usado; acrecentado, caso ausente; ajustado, caso necessário.
 
+O sistema deve ser um formulário com vários passos. Cada passo deve ser apresentado numa página diferente, com rotas diferentes.
+
+Deve ser possível navegar entre os passos do formulário.
 
 ## Passo 1: Escolha uma Classe
 
 O primeiro passo define o arquétipo mecânico principal.
+Devem ser apresentadas as classes base do D&D 2024, pelo campo ClassDef.name.
+Deve ser possível selecionar uma classe e avançar para o próximo passo.
 
-### Lista de Classes (Core)
+A tela deve estar dividida em 2 partes
+Do lado esquerdo devem ser listadas as classes, com logo e nome da Classe
+Do lado direito deve ser mostrada a descrição da classe selecionada com Dado de Vida, Testes de Resistência, Ajuda na Criação,Pontos de Vida,Tabela da Classe, descriptionMd. Deve ser aplicada a formatação Markdown.
+
+Deve haver um botão para avançar para o próximo passo.
+
+## Passo 2: Escolha a subclasse
+Deve aparecer, acima, de forma bem bonita e organizada, o nome e o logo da classe escolhida no passo anterior.
+Similar ao layout do passo 01, A tela deve estar dividida em 2 partes
+Do lado esquerdo devem ser listadas as subclasses da classe escolhida no passo anterior
+Do lado direito deve ser mostrada a descrição da SUBCLASSE selecionada descriptionMd. Deve ser aplicada a formatação Markdown.
+Deve haver um botão para avançar para o próximo passo e um botão para voltar para o passo anterior.
+
+# Passo 3: Habilidades inciais
+No terceiro passo, o usuário deve selecionar as habilidades inciais.
+A quantidade de habilidades e o tipo de habilidade depende da classe do personagem.
+A lista das habilidades possíveis do personagem deve ser capturada de ClassDef.baseSkills de acordo com a classe escolhida.
+
+
+
+
+
+### Lista de Origens (Core)
 O sistema deve suportar as 12 classes base.
 *   **Bárbaro (Barbarian)**
 *   **Bardo (Bard)**
