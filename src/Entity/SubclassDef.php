@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\SubclassDefRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -101,6 +102,17 @@ class SubclassDef
         return $this;
     }
 
+    /**
+     * @var Collection<int, SubclassSpell>
+     */
+    #[ORM\OneToMany(targetEntity: SubclassSpell::class, mappedBy: 'subclassDef', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    private Collection $subclassSpells;
+
+    public function __construct()
+    {
+        $this->subclassSpells = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
     public function getDescriptionMd(): ?string
     {
         return $this->descriptionMd;
@@ -109,6 +121,36 @@ class SubclassDef
     public function setDescriptionMd(?string $descriptionMd): static
     {
         $this->descriptionMd = $descriptionMd;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SubclassSpell>
+     */
+    public function getSubclassSpells(): Collection
+    {
+        return $this->subclassSpells;
+    }
+
+    public function addSubclassSpell(SubclassSpell $subclassSpell): static
+    {
+        if (!$this->subclassSpells->contains($subclassSpell)) {
+            $this->subclassSpells->add($subclassSpell);
+            $subclassSpell->setSubclassDef($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubclassSpell(SubclassSpell $subclassSpell): static
+    {
+        if ($this->subclassSpells->removeElement($subclassSpell)) {
+            // set the owning side to null (unless already changed)
+            if ($subclassSpell->getSubclassDef() === $this) {
+                $subclassSpell->setSubclassDef(null);
+            }
+        }
 
         return $this;
     }

@@ -48,6 +48,74 @@ class ClassDefType extends AbstractType
             ->add('classTableMd', TextareaType::class, ['label' => 'Tabela da Classe (MD)', 'required' => false, 'attr' => ['rows' => 6]])
             ->add('characterCreationHelp', TextareaType::class, ['label' => 'Ajuda ao Criar Personagem (MD)', 'required' => false, 'attr' => ['rows' => 6]])
 
+            ->add('classLevels', \Symfony\Component\Form\Extension\Core\Type\CollectionType::class, [
+                'entry_type' => ClassLevelType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'label' => false, // We'll manage label in template
+            ])
+
+            ->add('initialSkillsCount', IntegerType::class, [
+                'label' => 'Quantidade de Perícias Iniciais',
+                'help' => 'Quantas perícias um personagem pode escolher ao ser criado nesta classe.',
+                'required' => false,
+                'attr' => ['class' => 'form-input']
+            ])
+            ->add('initialToolsCount', IntegerType::class, [
+                'label' => 'Quantidade de Ferramentas Iniciais',
+                'help' => 'Quantas ferramentas um personagem é proficiente ao ser criado nesta classe.',
+                'required' => false,
+                'attr' => ['class' => 'form-input']
+            ])
+            ->add('primaryAbility1', EntityType::class, [
+                'class' => \App\Entity\Attribute::class,
+                'choice_label' => 'name',
+                'label' => 'Atributo Primário 1',
+                'required' => false,
+            ])
+            ->add('primaryAbility2', EntityType::class, [
+                'class' => \App\Entity\Attribute::class,
+                'choice_label' => 'name',
+                'label' => 'Atributo Primário 2',
+                'required' => false,
+            ])
+            ->add('savingThrow1', EntityType::class, [
+                'class' => \App\Entity\Attribute::class,
+                'choice_label' => 'name',
+                'label' => 'Proficiência em Salvaguarda 1',
+                'required' => false,
+            ])
+            ->add('savingThrow2', EntityType::class, [
+                'class' => \App\Entity\Attribute::class,
+                'choice_label' => 'name',
+                'label' => 'Proficiência em Salvaguarda 2',
+                'required' => false,
+            ])
+            ->add('weaponProficiencies', \Symfony\Component\Form\Extension\Core\Type\EnumType::class, [
+                'class' => \App\Enum\WeaponProficiency::class,
+                'label' => 'Proficiências com Armas',
+                'required' => false,
+            ])
+            ->add('armorTraining', \Symfony\Component\Form\Extension\Core\Type\EnumType::class, [
+                'class' => \App\Enum\ArmorTraining::class,
+                'label' => 'Treinamento com Armadura',
+                'required' => false,
+            ])
+            ->add('toolProficiency1', EntityType::class, [
+                'class' => \App\Entity\Equipment::class,
+                'choice_label' => 'name',
+                'label' => 'Proficiência com Ferramentas 1',
+                'required' => false,
+            ])
+            ->add('toolProficiency2', EntityType::class, [
+                'class' => \App\Entity\Equipment::class,
+                'choice_label' => 'name',
+                'label' => 'Proficiência com Ferramentas 2',
+                'required' => false,
+            ])
+
             ->add('rulesSource', EntityType::class, [
                 'class' => RulesSource::class,
                 'choice_label' => 'name',

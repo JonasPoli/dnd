@@ -67,6 +67,9 @@ class Spell
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $higherLevelsMdPt = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $scho = null;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $page = null;
 

@@ -20,6 +20,9 @@
             <thead>
                 <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-border">
                     <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Atributos</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Talento</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Perícias</th>
                     <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Ações</th>
                 </tr>
             </thead>
@@ -28,6 +31,26 @@
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-8 py-5">
                             <div class="font-bold text-slate-900 dark:text-white">{{ background.name }}</div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="flex gap-1 text-xs text-slate-500">
+                                {% if background.attribute1 %}<span class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">{{ background.attribute1.name }}</span>{% endif %}
+                                {% if background.attribute2 %}<span class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">{{ background.attribute2.name }}</span>{% endif %}
+                                {% if background.attribute3 %}<span class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">{{ background.attribute3.name }}</span>{% endif %}
+                            </div>
+                        </td>
+                         <td class="px-8 py-5">
+                            {% if background.feat %}
+                                <span class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">{{ background.feat.name }}</span>
+                            {% else %}
+                                <span class="text-slate-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-8 py-5">
+                             <div class="flex flex-wrap gap-1 text-xs">
+                                {% if background.skill1 %}<span class="text-slate-600 dark:text-slate-300">{{ background.skill1.name }}</span>{% endif %}
+                                {% if background.skill2 %}<span class="text-slate-600 dark:text-slate-300">, {{ background.skill2.name }}</span>{% endif %}
+                             </div>
                         </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex items-center justify-end space-x-3">

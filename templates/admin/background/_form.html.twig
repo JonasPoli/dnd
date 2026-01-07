@@ -1,27 +1,135 @@
 {{ form_start(form) }}
-    <div class="space-y-6">
-    <div class="space-y-6">
-        <div>
-            {{ form_row(form.name, {
-                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700'}
-            }) }}
+    <div class="space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {# Left Column: Narrative #}
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm sticky top-6">
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+                            {{ ux_icon('lucide:book-open', {class: 'w-6 h-6 text-indigo-500'}) }}
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">Narrativa</h3>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            {{ form_label(form.name, null, {'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'}}) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-input w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold placeholder:font-normal'}}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                    </div>
+                </div>
+                
+                {# Action Buttons (Desktop sticky) #}
+                <div class="hidden lg:flex flex-col gap-3 sticky top-[250px]">
+                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 group">
+                        {{ ux_icon('lucide:save', {class: 'w-5 h-5 group-hover:scale-110 transition-transform'}) }}
+                        <span>Salvar Alterações</span>
+                    </button>
+                    <a href="{{ path('admin_background_index') }}" class="w-full bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 px-6 py-4 rounded-xl font-bold border border-slate-200 dark:border-slate-700 transition-all text-center">
+                        Cancelar
+                    </a>
+                </div>
+            </div>
+
+            {# Right Column: Mechanics #}
+            <div class="lg:col-span-2 space-y-6">
+                
+                {# Stats Header #}
+                 <div class="flex items-center gap-3 mb-2 px-1">
+                    <div class="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl">
+                        {{ ux_icon('lucide:dices', {class: 'w-5 h-5 text-emerald-500'}) }}
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">Mecânicas de Jogo</h3>
+                </div>
+
+                {# Attributes #}
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h4 class="font-bold text-xs uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                        {{ ux_icon('lucide:activity', {class: 'w-4 h-4'}) }} Aumento de Atributos
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {{ form_widget(form.attribute1, {'attr': {'class': 'form-select w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-emerald-500/20'}}) }}
+                        {{ form_widget(form.attribute2, {'attr': {'class': 'form-select w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-emerald-500/20'}}) }}
+                        {{ form_widget(form.attribute3, {'attr': {'class': 'form-select w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-emerald-500/20'}}) }}
+                    </div>
+                    <p class="text-xs text-slate-400 mt-3 px-1">Selecione os 3 atributos que receberão +1 ou utilize a regra de +2/+1.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {# Skills & Features #}
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-full">
+                        <h4 class="font-bold text-xs uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                            {{ ux_icon('lucide:sparkles', {class: 'w-4 h-4'}) }} Talentos & Perícias
+                        </h4>
+                        
+                        <div class="space-y-6 flex-1">
+                            <div>
+                                {{ form_label(form.feat, 'Talento Inicial', {'label_attr': {'class': 'block text-xs font-bold text-slate-500 mb-1.5'}}) }}
+                                {{ form_widget(form.feat, {'attr': {'class': 'form-select w-full bg-indigo-50/50 dark:bg-slate-800 border-indigo-100 dark:border-slate-700 rounded-xl focus:ring-indigo-500/20 text-indigo-900 dark:text-indigo-100 font-medium'}}) }}
+                            </div>
+
+                            <div class="space-y-3">
+                                <span class="block text-xs font-bold text-slate-500">Perícias Treinadas</span>
+                                {{ form_widget(form.skill1, {'attr': {'class': 'form-select w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl'}}) }}
+                                {{ form_widget(form.skill2, {'attr': {'class': 'form-select w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl'}}) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Equipment #}
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-full">
+                         <h4 class="font-bold text-xs uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                            {{ ux_icon('lucide:backpack', {class: 'w-4 h-4'}) }} Inventário
+                        </h4>
+
+                        <div class="space-y-6 flex-1">
+                            <div>
+                                 {{ form_label(form.toolProficiency, 'Ferramenta', {'label_attr': {'class': 'block text-xs font-bold text-slate-500 mb-1.5'}}) }}
+                                 {{ form_widget(form.toolProficiency, {'attr': {'class': 'form-select w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl'}}) }}
+                            </div>
+
+                            <div class="flex-1 flex flex-col">
+                                 {{ form_label(form.startingEquipment, 'Equipamento Inicial', {'label_attr': {'class': 'block text-xs font-bold text-slate-500 mb-1.5'}}) }}
+                                 <div class="relative flex-1">
+                                    {{ form_widget(form.startingEquipment, {'attr': {'class': 'form-select w-full h-full min-h-[160px] bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl', 'data-controller': 'tom-select'}}) }}
+                                    <div class="absolute right-3 top-3 pointer-events-none">
+                                        {{ ux_icon('lucide:chevrons-up-down', {class: 'w-4 h-4 text-slate-400'}) }}
+                                    </div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {# Mobile Action Buttons #}
+                <div class="lg:hidden flex flex-col gap-3 mt-8">
+                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
+                        {{ ux_icon('lucide:save', {class: 'w-5 h-5'}) }}
+                        <span>Salvar Alterações</span>
+                    </button>
+                    <a href="{{ path('admin_background_index') }}" class="w-full bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 px-6 py-4 rounded-xl font-bold border border-slate-200 dark:border-slate-700 transition-all text-center">
+                        Cancelar
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <div>
-            {{ form_row(form.descriptionMd, {
-                'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1'},
-                'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700', 'rows': 6}
-            }) }}
+        {# Full Width Description Section #}
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+                    {{ ux_icon('lucide:file-text', {class: 'w-6 h-6 text-indigo-500'}) }}
+                </div>
+                <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">Descrição Detalhada</h3>
+            </div>
+            
+            <div>
+                {{ form_widget(form.descriptionMd, {'attr': {'class': 'form-textarea w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500/20 text-slate-600 dark:text-slate-300 min-h-[600px] resize-y font-mono text-sm leading-relaxed', 'placeholder': 'Descreva a origem...'}}) }}
+                {{ form_errors(form.descriptionMd) }}
+            </div>
         </div>
-    </div>
 
-    <div class="mt-10 flex items-center space-x-4">
-        <button class="bg-primary text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all">
-            {{ button_label|default('Salvar Antecedente') }}
-        </button>
-        <a href="{{ path('admin_background_index') }}" class="px-8 py-4 rounded-2xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-            Cancelar
-        </a>
     </div>
 {{ form_end(form) }}

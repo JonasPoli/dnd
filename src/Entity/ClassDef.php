@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Enum\ArmorTraining;
+use App\Enum\WeaponProficiency;
 use App\Repository\ClassDefRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -41,6 +43,36 @@ class ClassDef
 
     #[ORM\Column]
     private ?int $hitDie = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $initialSkillsCount = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $initialToolsCount = null;
+
+    #[ORM\ManyToOne]
+    private ?Attribute $savingThrow1 = null;
+
+    #[ORM\ManyToOne]
+    private ?Attribute $savingThrow2 = null;
+
+    #[ORM\ManyToOne]
+    private ?Attribute $primaryAbility1 = null;
+
+    #[ORM\ManyToOne]
+    private ?Attribute $primaryAbility2 = null;
+
+    #[ORM\Column(length: 50, nullable: true, enumType: WeaponProficiency::class)]
+    private ?WeaponProficiency $weaponProficiencies = null;
+
+    #[ORM\Column(length: 50, nullable: true, enumType: ArmorTraining::class)]
+    private ?ArmorTraining $armorTraining = null;
+
+    #[ORM\ManyToOne]
+    private ?Equipment $toolProficiency1 = null;
+
+    #[ORM\ManyToOne]
+    private ?Equipment $toolProficiency2 = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descriptionMd = null;
@@ -205,6 +237,126 @@ class ClassDef
     public function setHitDie(int $hitDie): static
     {
         $this->hitDie = $hitDie;
+
+        return $this;
+    }
+
+    public function getInitialSkillsCount(): ?int
+    {
+        return $this->initialSkillsCount;
+    }
+
+    public function setInitialSkillsCount(?int $initialSkillsCount): static
+    {
+        $this->initialSkillsCount = $initialSkillsCount;
+
+        return $this;
+    }
+
+    public function getInitialToolsCount(): ?int
+    {
+        return $this->initialToolsCount;
+    }
+
+    public function setInitialToolsCount(?int $initialToolsCount): static
+    {
+        $this->initialToolsCount = $initialToolsCount;
+
+        return $this;
+    }
+
+    public function getSavingThrow1(): ?Attribute
+    {
+        return $this->savingThrow1;
+    }
+
+    public function setSavingThrow1(?Attribute $savingThrow1): static
+    {
+        $this->savingThrow1 = $savingThrow1;
+
+        return $this;
+    }
+
+    public function getSavingThrow2(): ?Attribute
+    {
+        return $this->savingThrow2;
+    }
+
+    public function setSavingThrow2(?Attribute $savingThrow2): static
+    {
+        $this->savingThrow2 = $savingThrow2;
+
+        return $this;
+    }
+
+    public function getPrimaryAbility1(): ?Attribute
+    {
+        return $this->primaryAbility1;
+    }
+
+    public function setPrimaryAbility1(?Attribute $primaryAbility1): static
+    {
+        $this->primaryAbility1 = $primaryAbility1;
+
+        return $this;
+    }
+
+    public function getPrimaryAbility2(): ?Attribute
+    {
+        return $this->primaryAbility2;
+    }
+
+    public function setPrimaryAbility2(?Attribute $primaryAbility2): static
+    {
+        $this->primaryAbility2 = $primaryAbility2;
+
+        return $this;
+    }
+
+    public function getWeaponProficiencies(): ?WeaponProficiency
+    {
+        return $this->weaponProficiencies;
+    }
+
+    public function setWeaponProficiencies(?WeaponProficiency $weaponProficiencies): static
+    {
+        $this->weaponProficiencies = $weaponProficiencies;
+
+        return $this;
+    }
+
+    public function getArmorTraining(): ?ArmorTraining
+    {
+        return $this->armorTraining;
+    }
+
+    public function setArmorTraining(?ArmorTraining $armorTraining): static
+    {
+        $this->armorTraining = $armorTraining;
+
+        return $this;
+    }
+
+    public function getToolProficiency1(): ?Equipment
+    {
+        return $this->toolProficiency1;
+    }
+
+    public function setToolProficiency1(?Equipment $toolProficiency1): static
+    {
+        $this->toolProficiency1 = $toolProficiency1;
+
+        return $this;
+    }
+
+    public function getToolProficiency2(): ?Equipment
+    {
+        return $this->toolProficiency2;
+    }
+
+    public function setToolProficiency2(?Equipment $toolProficiency2): static
+    {
+        $this->toolProficiency2 = $toolProficiency2;
 
         return $this;
     }

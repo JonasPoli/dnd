@@ -28,6 +28,15 @@ class ClassLevel
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $spellSlotsJson = [];
 
+    #[ORM\Column(nullable: true)]
+    private ?int $cantripsKnown = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $spellsPrepared = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $featuresConfig = [];
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notesMd = null;
 
@@ -80,6 +89,42 @@ class ClassLevel
     public function setSpellSlotsJson(?array $spellSlotsJson): static
     {
         $this->spellSlotsJson = $spellSlotsJson;
+
+        return $this;
+    }
+
+    public function getCantripsKnown(): ?int
+    {
+        return $this->cantripsKnown;
+    }
+
+    public function setCantripsKnown(?int $cantripsKnown): static
+    {
+        $this->cantripsKnown = $cantripsKnown;
+
+        return $this;
+    }
+
+    public function getSpellsPrepared(): ?int
+    {
+        return $this->spellsPrepared;
+    }
+
+    public function setSpellsPrepared(?int $spellsPrepared): static
+    {
+        $this->spellsPrepared = $spellsPrepared;
+
+        return $this;
+    }
+
+    public function getFeaturesConfig(): ?array
+    {
+        return $this->featuresConfig;
+    }
+
+    public function setFeaturesConfig(?array $featuresConfig): static
+    {
+        $this->featuresConfig = $featuresConfig;
 
         return $this;
     }
