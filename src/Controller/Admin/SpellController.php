@@ -20,7 +20,7 @@ class SpellController extends AbstractController
     public function index(Request $request, SpellRepository $repository, \App\Repository\ClassDefRepository $classDefRepository): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 20;
+        $limit = 50;
         $search = $request->query->get('search', '');
         $levelFilter = $request->query->get('level', '');
         $schoolFilter = $request->query->get('school', '');

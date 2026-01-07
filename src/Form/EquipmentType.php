@@ -17,7 +17,9 @@ class EquipmentType extends AbstractType
         $builder
 
             ->add('name')
+            ->add('namePt', null, ['label' => 'Nome (PT)', 'required' => false])
             ->add('type')
+
             ->add('typePt', null, ['label' => 'Tipo (PT)'])
             ->add('weaponCategory', null, ['required' => false, 'label' => 'Weapon Category'])
             ->add('weaponCategoryPt', null, ['required' => false, 'label' => 'Categoria de Arma (PT)'])

@@ -4,6 +4,7 @@ namespace App\Service\Import\Importer;
 
 use App\Entity\ExternalReference;
 use App\Entity\Spell;
+use App\Repository\ClassDefRepository;
 use App\Repository\ExternalReferenceRepository;
 use App\Repository\SpellRepository;
 use App\Service\Import\Hasher;
@@ -17,6 +18,7 @@ class SpellImporter implements ImporterInterface
         private EntityManagerInterface $entityManager,
         private ExternalReferenceRepository $externalRefRepo,
         private SpellRepository $spellRepo,
+        private ClassDefRepository $classDefRepo,
         private Hasher $hasher
     ) {
     }
@@ -48,14 +50,64 @@ class SpellImporter implements ImporterInterface
             'isSomatic' => $raw['requires_somatic_components'] ?? false,
             'isMaterial' => $raw['requires_material_components'] ?? false,
             'archetype' => $raw['archetype'] ?? null,
+            'isMaterial' => $raw['requires_material_components'] ?? false,
+            'archetype' => $raw['archetype'] ?? null,
             'circles' => $raw['circles'] ?? null,
+            'spell_lists' => $raw['spell_lists'] ?? [],
+            'dnd_class' => $raw['dnd_class'] ?? '',
+            'sources' => $raw,
         ];
+
+        // Fallback: If spell_lists is empty but dnd_class is not, parse it
+        if (empty($payload['spell_lists']) && !empty($payload['dnd_class'])) {
+            $payload['spell_lists'] = array_map('trim', explode(',', $payload['dnd_class']));
+        }
 
         return new NormalizedRecord($this->getEntityType(), $raw['slug'], $payload);
     }
 
     public function upsert(NormalizedRecord $record, ImportContext $ctx): ?int
     {
+        $payload = $record->getPayload();
+
+        // Special mode: Update classes and sources only
+        if ($ctx->getOption('update-classes-only')) {
+            $spell = $this->spellRepo->findOneBy(['name' => $payload['name']]);
+            if ($spell) {
+                $spell->setSources($payload['sources']);
+                $spell->setArchetype($payload['archetype']);
+                $spell->setCircles($payload['circles']);
+                
+                // Update Classes
+                if (!empty($payload['spell_lists'])) {
+                    // Clear existing classes (optional, but safer to sync state)
+                    foreach ($spell->getClasses() as $existingClass) {
+                        $spell->removeClass($existingClass);
+                    }
+
+                    foreach ($payload['spell_lists'] as $classSlug) {
+                        // Normalize slug/name? Open5e uses "bard", "wizard". Database probably has "Bard", "Wizard" or slugs.
+                        // Try to find by slug first, then name.
+                        $classDef = $this->classDefRepo->findOneBy(['ruleSlug' => strtolower($classSlug)]);
+                        if (!$classDef) {
+                            $classDef = $this->classDefRepo->findOneBy(['name' => ucfirst($classSlug)]);
+                        }
+                        
+                        if ($classDef) {
+                            $spell->addClass($classDef);
+                        }
+                    }
+                }
+
+                $this->entityManager->flush();
+                $ctx->addStats($this->getEntityType(), 'updated');
+                return $spell->getId();
+            } else {
+                $ctx->addStats($this->getEntityType(), 'skipped');
+                return null;
+            }
+        }
+
         $hash = $this->hasher->hashNormalized($record);
         $ref = $this->externalRefRepo->findOneBySourceTypeAndExtId(
             $ctx->getRulesSource(),
@@ -105,6 +157,7 @@ class SpellImporter implements ImporterInterface
         $spell->setIsMaterial($payload['isMaterial']);
         $spell->setArchetype($payload['archetype']);
         $spell->setCircles($payload['circles']);
+        $spell->setSources($payload['sources']);
 
         $spell->setIsActive(true);
 

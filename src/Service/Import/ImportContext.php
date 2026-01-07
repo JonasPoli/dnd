@@ -49,6 +49,11 @@ class ImportContext
         return $this->options;
     }
 
+    public function getOption(string $key, mixed $default = null): mixed
+    {
+        return $this->options[$key] ?? $default;
+    }
+
     public function addStats(string $entityType, string $action, int $count = 1): void
     {
         if (!isset($this->stats[$entityType])) {

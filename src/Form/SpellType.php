@@ -148,20 +148,28 @@ class SpellType extends AbstractType
                 'expanded' => false,
                 'required' => false,
             ])
+            ->add('sources', TextareaType::class, [
+                'label' => 'Fontes (JSON)',
+                'attr' => ['class' => 'form-textarea', 'rows' => 5],
+                'required' => false,
+                'help' => 'Dados brutos das fontes de importação',
+            ])
         ;
 
 
-        $builder->get('componentsJson')
-            ->addModelTransformer(new CallbackTransformer(
-                function ($array) {
-                    return empty($array) ? '' : json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                },
-                function ($string) {
-                    if (empty($string)) return [];
-                    $decoded = json_decode($string, true);
-                    return is_array($decoded) ? $decoded : [];
-                }
-            ));
+        $transformer = new CallbackTransformer(
+            function ($array) {
+                return empty($array) ? '' : json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            },
+            function ($string) {
+                if (empty($string)) return [];
+                $decoded = json_decode($string, true);
+                return is_array($decoded) ? $decoded : [];
+            }
+        );
+
+        $builder->get('componentsJson')->addModelTransformer($transformer);
+        $builder->get('sources')->addModelTransformer($transformer);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

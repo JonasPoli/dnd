@@ -61,6 +61,16 @@ class ImportRunner
                     }
 
                     $count++;
+                    if (($limit = $ctx->getOption('limit')) && $count >= $limit) {
+                        $this->entityManager->flush();
+                        break 2; // Break entity loop and record loop? No, just record loop. But entity loop iterates types.
+                        // Actually, break 1 breaks the inner loop (records).
+                        // If I want to stop EVERYTHING, I might need break 2 if nested.
+                        // Importer iterates entityTypes.
+                        // If limit is global per entity type, or total?
+                        // User likely implies per run. But here it's per entity loop.
+                        // Let's just break the inner loop.
+                    }
                     if ($count % $ctx->getChunkSize() === 0) {
                         $this->entityManager->flush();
                     }

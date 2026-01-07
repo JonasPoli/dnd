@@ -2,11 +2,7 @@
 
 Este documento detalha o fluxo completo e as regras de negócio para o sistema de criação de personagens, baseado no Player's Handbook (2024). Ele serve como especificação para o desenvolvimento do backend (Entidades) e frontend (Fluxo de UI).
 
-O processo de criação de personagem é composto por 4 passos:
-1. Escolha uma Classe
-2. Determine a Origem
-3. Escolha a Espécie
-4. Valores de Atributo
+O processo de criação de personagem é composto por vários passos.
 
 Cada passo será um formulário que o usuário preencherá e, ao finalizar cada passo, passao para o próximo passo.
 Cada passso deve ter a ID do personagem que está sendo criado ou editado e o passo atual.
@@ -38,11 +34,25 @@ Do lado esquerdo devem ser listadas as subclasses da classe escolhida no passo a
 Do lado direito deve ser mostrada a descrição da SUBCLASSE selecionada descriptionMd. Deve ser aplicada a formatação Markdown.
 Deve haver um botão para avançar para o próximo passo e um botão para voltar para o passo anterior.
 
-# Passo 3: Habilidades inciais
+## Passo 3: Habilidades inciais
 No terceiro passo, o usuário deve selecionar as habilidades inciais.
 A quantidade de habilidades e o tipo de habilidade depende da classe do personagem.
 A lista das habilidades possíveis do personagem deve ser capturada de ClassDef.baseSkills de acordo com a classe escolhida.
 
+
+Para c
+barbarian	Bárbaro
+bard	Bardo
+cleric	Clérigo
+druid	Druida
+fighter	Guerreiro
+monk	Monge
+paladin	Paladino
+ranger	Guardião
+rogue	Ladino
+sorcerer	Feiticeiro
+warlock	Bruxo
+wizard	Mago
 
 
 

@@ -39,7 +39,8 @@ class RulesImportCommand extends Command
             ->addOption('mode', null, InputOption::VALUE_REQUIRED, 'Import mode (incremental, full)', 'incremental')
             ->addOption('chunk', null, InputOption::VALUE_REQUIRED, 'Chunk size for database flushes', 200)
             ->addOption('only-changed', null, InputOption::VALUE_REQUIRED, 'Only update changed records', true)
-        ;
+            ->addOption('update-classes-only', null, InputOption::VALUE_NONE, 'Update only classes and sources for existing spells')
+            ->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Limit the number of records to process');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -83,6 +84,8 @@ class RulesImportCommand extends Command
             'path' => $path,
             'entity' => $entityOption,
             'only-changed' => $input->getOption('only-changed'),
+            'update-classes-only' => $input->getOption('update-classes-only'),
+            'limit' => $input->getOption('limit'),
         ]);
 
         $ctx = new ImportContext(
@@ -90,7 +93,11 @@ class RulesImportCommand extends Command
             $mode,
             (bool) $input->getOption('only-changed'),
             $chunk,
-            $importRun
+            $importRun,
+            [
+                'update-classes-only' => $input->getOption('update-classes-only'),
+                'limit' => $input->getOption('limit'),
+            ]
         );
 
         $io->title(sprintf('Starting Import: %s (%s)', $source->getName(), $mode));

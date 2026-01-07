@@ -2,6 +2,10 @@
 
 {% block header_title %}Equipamentos{% endblock %}
 
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% block body %}
 <div class="mb-8 flex items-center justify-between">
     <div>
@@ -16,11 +20,11 @@
 
 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
-        <table class="w-full text-left">
+        <table id="equipmentTable" class="w-full text-left">
             <thead>
-                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome / Tipo (PT)</th>
-                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Categoria / Dano</th>
-                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Descrição / Peso</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome / Nome (PT)</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Tipo / Categoria</th>
+                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Descrição (PT) / Peso</th>
                     <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Ações</th>
                 </tr>
             </thead>
@@ -29,11 +33,11 @@
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-8 py-5">
                             <div class="font-bold text-slate-900 dark:text-white">{{ equipment.name }}</div>
-                            <div class="text-xs text-slate-400">{{ equipment.typePt }}</div>
+                            <div class="text-xs text-slate-400">{{ equipment.namePt|default('-') }}</div>
                         </td>
                         <td class="px-8 py-5">
-                            <div class="text-sm font-medium">{{ equipment.weaponCategoryPt|default('-') }}</div>
-                            <div class="text-xs text-slate-400">{{ equipment.damageTypePt|default('-') }}</div>
+                            <div class="text-sm font-medium">{{ equipment.typePt|default(equipment.type) }}</div>
+                            <div class="text-xs text-slate-400">{{ equipment.weaponCategoryPt|default('-') }}</div>
                         </td>
                         <td class="px-8 py-5">
                             <div class="text-xs text-slate-600 dark:text-slate-400 mb-1" title="{{ equipment.descriptionMdPt }}">{{ equipment.descriptionMdPt|striptags|slice(0, 50) ~ '...' }}</div>
@@ -59,4 +63,19 @@
         </table>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script>
+    const dataTable = new simpleDatatables.DataTable("#equipmentTable", {
+        searchable: true,
+        fixedHeight: true,
+        perPage: 15,
+        labels: {
+            placeholder: "Pesquisar...",
+            perPage: "{select} itens por página",
+            noRows: "Nenhum registro encontrado",
+            info: "Mostrando {start} até {end} de {rows} registros",
+        }
+    });
+</script>
 {% endblock %}

@@ -100,6 +100,9 @@ class Spell
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $circles = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $sources = [];
+
     /**
      * @var Collection<int, ClassDef>
      */
@@ -407,6 +410,18 @@ class Spell
     public function setCircles(?string $circles): static
     {
         $this->circles = $circles;
+        return $this;
+    }
+
+    public function getSources(): ?array
+    {
+        return $this->sources;
+    }
+
+    public function setSources(?array $sources): static
+    {
+        $this->sources = $sources;
+
         return $this;
     }
 

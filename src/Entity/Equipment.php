@@ -25,6 +25,9 @@ class Equipment
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $namePt = null;
+
     #[ORM\Column(length: 50)]
     private ?string $type = null; // weapon, armor, gear, tool
 
@@ -96,6 +99,18 @@ class Equipment
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getNamePt(): ?string
+    {
+        return $this->namePt;
+    }
+
+    public function setNamePt(?string $namePt): static
+    {
+        $this->namePt = $namePt;
 
         return $this;
     }

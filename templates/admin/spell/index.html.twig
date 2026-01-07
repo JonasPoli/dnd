@@ -95,11 +95,60 @@
                                 <img src="{{ spell.school.imagePath }}" alt="{{ spell.school.value }}" title="{{ spell.school.value }}" class="w-6 h-6 object-contain">
                                 <span class="text-xs text-slate-400">{{ spell.school.value }}</span>
                             </div>
+                            
+                            <div class="flex items-center gap-1 mt-1 flex-wrap">
+                                {% for classDef in spell.classes %}
+                                    {% if classDef.logoName %}
+                                        <div class="relative group" title="{{ classDef.name }}">
+                                            <img src="{{ vich_uploader_asset(classDef, 'logoFile') }}" 
+                                                 alt="{{ classDef.name }}" 
+                                                 title="{{ classDef.name }}"
+                                                 class="w-5 h-5 object-contain opacity-70 hover:opacity-100 transition-opacity">
+                                        </div>
+                                    {% else %}
+                                        <span class="text-[10px] bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-slate-500">{{ classDef.name|slice(0, 3) }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </td>
                         <td class="px-8 py-5">
-                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-200 rounded-full font-bold text-sm">
-                                {{ spell.level == 0 ? 'Truque' : spell.level }}
-                            </span>
+                            <div class="flex flex-col items-start gap-1">
+                                <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-200 rounded-full font-bold text-sm">
+                                    {{ spell.level == 0 ? 'Truque' : spell.level }}
+                                </span>
+                                
+                                <div class="flex items-center gap-1 mt-1">
+                                    {% if spell.isRitual %}
+                                        <span title="Ritual" class="text-slate-400 hover:text-amber-500 transition-colors">
+                                            {{ ux_icon('lucide:scroll', {class: 'w-4 h-4'}) }}
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if spell.isConcentration %}
+                                        <span title="Concentração" class="text-slate-400 hover:text-blue-500 transition-colors">
+                                            {{ ux_icon('lucide:brain', {class: 'w-4 h-4'}) }}
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if spell.isVerbal %}
+                                        <span title="Verbal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-help">
+                                            <span class="text-[10px] font-bold border border-current px-0.5 rounded">V</span>
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if spell.isSomatic %}
+                                        <span title="Somático" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-help">
+                                            <span class="text-[10px] font-bold border border-current px-0.5 rounded">S</span>
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if spell.isMaterial %}
+                                        <span title="Material" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-help">
+                                            <span class="text-[10px] font-bold border border-current px-0.5 rounded">M</span>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </td>
                         <td class="px-8 py-5">
                             <span class="text-sm">{{ spell.castingTime }}</span>
