@@ -47,10 +47,104 @@ class Character
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\OneToMany(targetEntity: CharacterSpell::class, mappedBy: 'character', orphanRemoval: true)]
+    private Collection $characterSpells;
+
+    #[ORM\ManyToMany(targetEntity: Skill::class)]
+    #[ORM\JoinTable(name: 'character_skill')]
+    private Collection $skills;
+
+    #[ORM\ManyToMany(targetEntity: Equipment::class)]
+    #[ORM\JoinTable(name: 'character_tool_proficiency')]
+    private Collection $toolProficiencies;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+        $this->characterSpells = new ArrayCollection();
+        $this->skills = new ArrayCollection();
+        $this->toolProficiencies = new ArrayCollection();
+    }
+
+    // ... existing getters ...
+
+    /**
+     * @return Collection<int, CharacterSpell>
+     */
+    public function getCharacterSpells(): Collection
+    {
+        return $this->characterSpells;
+    }
+
+    public function addCharacterSpell(CharacterSpell $characterSpell): static
+    {
+        if (!$this->characterSpells->contains($characterSpell)) {
+            $this->characterSpells->add($characterSpell);
+            $characterSpell->setCharacter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCharacterSpell(CharacterSpell $characterSpell): static
+    {
+        if ($this->characterSpells->removeElement($characterSpell)) {
+            // set the owning side to null (unless already changed)
+            if ($characterSpell->getCharacter() === $this) {
+                $characterSpell->setCharacter(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Skill>
+     */
+    public function getSkills(): Collection
+    {
+        return $this->skills;
+    }
+
+    public function addSkill(Skill $skill): static
+    {
+        if (!$this->skills->contains($skill)) {
+            $this->skills->add($skill);
+        }
+
+        return $this;
+    }
+
+    public function removeSkill(Skill $skill): static
+    {
+        $this->skills->removeElement($skill);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Equipment>
+     */
+    public function getToolProficiencies(): Collection
+    {
+        return $this->toolProficiencies;
+    }
+
+    public function addToolProficiency(Equipment $toolProficiency): static
+    {
+        if (!$this->toolProficiencies->contains($toolProficiency)) {
+            $this->toolProficiencies->add($toolProficiency);
+        }
+
+        return $this;
+    }
+
+    public function removeToolProficiency(Equipment $toolProficiency): static
+    {
+        $this->toolProficiencies->removeElement($toolProficiency);
+
+        return $this;
     }
 
     public function getId(): ?int

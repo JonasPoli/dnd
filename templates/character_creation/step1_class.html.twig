@@ -1,0 +1,146 @@
+{% extends 'character_creation/base_wizard.html.twig' %}
+
+{% set step = 1 %}
+
+{% block wizard_content %}
+<form id="wizard-form" method="post" action="{{ path('app_character_creation_step1', {id: character ? character.id : null}) }}">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-12rem)]">
+        
+        {# Left Column: Class List #}
+        <div class="lg:col-span-4 flex flex-col h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Escolha sua Classe</h2>
+                <p class="text-sm text-slate-500 mt-1">O arquétipo principal do seu herói.</p>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                {% for class in classes %}
+                    <label class="cursor-pointer group block">
+                        <input type="radio" name="class_def" value="{{ class.id }}" class="peer sr-only" {% if current_class and current_class.id == class.id %}checked{% endif %} required onchange="updateClassDetails('{{ class.id }}')">
+                        <div class="p-4 rounded-xl border border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 peer-checked:bg-indigo-50 dark:peer-checked:bg-indigo-900/20 peer-checked:border-indigo-200 dark:peer-checked:border-indigo-800 transition-all flex items-center gap-4">
+                            {# Icon/Logo Placeholder #}
+                            <div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                {% if class.logoName %}
+                                    <img src="{{ vich_uploader_asset(class, 'logoFile') }}" alt="{{ class.name }}" class="w-8 h-8 object-contain">
+                                {% else %}
+                                    {{ ux_icon('lucide:shield', {class: 'w-6 h-6 text-slate-400'}) }}
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex-1">
+                                <h3 class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ class.name }}</h3>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">d{{ class.hitDie }}</span>
+                                    <span class="text-xs text-slate-400 truncate">{{ class.primaryAbility1.name|default('-') }}</span>
+                                </div>
+                            </div>
+
+                            {{ ux_icon('lucide:check-circle', {class: 'w-5 h-5 text-indigo-500 opacity-0 peer-checked:opacity-100 transition-opacity'}) }}
+                        </div>
+                    </label>
+
+                    {# Hidden Data for JS update #}
+                    <template id="details-{{ class.id }}">
+                        <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {# Header #}
+                            <div class="flex items-center gap-6 mb-8">
+                                <div class="w-20 h-20 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+                                     {% if class.logoName %}
+                                        <img src="{{ vich_uploader_asset(class, 'logoFile') }}" alt="{{ class.name }}" class="w-12 h-12 object-contain">
+                                    {% else %}
+                                        {{ ux_icon('lucide:shield', {class: 'w-10 h-10 text-indigo-500'}) }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">{{ class.name }}</h2>
+                                    <div class="flex gap-2 mt-2">
+                                        <div class="badge badge-indigo">Dado de Vida: d{{ class.hitDie }}</div>
+                                        <div class="badge badge-emerald">
+                                            Salvaguardas: {{ class.savingThrow1.name|default('?') }} & {{ class.savingThrow2.name|default('?') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# Content Grid #}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div class="card p-4">
+                                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Pontos de Vida</h4>
+                                    <p class="text-sm text-slate-600 dark:text-slate-300">
+                                        <strong class="text-slate-900 dark:text-white">{{ class.hpAt1stLevel }}</strong> no 1º nível.<br>
+                                        <strong class="text-slate-900 dark:text-white">{{ class.hpAtHigherLevels }}</strong> por nível seguinte.
+                                    </p>
+                                </div>
+                                <div class="card p-4">
+                                     <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Atributo Primário</h4>
+                                     <p class="text-sm text-slate-600 dark:text-slate-300">
+                                        {{ class.primaryAbility1.name|default('') }}
+                                        {% if class.primaryAbility2 %} ou {{ class.primaryAbility2.name }}{% endif %}
+                                     </p>
+                                </div>
+                            </div>
+
+                            {# Markdown Description #}
+                            <div class="prose prose-slate dark:prose-invert max-w-none">
+                                {{ class.descriptionMd|markdown_to_html }}
+
+                                <h3 class="mt-8 mb-4">Tabela da Classe</h3>
+                                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                                    {{ class.classTableMd|markdown_to_html }}
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Right Column: Details Preview #}
+        <div class="lg:col-span-8 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 overflow-y-auto custom-scrollbar relative">
+            <div id="class-details-container">
+                {# Initial Empty State #}
+                <div class="flex flex-col items-center justify-center h-full text-center text-slate-400">
+                    <div class="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
+                        {{ ux_icon('lucide:search', {class: 'w-8 h-8 opacity-50'}) }}
+                    </div>
+                    <p class="text-lg font-medium">Selecione uma classe para ver os detalhes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    function updateClassDetails(classId) {
+        const template = document.getElementById('details-' + classId);
+        const container = document.getElementById('class-details-container');
+        
+        if (template && container) {
+            container.innerHTML = template.innerHTML;
+        }
+    }
+
+    // Initialize with selected if any
+    document.addEventListener('DOMContentLoaded', () => {
+        const checked = document.querySelector('input[name="class_def"]:checked');
+        if (checked) {
+            updateClassDetails(checked.value);
+        }
+    });
+</script>
+
+<style>
+    .badge {
+        @apply px-2 py-1 rounded text-xs font-bold;
+    }
+    .badge-indigo {
+        @apply bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400;
+    }
+    .badge-emerald {
+        @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400;
+    }
+    .card {
+        @apply bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700;
+    }
+</style>
+{% endblock %}
