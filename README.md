@@ -125,3 +125,43 @@ Lê e importa a lista de bugigangas do arquivo local `docs/bugigangas.md`.
    php bin/console app:admin-user admin@example.com senha123
    php bin/console app:rules:import --source=open5e ... (conforme necessidade)
    ```
+
+## Local GPT (LLM) Integration
+
+This project supports connecting to a local Large Language Model (like **Ollama**) to perform translations without relying on the paid OpenAI API.
+
+### 1. Setup Local Server
+The local GPT environment is located in `/Volumes/Dados/work/gpt-local`.
+
+**Start the Server:**
+```bash
+cd /Volumes/Dados/work/gpt-local
+./start_gpt.sh
+```
+Keep this terminal window open.
+
+### 2. Manage Models
+Use the helper script to download or list models:
+```bash
+cd /Volumes/Dados/work/gpt-local
+# Download a model
+./manage_models.sh pull llama3
+./manage_models.sh pull mistral
+
+# List installed models
+./manage_models.sh list
+```
+
+### 3. Connect Project to Local GPT
+Check your `.env.local` file and set:
+```dotenv
+OPENAI_BASE_URL=http://localhost:11434/v1
+OPENAI_API_KEY=sk-dummy  # Required value, but ignored by local LLMs
+```
+
+### 4. Benchmarking Models
+To compare speed and translation quality between different models, use the benchmark command:
+```bash
+php bin/console app:benchmark:models --models=llama3,mistral,gemma:2b
+```
+This command picks a **random spell** from the database and runs it through each model specified, displaying a comparison table.

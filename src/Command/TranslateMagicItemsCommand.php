@@ -26,8 +26,13 @@ class TranslateMagicItemsCommand extends Command
         private HttpClientInterface $httpClient,
         #[Autowire(env: 'OPENAI_API_KEY')]
         private string $openAiApiKey,
+        #[Autowire(value: '%env(default::OPENAI_BASE_URL)%')]
+        private string $openAiBaseUrl = '',
     ) {
         parent::__construct();
+        if (empty($this->openAiBaseUrl)) {
+            $this->openAiBaseUrl = 'https://api.openai.com/v1';
+        }
     }
 
     protected function configure(): void
@@ -45,6 +50,10 @@ class TranslateMagicItemsCommand extends Command
         $model = $input->getOption('model');
 
         if (empty($this->openAiApiKey)) {
+            // Check if we are using a local URL, maybe we don't need a strict key check or we allow 'sk-...' dummy
+            // But usually local LLMs ignore the key. We keep the check to ensure at least something is present if desired,
+            // or we could relax it if base URL is custom. For now, we behave as before (fail if empty),
+            // but the user can put "dummy" in .env.
             $io->error('OPENAI_API_KEY is not set in .env');
             return Command::FAILURE;
         }
@@ -63,6 +72,7 @@ class TranslateMagicItemsCommand extends Command
         }
 
         $io->info(sprintf('Found %d items to translate using model %s.', count($items), $model));
+        $io->note(sprintf('Using API Base URL: %s', $this->openAiBaseUrl));
         $io->progressStart(count($items));
 
         foreach ($items as $item) {
@@ -72,7 +82,8 @@ class TranslateMagicItemsCommand extends Command
             ];
 
             try {
-                $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                $endpoint = rtrim($this->openAiBaseUrl, '/') . '/chat/completions';
+                $response = $this->httpClient->request('POST', $endpoint, [
                     'headers' => [
                         'Authorization' => 'Bearer ' . $this->openAiApiKey,
                         'Content-Type' => 'application/json',
@@ -88,7 +99,7 @@ class TranslateMagicItemsCommand extends Command
 
                 $data = $response->toArray();
                 $content = $data['choices'][0]['message']['content'] ?? null;
-                
+
                 if ($content) {
                     $json = json_decode($content, true);
                     $translatedName = $json['name'] ?? null;
@@ -119,7 +130,7 @@ class TranslateMagicItemsCommand extends Command
             }
 
             $io->progressAdvance();
-            usleep(200000); 
+            usleep(200000);
         }
 
         $io->progressFinish();
