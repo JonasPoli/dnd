@@ -7,9 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: CharacterRepository::class)]
 #[ORM\Table(name: '`character`')]
+#[Vich\Uploadable]
 class Character
 {
     #[ORM\Id]
@@ -57,6 +60,9 @@ class Character
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagePath = null;
 
+    #[Vich\UploadableField(mapping: 'character_image', fileNameProperty: 'imagePath')]
+    private ?File $imageFile = null;
+
     #[ORM\Column(options: ['default' => false])]
     private ?bool $isComplete = false;
 
@@ -81,8 +87,30 @@ class Character
     #[ORM\JoinTable(name: 'character_language')]
     private Collection $languages;
 
+    #[ORM\ManyToMany(targetEntity: Equipment::class)]
+    #[ORM\JoinTable(name: 'character_inventory')]
+    private Collection $inventory;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinCp = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinSp = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinEp = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinGp = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinPp = 0;
+
     #[ORM\OneToMany(targetEntity: CharacterAttribute::class, mappedBy: 'character', orphanRemoval: true)]
     private Collection $characterAttributes;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $attributeBonuses = [];
 
     public function __construct()
     {
@@ -92,6 +120,7 @@ class Character
         $this->skills = new ArrayCollection();
         $this->toolProficiencies = new ArrayCollection();
         $this->languages = new ArrayCollection();
+        $this->inventory = new ArrayCollection();
         $this->characterAttributes = new ArrayCollection();
     }
 
@@ -378,6 +407,22 @@ class Character
         return $this;
     }
 
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
     public function isComplete(): ?bool
     {
         return $this->isComplete;
@@ -418,5 +463,100 @@ class Character
     public function updateTimestamp(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * @return Collection<int, Equipment>
+     */
+    public function getInventory(): Collection
+    {
+        return $this->inventory;
+    }
+
+    public function addInventoryItem(Equipment $item): static
+    {
+        if (!$this->inventory->contains($item)) {
+            $this->inventory->add($item);
+        }
+
+        return $this;
+    }
+
+    public function removeInventoryItem(Equipment $item): static
+    {
+        $this->inventory->removeElement($item);
+
+        return $this;
+    }
+
+    public function getCoinCp(): ?int
+    {
+        return $this->coinCp;
+    }
+
+    public function setCoinCp(int $coinCp): static
+    {
+        $this->coinCp = $coinCp;
+
+        return $this;
+    }
+
+    public function getCoinSp(): ?int
+    {
+        return $this->coinSp;
+    }
+
+    public function setCoinSp(int $coinSp): static
+    {
+        $this->coinSp = $coinSp;
+
+        return $this;
+    }
+
+    public function getCoinEp(): ?int
+    {
+        return $this->coinEp;
+    }
+
+    public function setCoinEp(int $coinEp): static
+    {
+        $this->coinEp = $coinEp;
+
+        return $this;
+    }
+
+    public function getCoinGp(): ?int
+    {
+        return $this->coinGp;
+    }
+
+    public function setCoinGp(int $coinGp): static
+    {
+        $this->coinGp = $coinGp;
+
+        return $this;
+    }
+
+    public function getCoinPp(): ?int
+    {
+        return $this->coinPp;
+    }
+
+    public function setCoinPp(int $coinPp): static
+    {
+        $this->coinPp = $coinPp;
+
+        return $this;
+    }
+    public function getAttributeBonuses(): ?array
+    {
+        return $this->attributeBonuses;
+    }
+
+    public function setAttributeBonuses(?array $attributeBonuses): static
+    {
+        $this->attributeBonuses = $attributeBonuses;
+
+        return $this;
     }
 }

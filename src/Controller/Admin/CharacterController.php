@@ -55,6 +55,17 @@ class CharacterController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/print', name: 'admin_character_print', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function print(Character $character, \App\Repository\FeatureRepository $featureRepository): Response
+    {
+        $features = $featureRepository->findFeaturesForCharacter($character);
+
+        return $this->render('admin/character/print.html.twig', [
+            'character' => $character,
+            'features' => $features,
+        ]);
+    }
+
     #[Route('/{id}/edit', name: 'admin_character_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Character $character, EntityManagerInterface $entityManager): Response
     {

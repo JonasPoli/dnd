@@ -11,6 +11,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class CharacterType extends AbstractType
 {
@@ -49,7 +50,13 @@ class CharacterType extends AbstractType
                 'placeholder' => 'Nenhuma',
             ])
             ->add('alignment', null, ['label' => 'Alinhamento'])
-            ->add('imagePath', null, ['label' => 'Caminho da Imagem (URL/Path)'])
+            ->add('imageFile', VichImageType::class, [
+                'required' => false,
+                'allow_delete' => true,
+                'download_uri' => false,
+                'image_uri' => true,
+                'label' => 'Imagem do Personagem',
+            ])
             ->add('appearance', null, ['label' => 'Aparência & Personalidade'])
             ->add('bonds', null, ['label' => 'Vínculos'])
             ->add('origin', null, ['label' => 'Origem'])

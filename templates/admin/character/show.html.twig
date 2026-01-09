@@ -10,7 +10,7 @@
             {# Image #}
             <div class="w-32 h-32 md:w-48 md:h-48 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 overflow-hidden flex items-center justify-center relative">
                 {% if character.imagePath %}
-                    <img src="{{ character.imagePath }}" alt="{{ character.name }}" class="w-full h-full object-cover">
+                    <img src="{{ vich_uploader_asset(character, 'imageFile') }}" alt="{{ character.name }}" class="w-full h-full object-cover">
                 {% else %}
                     {{ ux_icon('lucide:user', {class: 'w-20 h-20 text-slate-300 dark:text-slate-600'}) }}
                 {% endif %}
@@ -93,7 +93,8 @@
                 </div>
             </div>
              <div class="flex flex-col gap-2">
-                <a href="{{ path('admin_character_edit', {'id': character.id}) }}" class="btn btn-secondary w-full justify-center">Editar Dados</a>
+                <a href="{{ path('admin_character_print', {'id': character.id}) }}" target="_blank" class="btn btn-primary w-full justify-center bg-slate-900 text-white hover:bg-slate-700">Imprimir Ficha</a>
+                <a href="{{ path('admin_character_edit', {'id': character.id}) }}" class="btn btn-secondary w-full justify-center" data-turbo="false">Editar Dados</a>
                 <a href="{{ path('admin_character_index') }}" class="btn btn-text w-full justify-center">Voltar</a>
             </div>
         </div>

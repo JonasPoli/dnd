@@ -119,9 +119,6 @@ class CharacterCreationController extends AbstractController
         $maxSkills = $character->getClassDef()->getInitialSkillsCount() ?? 2;
         // Fallback: if baseSkills is empty, show all skills (allows continuing dev without perfect data)
         $availableSkills = $character->getClassDef()->getBaseSkills();
-        if ($availableSkills->isEmpty()) {
-            $availableSkills = $this->skillRepository->findAll();
-        }
 
         if ($request->isMethod('POST')) {
             $selectedSkillIds = $request->request->all('skills'); // array of IDs
@@ -420,10 +417,41 @@ class CharacterCreationController extends AbstractController
                 $background = $backgroundRepository->find($backgroundId);
                 $character->setBackground($background);
                 
-                // Note: We are currently ONLY saving the background choice.
-                // Applying the bonuses (skills, feats, equipment) to the character 
-                // should happen either here or be derived dynamically.
-                // For now, consistent with other steps, we just link the entity.
+                // Save Attribute Bonuses
+                $bonuses = [];
+                $totalPoints = 0;
+                $allowedAttributes = ['Força', 'Destreza', 'Constituição', 'Inteligência', 'Sabedoria', 'Carisma'];
+                
+                foreach ($allowedAttributes as $attr) {
+                    $val = (int) $request->request->get('bonus_' . $attr, 0);
+                    if ($val > 0) {
+                        $bonuses[$attr] = $val;
+                        $totalPoints += $val;
+                    }
+                }
+                
+                // Validate total points (Server-side check)
+                if ($totalPoints !== 3) {
+                     $this->addFlash('error', "Por favor, distribua exatamente 3 pontos de bônus.");
+                     // Re-render handled by falling through? No, need to halt flow.
+                     // But we already set background... 
+                     // Ideally we should re-render.
+                     $backgrounds = $backgroundRepository->findBy([], ['name' => 'ASC']);
+                     return $this->render('character_creation/step8_background.html.twig', [
+                        'character' => $character,
+                        'backgrounds' => $backgrounds,
+                        'current_background' => $character->getBackground(),
+                    ]);
+                }
+
+                $character->setAttributeBonuses($bonuses);
+                
+                // Clear existing character attributes to force recalculation in Step 9
+                // This ensures if user changes bonuses, they are reapplied.
+                foreach ($character->getCharacterAttributes() as $attr) {
+                    $this->entityManager->remove($attr);
+                }
+                $character->getCharacterAttributes()->clear();
                 
                 $this->entityManager->flush();
 
@@ -471,18 +499,24 @@ class CharacterCreationController extends AbstractController
             $className = $character->getClassDef() ? $character->getClassDef()->getName() : null;
             $baseStats = $classStats[$className] ?? ['Força'=>10,'Destreza'=>10,'Constituição'=>10,'Inteligência'=>10,'Sabedoria'=>10,'Carisma'=>10];
 
-            // Background Bonuses
+            // Base Bonuses from User Choice (Step 8)
+            $userBonuses = $character->getAttributeBonuses() ?? [];
+
+            // Background Entity Bonuses (Legacy/Specific rules - check if used or if replaced by the generic +3 rule)
+            // The prompt implies the generic +3 rule is THE rule now. 
+            // So we disable the old entity-based logic to avoid double dipping or confusion unless the entity defines something FIXED.
+            // Assuming the new +3 rule replaces the specific background ability increases.
+            $bonuses = $userBonuses;
+            
+            // Legacy Logic commented out for safety based on "Bônus de Atributo de 2 ou 3 atributos" prompt.
+            /*
             $bg = $character->getBackground();
-            $bonuses = [];
             if ($bg) {
-                if ($bg->getAttribute1()) $bonuses[$bg->getAttribute1()->getName()] = ($bonuses[$bg->getAttribute1()->getName()] ?? 0) + 1; // Assuming +1 or whatever rule. Usually it's +2/+1 or +1/+1/+1. 
-                // The entity structure has attr1, attr2, attr3. We assume +1 for each slot for simplicity unless defined otherwise. 
-                // Standard D&D 2024 Backgrounds: Choose 3 abilities, get +1 to each? Or +2 to one, +1 to another. 
-                // Since the entity has 3 slots, might be 3x +1.
-                // Let's assume +1 for each slot present.
+                if ($bg->getAttribute1()) $bonuses[$bg->getAttribute1()->getName()] = ($bonuses[$bg->getAttribute1()->getName()] ?? 0) + 1;
                 if ($bg->getAttribute2()) $bonuses[$bg->getAttribute2()->getName()] = ($bonuses[$bg->getAttribute2()->getName()] ?? 0) + 1;
                 if ($bg->getAttribute3()) $bonuses[$bg->getAttribute3()->getName()] = ($bonuses[$bg->getAttribute3()->getName()] ?? 0) + 1;
             }
+            */
 
             foreach ($baseStats as $attrName => $val) {
                 // Find Attribute Entity
@@ -516,14 +550,21 @@ class CharacterCreationController extends AbstractController
 
         // Prepare data for view
         $attributes = [];
+        $userBonuses = $character->getAttributeBonuses() ?? [];
+
         foreach ($character->getCharacterAttributes() as $ca) {
             $val = $ca->getValue();
             $mod = floor(($val - 10) / 2);
+            $attrName = $ca->getAttribute()->getName();
+            $bonus = $userBonuses[$attrName] ?? 0;
+
             $attributes[] = [
-                'name' => $ca->getAttribute()->getName(),
+                'name' => $attrName,
                 'value' => $val,
                 'modifier' => ($mod >= 0 ? '+' : '') . $mod,
-                'entity' => $ca
+                'entity' => $ca,
+                'bonus' => $bonus, // Pass the bonus value
+                'base' => $val - $bonus // Pass base value for clarity if needed
             ];
         }
         
@@ -625,7 +666,74 @@ class CharacterCreationController extends AbstractController
     }
 
     #[Route('/step/11/{id}', name: 'app_character_creation_step11', methods: ['GET', 'POST'])]
-    public function step11(Request $request, Character $character, \App\Repository\CharacterAttributeRepository $charAttrRepo): Response
+    public function step11(Request $request, Character $character, \App\Repository\EquipmentRepository $equipmentRepository): Response
+    {
+        // Calculate Totals
+        $currentWeight = 0;
+        $currentCost = 0;
+        foreach ($character->getInventory() as $item) {
+            $currentWeight += (float) $item->getWeightKg();
+             // Parse Cost (Simplified: assuming costGp is standard)
+            $currentCost += (float) $item->getCostGp();
+        }
+
+        // Handle Actions
+        if ($request->isMethod('POST')) {
+            $action = $request->request->get('action');
+            
+            // Navigate Next
+            if ($action === 'next') {
+                // Update Coins
+                $character->setCoinCp((int)$request->request->get('coinC'));
+                $character->setCoinSp((int)$request->request->get('coinS'));
+                $character->setCoinEp((int)$request->request->get('coinE'));
+                $character->setCoinGp((int)$request->request->get('coinG'));
+                $character->setCoinPp((int)$request->request->get('coinP'));
+
+                $this->entityManager->flush();
+                return $this->redirectToRoute('app_character_creation_step12', ['id' => $character->getId()]);
+            }
+
+            // Add Item
+            if ($action === 'add') {
+                $itemId = $request->request->get('item_id');
+                $item = $equipmentRepository->find($itemId);
+                if ($item) {
+                    $character->addInventoryItem($item);
+                    $this->entityManager->flush();
+                    $this->addFlash('success', "Item adicionado: " . ($item->getNamePt() ?? $item->getName()));
+                }
+            }
+            
+            // Remove Item
+            if ($action === 'remove') {
+                $itemId = $request->request->get('item_id');
+                $item = $equipmentRepository->find($itemId); // Get entity strictly
+                if ($item) {
+                    $character->removeInventoryItem($item);
+                    $this->entityManager->flush();
+                    $this->addFlash('success', "Item removido.");
+                }
+            }
+
+             // Redirect back to same step to refresh list
+             return $this->redirectToRoute('app_character_creation_step11', ['id' => $character->getId()]);
+        }
+
+        // Fetch All Equipment for List
+        // Optimize: Group by type
+        $allEquipment = $equipmentRepository->findBy([], ['namePt' => 'ASC', 'name' => 'ASC']);
+        
+        return $this->render('character_creation/step11_equipment.html.twig', [
+            'character' => $character,
+            'equipment_list' => $allEquipment,
+            'current_weight' => $currentWeight,
+            'current_cost' => $currentCost,
+        ]);
+    }
+
+    #[Route('/step/12/{id}', name: 'app_character_creation_step12', methods: ['GET', 'POST'])]
+    public function step12(Request $request, Character $character, \App\Repository\CharacterAttributeRepository $charAttrRepo): Response
     {
         // 1. Calculate Stats for Display
         
@@ -690,18 +798,19 @@ class CharacterCreationController extends AbstractController
             $bonds = $request->request->get('bonds');
             $origin = $request->request->get('origin');
             
-            // Image handling (Simplified Text URL or would be file upload service)
-            // User requested "Upload or Selection". For now, we assume text or skip if file upload not ready.
-            // Let's assume text input for now or dummy upload logic.
-            // The prompt "Imagem do Personagem (Upload ou Seleção)" implies a picker or file.
-            // I will leave it as null/placeholder or basic text input for URL for this iteration unless I implement upload service.
-            
             if ($name) {
                 $character->setName($name);
                 $character->setAlignment($alignment);
                 $character->setAppearance($appearance);
                 $character->setBonds($bonds);
                 $character->setOrigin($origin);
+                
+                // Image Upload Handling
+                $imageFile = $request->files->get('image');
+                if ($imageFile) {
+                    $character->setImageFile($imageFile);
+                }
+
                 $character->setIsComplete(true);
                 
                 $this->entityManager->flush();
@@ -713,7 +822,7 @@ class CharacterCreationController extends AbstractController
             }
         }
 
-        return $this->render('character_creation/step11_final.html.twig', [
+        return $this->render('character_creation/step12_final.html.twig', [
             'character' => $character,
             'stats' => [
                 'hp' => $maxHp,

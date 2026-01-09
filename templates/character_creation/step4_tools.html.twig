@@ -12,8 +12,13 @@
             <p class="text-slate-500">
                 Sua classe concede proficiência em 
                 <span class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">{{ max_tools }}</span> 
-                ferramentas adicionais.
+                perícias iniciais da lista abaixo.
             </p>
+            {% if character.classDef.profTools %}
+                <p class="text-xs text-slate-400 mt-2">
+                    Opções disponíveis: {{ character.classDef.profTools|replace({'"': ''})|trim('[]') }}
+                </p>
+            {% endif %}
         {% else %}
              <p class="text-slate-500">Sua classe não possui escolhas de ferramentas adicionais neste nível.</p>
         {% endif %}

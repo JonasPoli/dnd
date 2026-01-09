@@ -13,6 +13,11 @@
             <span class="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded">{{ max_skills }}</span> 
             perícias iniciais da lista abaixo.
         </p>
+        {% if character.classDef.profSkills %}
+            <p class="text-xs text-slate-400 mt-2">
+                Opções disponíveis: {{ character.classDef.profSkills|replace({'"': ''})|trim('[]') }}
+            </p>
+        {% endif %}
     </div>
 
     <div class="max-w-4xl mx-auto h-[calc(100vh-16rem)] flex flex-col">

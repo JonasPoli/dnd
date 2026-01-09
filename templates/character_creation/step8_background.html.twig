@@ -67,6 +67,33 @@
                     </div>
                 </div>
 
+                {# Attribute Bonus Selector #}
+                <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-800 mb-6">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2">
+                        {{ ux_icon('lucide:plus-circle', {class: 'w-4 h-4'}) }} Distribua seus Bônus de Atributo
+                    </h3>
+                    <p class="text-xs text-indigo-600 dark:text-indigo-400 mb-4">
+                        Você tem <strong id="points-remaining" class="text-lg">3</strong> pontos para distribuir. Máximo de 2 pontos por atributo.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {% for attr in ['Força', 'Destreza', 'Constituição', 'Inteligência', 'Sabedoria', 'Carisma'] %}
+                            <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-indigo-100 dark:border-indigo-700 shadow-sm flex flex-col items-center bonus-item" data-attr="{{ attr }}">
+                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase">{{ attr }}</span>
+                                <div class="flex items-center gap-3">
+                                    <button type="button" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold flex items-center justify-center transition-colors" onclick="changeBonus('{{ attr }}', -1)">-</button>
+                                    <span class="font-bold text-lg text-indigo-700 dark:text-indigo-400 w-4 text-center" id="bonus-val-{{ attr }}">0</span>
+                                    <button type="button" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold flex items-center justify-center transition-colors" onclick="changeBonus('{{ attr }}', 1)">+</button>
+                                </div>
+                                <input type="hidden" name="bonus_{{ attr }}" id="input-bonus-{{ attr }}" value="0" class="bonus-input">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <p id="bonus-error" class="hidden text-xs text-red-500 font-bold mt-3 text-center animate-pulse">
+                        Você deve distribuir exatamente 3 pontos!
+                    </p>
+                </div>
+
                 <div class="flex-1 overflow-y-auto custom-scrollbar space-y-8">
                     
                     {# Attributes Section #}
@@ -184,11 +211,25 @@
             desc.textContent = input.dataset.description; 
         }
 
-        // Update Attributes Badges
+        // Update Attributes Badges & Bonus Selector Visibility
         attributesContainer.innerHTML = '';
-        const attrs = [input.dataset.attr1, input.dataset.attr2, input.dataset.attr3].filter(a => a);
-        if (attrs.length > 0) {
-            attrs.forEach(attr => {
+        const allowedAttrs = [input.dataset.attr1, input.dataset.attr2, input.dataset.attr3].filter(a => a);
+        
+        // Filter Bonus Selector
+        document.querySelectorAll('.bonus-item').forEach(item => {
+            const attr = item.dataset.attr;
+            if (allowedAttrs.includes(attr)) {
+                item.classList.remove('hidden');
+            } else {
+                item.classList.add('hidden');
+                // Reset value if hidden
+                updateBonusUI(attr, 0); 
+            }
+        });
+        updatePoints(); // Re-calc points after reset
+
+        if (allowedAttrs.length > 0) {
+            allowedAttrs.forEach(attr => {
                 const badge = document.createElement('span');
                 badge.className = 'px-3 py-1.5 bg-white dark:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-200 font-bold text-sm shadow-sm border border-slate-200 dark:border-slate-600';
                 badge.textContent = attr;
@@ -215,6 +256,114 @@
             skillsContainer.innerHTML = '<li class="text-slate-400 text-sm italic">Nenhuma perícia fixa</li>';
         }
     }
+
+    // Attribute Bonus Logic
+    const MAX_POINTS = 3;
+    const MAX_PER_ATTR = 2;
+    // Load existing bonuses if any (needs server passing)
+    // For now, simpler reset or parse from hidden inputs value if pre-filled?
+    // Let's assume reset for simplicity unless we pass it.
+    
+    // Check if we have pre-filled data
+    {% if character.attributeBonuses %}
+        const prefilled = {{ character.attributeBonuses|json_encode|raw }};
+        // Apply prefilled
+        setTimeout(() => {
+             for (const [attr, val] of Object.entries(prefilled)) {
+                updateBonusUI(attr, val);
+            }
+            updatePoints();
+        }, 100);
+    {% endif %}
+
+    function changeBonus(attr, delta) {
+        const input = document.getElementById(`input-bonus-${attr}`);
+        let current = parseInt(input.value) || 0;
+        let next = current + delta;
+        
+        // Boundaries
+        if (next < 0) next = 0;
+        if (next > MAX_PER_ATTR) next = MAX_PER_ATTR;
+        
+        // Check Total Cap (only if increasing)
+        if (delta > 0) {
+            const currentTotal = calculateTotalPoints();
+            if (currentTotal + 1 > MAX_POINTS) return; // Block
+        }
+
+        updateBonusUI(attr, next);
+        updatePoints();
+    }
+
+    function updateBonusUI(attr, val) {
+        document.getElementById(`input-bonus-${attr}`).value = val;
+        document.getElementById(`bonus-val-${attr}`).textContent = val;
+        
+        // Visual feedback
+        const btnMinus = document.querySelector(`button[onclick="changeBonus('${attr}', -1)"]`);
+        const btnPlus = document.querySelector(`button[onclick="changeBonus('${attr}', 1)"]`);
+        
+        btnMinus.disabled = val <= 0;
+        btnMinus.classList.toggle('opacity-50', val <= 0);
+        
+        // Disable plus if max reached OR total reached
+        const total = calculateTotalPoints();
+        const maxReached = val >= MAX_PER_ATTR || total >= MAX_POINTS;
+        // Exception: if total reached but this one isn't maxed, we still can't add.
+        
+        // Wait, standard toggle for max per attr
+        // We'll run a global update for buttons state
+    }
+
+    function calculateTotalPoints() {
+        let total = 0;
+        document.querySelectorAll('.bonus-input').forEach(inp => {
+            total += parseInt(inp.value) || 0;
+        });
+        return total;
+    }
+
+    function updatePoints() {
+        const total = calculateTotalPoints();
+        const remaining = MAX_POINTS - total;
+        document.getElementById('points-remaining').textContent = remaining;
+        
+        // Update All Buttons State
+        document.querySelectorAll('.bonus-input').forEach(inp => {
+            // Get attribute name from id input-bonus-NAME
+            const attr = inp.id.replace('input-bonus-', '');
+            const val = parseInt(inp.value) || 0;
+            
+            const btnPlus = document.querySelector(`button[onclick="changeBonus('${attr}', 1)"]`);
+            
+            // Can add if: Val < MaxPerAttr AND Total < MaxPoints
+            if (val < MAX_PER_ATTR && total < MAX_POINTS) {
+                btnPlus.disabled = false;
+                btnPlus.classList.remove('opacity-50');
+            } else {
+                btnPlus.disabled = true;
+                btnPlus.classList.add('opacity-50');
+            }
+        });
+
+        // Toggle Validation Error
+        const errorMsg = document.getElementById('bonus-error');
+        // We validate on submit, but show visual cue?
+        // Actually, let's block submit
+        // or just hide error here
+        errorMsg.classList.add('hidden');
+    }
+
+    // Form Submit Validation
+    document.getElementById('wizard-form').addEventListener('submit', function(e) {
+        if (calculateTotalPoints() !== MAX_POINTS) {
+            e.preventDefault();
+            const errorMsg = document.getElementById('bonus-error');
+            errorMsg.classList.remove('hidden');
+            // Scroll to it
+            errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
 </script>
 
 <style>
