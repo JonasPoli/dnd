@@ -1,0 +1,352 @@
+{% extends 'character_creation/base_wizard.html.twig' %}
+
+{% set step = 7 %}
+
+{% block wizard_content %}
+<form id="wizard-form" method="post" action="{{ path('app_character_creation_step7', {id: character.id}) }}">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-12rem)]">
+        
+        {# Left Column: List #}
+        <div class="lg:col-span-4 flex flex-col h-full">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">Escolha sua Espécie</h2>
+            <p class="text-slate-500 mb-6 text-sm">A espécie define sua biologia, tamanho e velocidade, além de conceder traços especiais.</p>
+            
+            <div class="flex-1 overflow-y-auto custom-scrollbar pb-40 pr-2 space-y-3">
+                {% for sp in species_list %}
+                    <div class="mb-3">
+                        <label class="block cursor-pointer group relative">
+                            <input type="radio" name="species" value="{{ sp.id }}" 
+                                   class="peer sr-only species-radio" 
+                                   {% if current_species and current_species.id == sp.id %}checked{% endif %}
+                                   data-name="{{ sp.name }}"
+                                   data-description="{{ sp.descriptionMd|escape }}"
+                                   data-size="{{ sp.size }}"
+                                   data-speed="{{ sp.speedWalk }}"
+                                   data-has-subraces="{{ sp.subraces|length > 0 ? 'true' : 'false' }}"
+                                   onchange="updatePreview(this)">
+                            
+                            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-emerald-400 dark:hover:border-emerald-600 transition-all peer-checked:border-emerald-500 peer-checked:ring-1 peer-checked:ring-emerald-500 peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-900/10 z-10 relative">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                                        {{ sp.name }}
+                                    </span>
+                                    <div class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        {# Subraces List (Conditional Display handled via CSS/JS or just simple peer-checked sibling trick) #}
+                        {% if sp.subraces|length > 0 %}
+                            <div class="ml-6 mt-2 space-y-2 border-l-2 border-slate-100 dark:border-slate-800 pl-4 hidden peer-has-[:checked]:block" id="subraces-{{ sp.id }}">
+                                <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Escolha uma Sub-espécie:</p>
+                                {% for sub in sp.subraces %}
+                                    <label class="block cursor-pointer group/sub">
+                                        <input type="radio" name="subrace_{{ sp.id }}" value="{{ sub.id }}" 
+                                               class="peer/sub sr-only subrace-radio"
+                                               {% if current_subrace and current_subrace.id == sub.id %}checked{% endif %}
+                                               data-parent-species="{{ sp.id }}"
+                                               data-name="{{ sub.name }}"
+                                               data-description="{{ sub.descriptionMd|escape }}"
+                                               data-size="{{ sp.size }}"
+                                               data-speed="{{ sp.speedWalk }}"
+                                               onchange="updateSubracePreview(this)">
+                                        
+                                        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800 transition-all peer-checked/sub:border-emerald-500 peer-checked/sub:bg-emerald-50 dark:peer-checked/sub:bg-emerald-900/20">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-sm font-medium text-slate-600 dark:text-slate-300 group-hover/sub:text-emerald-600">
+                                                    {{ sub.name }}
+                                                </span>
+                                                <div class="w-3 h-3 rounded-full border-2 border-slate-300 dark:border-slate-600 peer-checked/sub:border-emerald-500 peer-checked/sub:bg-emerald-500"></div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Right Column: Preview #}
+        <div class="lg:col-span-8 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm flex flex-col relative overflow-hidden">
+            
+            {# Background Pattern/Illustration Placeholder #}
+            <div class="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                {{ ux_icon('lucide:users', {class: 'w-64 h-64'}) }}
+            </div>
+
+            <div id="preview-content" class="relative z-10 flex flex-col h-full {{ current_species ? '' : 'hidden' }}">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <h2 class="text-4xl font-bold text-slate-800 dark:text-white mb-2" id="preview-title">
+                            {{ current_species.name|default('') }}
+                        </h2>
+                        <div class="flex gap-3">
+                             <span class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                                {{ ux_icon('lucide:move', {class: 'w-3 h-3'}) }} <span id="preview-size">{{ current_species.size|default('-') }}</span>
+                             </span>
+                             <span class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                                {{ ux_icon('lucide:footprints', {class: 'w-3 h-3'}) }} <span id="preview-speed">{{ current_species.speedWalk|default('-') }}</span> ft.
+                             </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto custom-scrollbar">
+                    <div class="prose prose-slate dark:prose-invert max-w-none">
+                        <div id="preview-description" class="js-markdown-content leading-relaxed text-slate-600 dark:text-slate-300">
+                             {{ current_species.descriptionMd|default('') }}
+                        </div>
+                    </div>
+                    
+                    {# Future: Dynamic Traits List #}
+                    {# Currently traits are often embedded in description or separate entities which we don't strictly have linking yet in a structured way for this view apart from description #}
+                </div>
+            </div>
+
+            {# Empty State #}
+            <div id="empty-state" class="absolute inset-0 z-0 flex flex-col items-center justify-center text-slate-400 {{ current_species ? 'hidden' : '' }}">
+                {{ ux_icon('lucide:mouse-pointer-click', {class: 'w-16 h-16 mb-4 opacity-50'}) }}
+                <p class="text-lg font-medium">Selecione uma espécie para ver os detalhes</p>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<script type="module">
+    import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
+    window.marked = marked;
+    
+    // Initial Render if checked
+    const initialDesc = document.getElementById('preview-description');
+    if (initialDesc && initialDesc.textContent.trim()) {
+        initialDesc.innerHTML = marked.parse(initialDesc.textContent.trim());
+    }
+</script>
+
+<script>
+    function updatePreview(input) {
+        const title = document.getElementById('preview-title');
+        const desc = document.getElementById('preview-description');
+        const size = document.getElementById('preview-size');
+        const speed = document.getElementById('preview-speed');
+        
+        const previewContent = document.getElementById('preview-content');
+        const emptyState = document.getElementById('empty-state');
+
+        // Show Content
+        previewContent.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+
+        // Update Data
+        title.textContent = input.dataset.name;
+        size.textContent = input.dataset.size;
+        speed.textContent = input.dataset.speed;
+        
+        renderMarkdown(desc, input.dataset.description);
+
+        // Toggle Subraces Visibility
+        // Hide all subrace containers first
+        document.querySelectorAll('[id^="subraces-"]').forEach(el => el.classList.add('hidden'));
+        
+        if (input.dataset.hasSubraces === 'true') {
+            const subContainer = document.getElementById('subraces-' + input.value);
+            if (subContainer) subContainer.classList.remove('hidden');
+        }
+    }
+
+    function updateSubracePreview(input) {
+        // Also ensure parent species radio is checked if needed (HTML hierarchy handles this via name, but logically we need species ID)
+        // If the user clicks subrace directly, we might assume species is already active, OR we need to activate it.
+        // Since Subraces are hidden unless Species is active, this is implicitly handled.
+        
+        const title = document.getElementById('preview-title');
+        const desc = document.getElementById('preview-description');
+        
+        // Update with Subrace Info
+        // Note: Subrace might inherit size/speed, or override. 
+        // For simplicity, we use the datasets passed on subrace input which I populated from parent, 
+        // OR we should have populated subrace specific data if available.
+        // My snippet for subrace input has correct inheritance via data attributes.
+        
+        title.innerHTML = input.dataset.name + ' <span class="text-lg font-normal text-slate-400">(' + document.querySelector(`input[name="species"][value="${input.dataset.parentSpecies}"]`).dataset.name + ')</span>';
+        
+        renderMarkdown(desc, input.dataset.description);
+    }
+
+    function renderMarkdown(element, content) {
+        if (window.marked) {
+            element.innerHTML = window.marked.parse(content || '');
+        } else {
+            element.textContent = content;
+        }
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkedSpecies = document.querySelector('input[name="species"]:checked');
+        if (checkedSpecies) {
+            updatePreview(checkedSpecies);
+            
+            // If subrace checked, update that too
+            const checkedSubrace = document.querySelector(`input[name="subrace_${checkedSpecies.value}"]:checked`);
+            if (checkedSubrace) {
+                updateSubracePreview(checkedSubrace);
+            }
+        }
+    });
+</script>
+
+</script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.3);
+        border-radius: 20px;
+    }
+
+    /* Markdown Typography Improvements - Vanilla CSS */
+    .js-markdown-content {
+        line-height: 1.6;
+        color: #334155; /* slate-700 */
+    }
+
+    /* Paragraphs */
+    .js-markdown-content p {
+        margin-bottom: 1.25rem; /* mb-5 */
+    }
+
+    /* Headers Common */
+    .js-markdown-content h1,
+    .js-markdown-content h2,
+    .js-markdown-content h3,
+    .js-markdown-content h4,
+    .js-markdown-content h5,
+    .js-markdown-content h6 {
+        font-weight: 700;
+        color: #1e293b; /* slate-800 */
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+
+    /* H1 */
+    .js-markdown-content h1 {
+        font-size: 1.875rem; /* 3xl */
+        line-height: 2.25rem;
+        border-bottom: 2px solid #e2e8f0; /* slate-200 */
+        padding-bottom: 0.5rem;
+        color: #064e3b; /* emerald-900 - Adjusted for Step 7 Green Theme */
+    }
+
+    /* H2 */
+    .js-markdown-content h2 {
+        font-size: 1.5rem; /* 2xl */
+        line-height: 2rem;
+        color: #065f46; /* emerald-800 */
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0.25rem;
+    }
+
+    /* H3 */
+    .js-markdown-content h3 {
+        font-size: 1.25rem; /* xl */
+        line-height: 1.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #047857; /* emerald-700 */
+        margin-top: 2.5rem;
+    }
+    
+    /* Dark Mode Overrides */
+    :is(.dark .js-markdown-content) {
+        color: #cbd5e1; /* slate-300 */
+    }
+    :is(.dark .js-markdown-content h1) {
+        border-color: #334155; /* slate-700 */
+        color: #34d399; /* emerald-400 */
+    }
+    :is(.dark .js-markdown-content h2) {
+        border-color: #334155;
+        color: #6ee7b7; /* emerald-300 */
+    }
+    :is(.dark .js-markdown-content h3) {
+        color: #a7f3d0; /* emerald-200 */
+    }
+    :is(.dark .js-markdown-content h4),
+    :is(.dark .js-markdown-content h5),
+    :is(.dark .js-markdown-content strong) {
+        color: #f1f5f9; /* slate-100 */
+    }
+
+    /* Lists */
+    .js-markdown-content ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+    .js-markdown-content li {
+        margin-bottom: 0.25rem;
+    }
+
+    /* Strong */
+    .js-markdown-content strong {
+        font-weight: 700;
+        color: #0f172a; /* slate-900 */
+    }
+
+    /* Table Styles */
+    .js-markdown-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem; /* text-sm */
+    }
+
+    .js-markdown-content th {
+        background-color: #f1f5f9; /* slate-100 */
+        color: #334155; /* slate-700 */
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem; /* text-xs */
+        letter-spacing: 0.05em;
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid #e2e8f0; /* slate-200 */
+        text-align: left;
+    }
+
+    .js-markdown-content td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e2e8f0; /* slate-200 */
+        color: #475569; /* slate-600 */
+    }
+
+    .js-markdown-content tr:nth-child(even) {
+        background-color: #f8fafc; /* slate-50 */
+    }
+
+    /* Dark Mode Table overrides */
+    :is(.dark .js-markdown-content th) {
+        background-color: #1e293b; /* slate-800 */
+        color: #cbd5e1; /* slate-300 */
+        border-color: #334155; /* slate-700 */
+    }
+    :is(.dark .js-markdown-content td) {
+        border-color: #334155; /* slate-700 */
+        color: #94a3b8; /* slate-400 */
+    }
+    :is(.dark .js-markdown-content tr:nth-child(even)) {
+        background-color: #1e293b; /* slate-800/50 approx */
+        background-color: rgba(30, 41, 59, 0.5);
+    }
+</style>
+{% endblock %}

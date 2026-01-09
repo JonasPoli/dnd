@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ character.name }} - Ficha de Personagem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Georgia', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontSize: {
+                        'xxs': '0.5rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .page-break { break-after: page; }
+            .no-print { display: none; }
+        }
+        body { background: #e2e8f0; }
+        .sheet-page {
+            width: 210mm; height: 297mm;
+            background: white; margin: 0 auto;
+            padding: 10mm; position: relative;
+            overflow: hidden; /* Ensure precise fit */
+        }
+        @media screen {
+            .sheet-page { margin-bottom: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        }
+    </style>
+</head>
+<body class="text-slate-900 font-sans text-xs leading-tight">
+
+    {# Print Controls #}
+    <div class="no-print fixed top-4 right-4 flex gap-2 z-50">
+        <button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:bg-indigo-700">Imprimir</button>
+        <button onclick="window.close()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-slate-300">Fechar</button>
+    </div>
+
+    {# --- PAGE 1 --- #}
+    <div class="sheet-page page-break relative flex flex-col">
+        
+        {# Header #}
+        <header class="flex items-start justify-between border-b-2 border-slate-800 pb-2 mb-4 gap-4 h-[10%]">
+            <div class="flex-1">
+                <input type="text" value="{{ character.name }}" class="w-full text-3xl font-bold font-serif uppercase tracking-wider mb-2 border-none bg-transparent" placeholder="Nome do Personagem">
+                <div class="grid grid-cols-3 gap-x-4 gap-y-1 text-[9px] uppercase font-bold text-slate-600">
+                    <div class="border-b border-slate-300 flex justify-between">
+                        <span class="text-slate-400">Classe/Nível</span>
+                        <span>{{ character.classDef.name }} {{ character.level }}</span>
+                    </div>
+                     <div class="border-b border-slate-300 flex justify-between">
+                        <span class="text-slate-400">Subclasse</span>
+                        <span>{{ character.subclassDef.name|default('-') }}</span>
+                    </div>
+                     <div class="border-b border-slate-300 flex justify-between">
+                        <span class="text-slate-400">XP</span>
+                        <span>0 / 300</span>
+                    </div>
+                    <div class="border-b border-slate-300 flex justify-between">
+                        <span class="text-slate-400">Espécie</span>
+                        <span>{{ character.species.name }}</span>
+                    </div>
+                     <div class="border-b border-slate-300 flex justify-between">
+                        <span class="text-slate-400">Origem</span>
+                        <span>{{ character.background.name|default('-') }}</span>
+                    </div>
+                     <div class="border-b border-slate-300 flex justify-between">
+                        <span class="text-slate-400">Alinhamento</span>
+                        <span>{{ character.alignment|default('-') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="w-24 text-right">
+                {# D&D Logo / Branding Placeholder #}
+                <div class="text-4xl font-serif font-bold text-red-700 opacity-20">D&D</div>
+            </div>
+        </header>
+
+        <div class="flex-1 flex gap-4 h-[88%]">
+            
+            {# Col 1: Attributes & Skills (~25%) #}
+            <div class="w-[25%] flex flex-col gap-3">
+                {# Attributes #}
+                <div class="flex flex-col gap-2">
+                    {% for attr in character.characterAttributes %}
+                         {% set mod = ((attr.value - 10) / 2)|round(0, 'floor') %}
+                        <div class="flex flex-col bg-slate-100 border border-slate-300 rounded overflow-hidden items-center py-1">
+                            <span class="text-[8px] font-bold uppercase text-slate-500">{{ attr.attribute.name|slice(0,3) }}</span>
+                            <span class="text-xl font-bold font-serif">{{ mod >= 0 ? '+' : '' }}{{ mod }}</span>
+                            <div class="w-8 h-6 rounded-full border border-slate-300 flex items-center justify-center text-[10px] bg-white mt-1 font-bold">
+                                {{ attr.value }}
+                            </div>
+                            {# Save #}
+                            <div class="flex items-center gap-1 mt-1">
+                                <span class="w-2 h-2 rounded-full border border-slate-400 {{ (character.classDef.profSkills is defined and 'Salva: ' ~ attr.attribute.name in character.classDef.profSkills) ? 'bg-slate-800' : '' }}"></span>
+                                <span class="text-[7px]">Salv.</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# Skills #}
+                <div class="border border-slate-800 rounded p-2 flex-1 relative">
+                    <h3 class="text-[10px] uppercase font-bold text-center border-b border-slate-300 mb-2">Perícias</h3>
+                     {% set profBonus = 2 %} {# Static for now, or calc form level #}
+                     <div class="space-y-1">
+                        {% for skillName in ['Acrobacia', 'Adestrar Animais', 'Arcanismo', 'Atletismo', 'Atuação', 'Enganação', 'Furtividade', 'História', 'Intimidação', 'Intuição', 'Investigação', 'Medicina', 'Natureza', 'Percepção', 'Persuasão', 'Prestidigitação', 'Religião', 'Sobrevivência'] %}
+                             {% set isProf = false %}
+                             {# Detect Prof #}
+                             {% for s in character.skills %}
+                                {% if s.name == skillName %} {% set isProf = true %} {% endif %}
+                            {% endfor %}
+                            
+                            <div class="flex items-center gap-1.5 text-[9px]">
+                                <div class="w-2 h-2 rounded-full border border-slate-500 {{ isProf ? 'bg-slate-800' : '' }}"></div>
+                                <span class="w-4 text-right text-slate-400">{{ isProf ? '+' ~ profBonus : '+0' }}</span>
+                                <span class="{{ isProf ? 'font-bold' : 'text-slate-500' }} truncate">{{ skillName }}</span>
+                            </div>
+                        {% endfor %}
+                     </div>
+                </div>
+
+                {# Passives #}
+                <div class="space-y-2 text-[9px]">
+                    <div class="flex items-center justify-between border border-slate-300 rounded px-2 py-1">
+                         <span class="font-bold text-slate-500 uppercase">Percepção Passiva</span>
+                         <span class="font-bold text-lg">10</span>
+                    </div>
+                     <div class="flex items-center justify-between border border-slate-300 rounded px-2 py-1">
+                         <span class="font-bold text-slate-500 uppercase">Inspiração Heróica</span>
+                         <input type="checkbox" class="w-4 h-4 rounded-full border-slate-400">
+                    </div>
+                </div>
+            </div>
+
+            {# Col 2: Combat & Attacks (~45%) #}
+            <div class="w-[45%] flex flex-col gap-3">
+                
+                {# Defense Grid #}
+                {% set dexMod = 0 %}
+                {% set conMod = 0 %}
+                {% for attr in character.characterAttributes %}
+                    {% if attr.attribute.name == 'Destreza' %} {% set dexMod = ((attr.value - 10) / 2)|round(0, 'floor') %} {% endif %}
+                    {% if attr.attribute.name == 'Constituição' %} {% set conMod = ((attr.value - 10) / 2)|round(0, 'floor') %} {% endif %}
+                {% endfor %}
+                {% set maxHp = (character.classDef.hitDie|default(8)) + conMod %}
+
+                <div class="flex items-center justify-center gap-4 relative h-24">
+                     {# Speed #}
+                    <div class="w-16 h-16 border-2 border-slate-800 rounded flex flex-col items-center justify-center bg-white z-10">
+                        <span class="text-[8px] uppercase font-bold text-slate-500">Desloc.</span>
+                        <span class="text-2xl font-bold">9m</span>
+                    </div>
+
+                    {# AC Shield #}
+                    <div class="relative w-24 h-28 flex items-center justify-center z-20 -mt-2">
+                        {# SVG Shield shape #}
+                        <svg viewBox="0 0 100 120" class="absolute inset-0 w-full h-full text-slate-100 fill-current drop-shadow-md">
+                            <path d="M50 0 L100 20 V60 C100 90 50 120 50 120 C50 120 0 90 0 60 V20 L50 0 Z" stroke="#1e293b" stroke-width="3"/>
+                        </svg>
+                        <div class="relative z-10 text-center">
+                            <span class="block text-3xl font-bold font-serif">{{ 10 + dexMod }}</span>
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-500">CA</span>
+                        </div>
+                    </div>
+
+                    {# Init #}
+                    <div class="w-16 h-16 border-2 border-slate-800 rounded flex flex-col items-center justify-center bg-white z-10">
+                         <span class="text-[8px] uppercase font-bold text-slate-500">Inic.</span>
+                        <span class="text-2xl font-bold">{{ dexMod >= 0 ? '+' : '' }}{{ dexMod }}</span>
+                    </div>
+                </div>
+
+                {# HP Block #}
+                <div class="border-2 border-slate-800 rounded-lg p-2 bg-slate-50">
+                    <div class="flex justify-between items-end border-b border-slate-300 pb-1 mb-2">
+                        <span class="text-[10px] uppercase font-bold text-slate-500">Pontos de Vida</span>
+                         <span class="text-[10px] text-slate-400">Máximo: <span class="text-slate-900 font-bold text-base">{{ maxHp }}</span></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="h-12 border border-slate-300 rounded bg-white p-1 relative">
+                            <span class="text-[8px] text-slate-300 absolute top-1 left-1">Atuais</span>
+                        </div>
+                        <div class="h-8 border border-slate-300 rounded bg-white p-1 relative">
+                             <span class="text-[8px] text-slate-300 absolute top-1 left-1">Temporários</span>
+                        </div>
+                    </div>
+                </div>
+
+                {# Vitality Resources #}
+                <div class="flex gap-2">
+                     <div class="flex-1 border border-slate-800 rounded p-2 text-center">
+                        <span class="text-[8px] uppercase font-bold text-slate-500 block border-b border-slate-200 mb-1">Dados de Vida</span>
+                        <span class="text-xl font-bold">{{ character.level }}d{{ character.classDef.hitDie }}</span>
+                     </div>
+                     <div class="flex-1 border border-slate-800 rounded p-2">
+                        <span class="text-[8px] uppercase font-bold text-slate-500 block border-b border-slate-200 mb-1">Testes de Morte</span>
+                        <div class="flex flex-col gap-1 mt-1 text-[9px]">
+                            <div class="flex justify-between items-center">
+                                <span>Sucessos</span>
+                                <div class="flex gap-1"><span class="w-2.5 h-2.5 rounded-full border border-slate-400"></span><span class="w-2.5 h-2.5 rounded-full border border-slate-400"></span><span class="w-2.5 h-2.5 rounded-full border border-slate-400"></span></div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>Falhas</span>
+                                <div class="flex gap-1"><span class="w-2.5 h-2.5 rounded-full border border-slate-400"></span><span class="w-2.5 h-2.5 rounded-full border border-slate-400"></span><span class="w-2.5 h-2.5 rounded-full border border-slate-400"></span></div>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+
+                {# Attacks Table #}
+                <div class="border border-slate-800 rounded p-2 flex-1 relative">
+                     <h3 class="text-[10px] uppercase font-bold border-b-2 border-slate-800 mb-2">Ataques & Conjuração</h3>
+                     <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[8px] text-slate-500 uppercase border-b border-slate-300">
+                                <th class="pb-1 w-1/3">Nome</th>
+                                <th class="pb-1 text-center w-1/6">Atq/CD</th>
+                                <th class="pb-1 w-1/3">Dano/Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                             {# Weapons logic roughly approximated #}
+                             {% for i in 0..4 %}
+                                <tr class="border-b border-slate-100 h-8">
+                                    <td class="bg-slate-50/50"></td>
+                                    <td class="bg-slate-50/50"></td>
+                                    <td class="bg-slate-50/50"></td>
+                                </tr>
+                             {% endfor %}
+                        </tbody>
+                     </table>
+                     <div class="mt-2 h-20 border border-slate-200 rounded p-1">
+                         <span class="text-[8px] text-slate-300">Anotações</span>
+                     </div>
+                </div>
+
+            </div>
+
+             {# Col 3: Right (~30%) #}
+            <div class="w-[30%] flex flex-col gap-3">
+                {# PB #}
+                <div class="border-2 border-slate-800 rounded p-2 flex items-center justify-between bg-slate-50">
+                    <span class="text-[9px] uppercase font-bold text-slate-600">Bônus de Proficiência</span>
+                    <span class="text-xl font-bold">+2</span>
+                </div>
+
+                {# Character Image Box #}
+                <div class="w-full aspect-square border-2 border-slate-800 rounded-lg bg-slate-100 overflow-hidden relative group">
+                    {% if character.imagePath %}
+                         <img src="{{ vich_uploader_asset(character, 'imageFile') }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="absolute inset-0 flex items-center justify-center text-slate-300">
+                             {{ ux_icon('lucide:user', {class: 'w-24 h-24 stroke-1'}) }}
+                        </div>
+                        <span class="absolute bottom-2 left-0 right-0 text-center text-[9px] uppercase font-bold text-slate-400">Imagem do Personagem</span>
+                    {% endif %}
+                </div>
+
+                {# Features & Feats #}
+                <div class="border border-slate-800 rounded p-2 flex-1 flex flex-col gap-2">
+                    <h3 class="text-[10px] uppercase font-bold border-b border-slate-300">Características & Talentos</h3>
+                    
+                    <div class="flex-1 space-y-2 overflow-hidden text-[9px]">
+                        {# Feats #}
+                         {% if character.background.feat %}
+                            <div>
+                                <strong class="block text-indigo-700">{{ character.background.feat.name }}</strong>
+                                <p class="text-slate-600 leading-tight">{{ character.background.feat.descriptionMd|striptags|slice(0, 100) }}...</p>
+                            </div>
+                         {% endif %}
+
+                         {# Features #}
+                         {% for feature in features|slice(0, 3) %}
+                            <div>
+                                <strong class="block text-slate-800">{{ feature.name }}</strong>
+                                <p class="text-slate-600 leading-tight">{{ feature.descriptionMd|striptags|slice(0, 80) }}...</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        {# Footer: Equipment & Profs #}
+        <div class="mt-0 ml-[26%] w-[74%] h-[12%] border-t-2 border-slate-800 pt-2 flex gap-4 text-[9px]">
+             <div class="flex-1 border border-slate-300 rounded p-2">
+                <strong class="block uppercase mb-1 text-slate-500">Proficiências (Armas/Armaduras)</strong>
+                <p>{{ character.classDef.profArmor|default('-') }} / {{ character.classDef.profWeapons|default('-') }}</p>
+             </div>
+             <div class="flex-1 border border-slate-300 rounded p-2">
+                <strong class="block uppercase mb-1 text-slate-500">Idiomas & Ferramentas</strong>
+                 <p>{{ character.languages|map(l => l.name)|join(', ') }}</p>
+            </div>
+        </div>
+
+    </div>
+
+    {# --- PAGE 2 --- #}
+    <div class="sheet-page page-break flex gap-6">
+        
+        {# Col 1: Bio & Narrative (~33%) #}
+        <div class="w-[33%] flex flex-col gap-4 border-r border-slate-200 pr-4">
+            <h2 class="font-serif font-bold text-xl uppercase tracking-wider border-b-2 border-slate-800 pb-1">História & Traços</h2>
+            
+            <div class="flex-1 border border-slate-300 rounded p-2">
+                <strong class="block text-[10px] uppercase mb-1 text-slate-500">Aparência</strong>
+                <p class="whitespace-pre-wrap text-slate-700 leading-snug">{{ character.appearance|default('') }}</p>
+            </div>
+            
+             <div class="flex-[2] border border-slate-300 rounded p-2">
+                <strong class="block text-[10px] uppercase mb-1 text-slate-500">História do Personagem</strong>
+                 <p class="whitespace-pre-wrap text-slate-700 leading-snug">{{ character.origin|default('') }}</p>
+            </div>
+
+            <div class="border border-slate-300 rounded p-2 h-32">
+                <strong class="block text-[10px] uppercase mb-1 text-slate-500">Traços de Personalidade & Vínculos</strong>
+                 <p class="whitespace-pre-wrap text-slate-700 leading-snug">{{ character.bonds|default('') }}</p>
+            </div>
+        </div>
+
+        {# Col 2: Magic (~40%) #}
+        <div class="w-[40%] flex flex-col gap-4">
+             <h2 class="font-serif font-bold text-xl uppercase tracking-wider border-b-2 border-slate-800 pb-1 text-center">Magia</h2>
+             
+             {# Magic Header #}
+             <div class="flex gap-2">
+                <div class="flex-1 border border-slate-800 rounded p-2 text-center">
+                    <span class="block text-[8px] uppercase font-bold text-slate-500">Habilidade</span>
+                    <span class="font-bold text-lg">INT</span>
+                </div>
+                 <div class="flex-1 border border-slate-800 rounded p-2 text-center">
+                    <span class="block text-[8px] uppercase font-bold text-slate-500">CD Resistência</span>
+                    <span class="font-bold text-lg">12</span>
+                </div>
+                 <div class="flex-1 border border-slate-800 rounded p-2 text-center">
+                    <span class="block text-[8px] uppercase font-bold text-slate-500">Bônus de Ataque</span>
+                    <span class="font-bold text-lg">+4</span>
+                </div>
+             </div>
+
+             {# Spell Slots Grid #}
+             <div class="grid grid-cols-3 gap-1">
+                {% for i in 1..9 %}
+                    <div class="border border-slate-300 rounded p-1 flex justify-between items-center text-[9px] bg-slate-50">
+                        <span class="font-bold">Nível {{ i }}</span>
+                        <div class="flex gap-1">
+                            <span class="w-6 border-b border-slate-400 text-center">0</span>
+                        </div>
+                    </div>
+                {% endfor %}
+             </div>
+
+             {# Spell List #}
+             <div class="flex-1 border border-slate-800 rounded p-2">
+                 <table class="w-full text-left">
+                    <thead class="border-b border-slate-300 text-[8px] uppercase text-slate-500">
+                        <tr>
+                            <th class="w-8">Nv</th>
+                            <th>Nome</th>
+                            <th class="w-12 text-right">Tempo</th>
+                            <th class="w-8 text-right">Comp</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-[9px] leading-tight align-top">
+                        {% for cs in character.characterSpells %}
+                            <tr class="border-b border-slate-100">
+                                <td class="py-1 font-bold text-slate-400">{{ cs.spell.level }}</td>
+                                <td class="py-1 font-bold">{{ cs.spell.name }}</td>
+                                <td class="py-1 text-right text-slate-500 truncate max-w-[50px]">{{ cs.spell.castingTime }}</td>
+                                <td class="py-1 text-right font-mono text-[8px] text-slate-400">
+                                    {{ cs.spell.isVerbal?'V':'' }}{{ cs.spell.isSomatic?'S':'' }}{{ cs.spell.isMaterial?'M':'' }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {# Fill empty lines #}
+                        {% for i in 1..15 %}
+                            <tr class="border-b border-slate-100 h-5"><td></td><td></td><td></td><td></td></tr>
+                        {% endfor %}
+                    </tbody>
+                 </table>
+             </div>
+        </div>
+
+        {# Col 3: Inventory (~27%) #}
+        <div class="w-[27%] flex flex-col gap-4 border-l border-slate-200 pl-4">
+             <h2 class="font-serif font-bold text-xl uppercase tracking-wider border-b-2 border-slate-800 pb-1 text-right">Equipamento</h2>
+
+             <div class="flex-1 border border-slate-800 rounded p-2 bg-slate-50">
+                 <ul class="text-[9px] space-y-1">
+                    {% for item in character.inventory %}
+                        <li class="flex justify-between border-b border-slate-200 pb-0.5">
+                            <span>{{ item.namePt|default(item.name) }}</span>
+                            <span class="text-slate-400">{{ item.weightKg }}kg</span>
+                        </li>
+                    {% endfor %}
+                    {% for i in 1..20 %}
+                        <li class="border-b border-slate-200 h-5"></li>
+                    {% endfor %}
+                 </ul>
+             </div>
+
+             <div class="h-32 border border-slate-300 rounded p-2">
+                 <strong class="block text-[10px] uppercase mb-1 text-slate-500 text-right">Sintonização de Itens Mágicos</strong>
+                 <div class="space-y-4 mt-2">
+                     <div class="border-b border-slate-400 h-4"></div>
+                     <div class="border-b border-slate-400 h-4"></div>
+                     <div class="border-b border-slate-400 h-4"></div>
+                 </div>
+             </div>
+
+             {# Coins #}
+             <div class="grid grid-cols-5 gap-1 text-center">
+                 <div class="border border-slate-400 rounded p-1 flex flex-col bg-amber-50">
+                     <span class="text-[8px] font-bold text-amber-700">PC</span>
+                     <span class="font-mono">{{ character.coinCp }}</span>
+                 </div>
+                 <div class="border border-slate-400 rounded p-1 flex flex-col bg-slate-50">
+                     <span class="text-[8px] font-bold text-slate-500">PP</span>
+                     <span class="font-mono">{{ character.coinSp }}</span>
+                 </div>
+                 <div class="border border-slate-400 rounded p-1 flex flex-col bg-slate-100">
+                     <span class="text-[8px] font-bold text-slate-600">PE</span>
+                     <span class="font-mono">{{ character.coinEp }}</span>
+                 </div>
+                 <div class="border border-slate-400 rounded p-1 flex flex-col bg-yellow-50">
+                     <span class="text-[8px] font-bold text-yellow-600">PO</span>
+                     <span class="font-mono">{{ character.coinGp }}</span>
+                 </div>
+                 <div class="border border-slate-400 rounded p-1 flex flex-col bg-slate-50">
+                     <span class="text-[8px] font-bold text-slate-400">PL</span>
+                     <span class="font-mono">{{ character.coinPp }}</span>
+                 </div>
+             </div>
+        </div>
+    
+    </div>
+
+</body>
+</html>

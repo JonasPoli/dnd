@@ -1,0 +1,39 @@
+{% extends 'character_creation/base_wizard.html.twig' %}
+
+{% set step = 9 %}
+
+{% block wizard_content %}
+<form id="wizard-form" method="post" action="{{ path('app_character_creation_step9', {id: character.id}) }}">
+    
+    <div class="max-w-4xl mx-auto h-[calc(100vh-12rem)] flex flex-col">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">Atributos</h2>
+        <p class="text-slate-500 mb-8 text-sm">Seus valores de atributos foram calculados com base na sua escolha de classe ({{ character.classDef.name }}) e antecedentes.</p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 overflow-y-auto custom-scrollbar pb-40 px-2">
+            {% for attr in attributes %}
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col items-center justify-center shadow-sm hover:border-violet-400 dark:hover:border-violet-600 transition-colors group">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">{{ attr.name }}</span>
+                
+                <div class="relative mb-2 group-hover:scale-110 transition-transform duration-300">
+                    {{ ux_icon('lucide:hexagon', {class: 'w-24 h-24 text-slate-100 dark:text-slate-800 group-hover:text-violet-50 dark:group-hover:text-violet-900/20 transition-colors'}) }}
+                    <span class="absolute inset-0 flex items-center justify-center text-3xl font-bold text-slate-800 dark:text-white font-serif">
+                        {{ attr.value }}
+                    </span>
+                    
+                    {% if attr.bonus > 0 %}
+                    <div class="absolute -top-2 -right-2 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-700 shadow-sm" title="+{{ attr.bonus }} de Antecedente">
+                        +{{ attr.bonus }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="px-3 py-1 bg-violet-100 dark:bg-violet-900/30 rounded-full text-violet-700 dark:text-violet-300 font-bold text-sm">
+                    {{ attr.modifier }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</form>
+{% endblock %}

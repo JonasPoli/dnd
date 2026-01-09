@@ -229,6 +229,20 @@
             <!-- Scrollable Page Content -->
             <main class="flex-grow overflow-y-auto p-8 bg-slate-50 dark:bg-slate-950">
                 <div class="max-w-7xl mx-auto">
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="mb-6 p-4 rounded-2xl border flex items-center gap-3 animate-app-in-y
+                                {{ label == 'success' ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400' }}">
+                                {% if label == 'success' %}
+                                    {{ ux_icon('lucide:check-circle-2', {class: 'w-5 h-5 shrink-0'}) }}
+                                {% else %}
+                                    {{ ux_icon('lucide:alert-circle', {class: 'w-5 h-5 shrink-0'}) }}
+                                {% endif %}
+                                <span class="font-semibold text-sm">{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+
                     {% block body %}{% endblock %}
                 </div>
             </main>

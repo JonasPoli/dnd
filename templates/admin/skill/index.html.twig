@@ -36,7 +36,7 @@
                             <div class="badge badge-sm badge-ghost">{{ skill.attribute.name }}</div>
                         </td>
                         <td class="px-8 py-5">
-                            <div class="text-sm text-slate-600 dark:text-slate-400 max-w-md truncate">{{ skill.description }}</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400 max-w-md truncate">{{ skill.description|default(skill.descriptionMd|striptags) }}</div>
                         </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex items-center justify-end space-x-3">

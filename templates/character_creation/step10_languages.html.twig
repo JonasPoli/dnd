@@ -1,0 +1,133 @@
+{% extends 'character_creation/base_wizard.html.twig' %}
+
+{% set step = 10 %}
+
+{% block wizard_content %}
+<form id="wizard-form" method="post" action="{{ path('app_character_creation_step10', {id: character.id}) }}">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-12rem)]">
+        
+        {# Left Column: Selection #}
+        <div class="lg:col-span-12 flex flex-col h-full overflow-y-auto custom-scrollbar pb-40 pr-2">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">Idiomas</h2>
+            <p class="text-slate-500 mb-6 text-sm">Seu personagem pode falar, ler e escrever em Comum e em outros idiomas determinados por sua ascendência e antecedentes.</p>
+            
+            <div class="space-y-8 max-w-3xl">
+                
+                {# Fixed Languages #}
+                <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-6 border border-indigo-100 dark:border-indigo-800">
+                    <h3 class="text-indigo-900 dark:text-indigo-300 font-bold mb-3 flex items-center gap-2">
+                        {{ ux_icon('lucide:lock', {class: 'w-4 h-4'}) }} Idiomas Conhecidos (Fixo)
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for lang in fixed_languages %}
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-700">
+                                {{ lang.name }}
+                                <input type="hidden" name="fixed_languages[]" value="{{ lang.id }}">
+                            </span>
+                        {% else %}
+                            <span class="text-slate-500 italic text-sm">Nenhum idioma fixo identificado.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {# Choice Slots #}
+                <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-slate-800 dark:text-white font-bold flex items-center gap-2">
+                             {{ ux_icon('lucide:message-square', {class: 'w-4 h-4'}) }} Escolha seus Idiomas Adicionais
+                        </h3>
+                        <label class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 cursor-pointer">
+                            <input type="checkbox" id="toggle-exotic" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            Mostrar Idiomas Exóticos
+                        </label>
+                    </div>
+                    
+                    <p class="text-sm text-slate-500 mb-6">Você tem <strong>{{ slots }}</strong> escolha(s) disponível(is) proveniente do seu Antecedente.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for i in 1..slots %}
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Idioma {{ i }}</label>
+                                <div class="relative">
+                                    <select name="languages[]" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow">
+                                        <option value="">Selecione um idioma...</option>
+                                        
+                                        <optgroup label="Padrão">
+                                            {% for lang in standard_languages %}
+                                                {% if lang not in fixed_languages %}
+                                                    <option value="{{ lang.id }}" 
+                                                            {% if lang.id in current_language_ids %}selected{% endif %}
+                                                            class="standard-option">
+                                                        {{ lang.name }}
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </optgroup>
+                                        
+                                        <optgroup label="Exótico" class="exotic-group hidden">
+                                            {% for lang in exotic_languages %}
+                                                {% if lang not in fixed_languages %}
+                                                    <option value="{{ lang.id }}" 
+                                                            {% if lang.id in current_language_ids %}selected{% endif %}
+                                                            class="exotic-option">
+                                                        {{ lang.name }}
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        {{ ux_icon('lucide:chevron-down', {class: 'w-4 h-4'}) }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        {# Right Column (Optional info or removed for this step as it is simpler) #}
+        {# User requirement didn't specify strict layout, but "Painel dividido em duas seções visuais" might mean Top/Bottom or Left/Right. #}
+        {# I put Fixed and Choices stacked in one column for clarity, but I can use grid-cols-12 to make it side-by-side if preferred. #}
+        {# Given the "List of fixed" vs "Dropdowns", a single vertical flow is often cleaner for forms. #}
+
+    </div>
+</form>
+
+<script>
+    document.getElementById('toggle-exotic').addEventListener('change', function(e) {
+        const exoticGroups = document.querySelectorAll('.exotic-group');
+        exoticGroups.forEach(group => {
+            if (e.target.checked) {
+                group.classList.remove('hidden');
+            } else {
+                group.classList.add('hidden');
+                // Optional: deselect if hidden?
+            }
+        });
+    });
+
+    // Frontend Validation to prevent duplicate selection across dropdowns
+    const selects = document.querySelectorAll('select[name="languages[]"]');
+    selects.forEach(select => {
+        select.addEventListener('change', validateUnique);
+    });
+
+    function validateUnique(e) {
+        const currentSelect = e.target;
+        const selectedValue = currentSelect.value;
+        
+        if (!selectedValue) return;
+
+        selects.forEach(s => {
+            if (s !== currentSelect && s.value === selectedValue) {
+                alert('Você já selecionou este idioma em outro campo.');
+                currentSelect.value = '';
+            }
+        });
+    }
+</script>
+{% endblock %}

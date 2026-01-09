@@ -11,6 +11,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class CharacterType extends AbstractType
 {
@@ -40,7 +41,58 @@ class CharacterType extends AbstractType
             ])
             ->add('background', EntityType::class, [
                 'class' => Background::class,
-                'choice_label' => 'id',
+                'choice_label' => 'name',
+            ])
+            ->add('subrace', EntityType::class, [
+                'class' => \App\Entity\Subrace::class,
+                'choice_label' => 'name',
+                'required' => false,
+                'placeholder' => 'Nenhuma',
+            ])
+            ->add('alignment', null, ['label' => 'Alinhamento'])
+            ->add('imageFile', VichImageType::class, [
+                'required' => false,
+                'allow_delete' => true,
+                'download_uri' => false,
+                'image_uri' => true,
+                'label' => 'Imagem do Personagem',
+            ])
+            ->add('appearance', null, ['label' => 'Aparência & Personalidade'])
+            ->add('bonds', null, ['label' => 'Vínculos'])
+            ->add('origin', null, ['label' => 'Origem'])
+            
+            ->add('skills', EntityType::class, [
+                'class' => \App\Entity\Skill::class,
+                'choice_label' => 'name',
+                'multiple' => true,
+                'expanded' => true, // Checkboxes for easier selection? Or select2? Let's try select2 (default) first or expanded if few. Skills are ~18. Expanded takes space.
+                'required' => false,
+                'label' => 'Perícias Treinadas',
+                'attr' => ['class' => 'select2'], // Hint for JS if we had it, or use standard select
+            ])
+            ->add('toolProficiencies', EntityType::class, [
+                'class' => \App\Entity\Equipment::class,
+                'choice_label' => 'name',
+                'multiple' => true,
+                'required' => false,
+                'label' => 'Proficiência em Ferramentas',
+                // This might be HUGE list. Only Tools?
+                // The entity is Equipment. We should ideally filter by type 'Tool'.
+                // 'query_builder' => function ...
+            ])
+            ->add('languages', EntityType::class, [
+                'class' => \App\Entity\Language::class,
+                'choice_label' => 'name',
+                'multiple' => true,
+                'required' => false,
+                'label' => 'Idiomas',
+            ])
+            ->add('characterAttributes', \Symfony\Component\Form\Extension\Core\Type\CollectionType::class, [
+                'entry_type' => CharacterAttributeType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => false, // Attributes are fixed 6 usually
+                'allow_delete' => false,
+                'by_reference' => false,
             ])
         ;
     }

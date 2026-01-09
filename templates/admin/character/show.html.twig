@@ -1,0 +1,302 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}{{ character.name }}{% endblock %}
+
+{% block body %}
+    <div class="max-w-5xl mx-auto space-y-8 pb-20">
+        
+        {# 1. Header & Identity #}
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-8">
+            {# Image #}
+            <div class="w-32 h-32 md:w-48 md:h-48 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 overflow-hidden flex items-center justify-center relative">
+                {% if character.imagePath %}
+                    <img src="{{ vich_uploader_asset(character, 'imageFile') }}" alt="{{ character.name }}" class="w-full h-full object-cover">
+                {% else %}
+                    {{ ux_icon('lucide:user', {class: 'w-20 h-20 text-slate-300 dark:text-slate-600'}) }}
+                {% endif %}
+                <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center py-1">Nível {{ character.level }}</div>
+            </div>
+
+            {# Identity & Core Stats #}
+            <div class="flex-1 space-y-6">
+                <div>
+                    <h1 class="text-4xl font-bold font-serif text-slate-900 dark:text-white leading-none mb-2">{{ character.name }}</h1>
+                    <div class="flex flex-wrap gap-2 text-sm text-slate-600 dark:text-slate-400">
+                        <span class="font-bold text-slate-800 dark:text-slate-200">{{ character.species.name|default('Raça Desconhecida') }} {{ character.subrace ? '(' ~ character.subrace.name ~ ')' : '' }}</span>
+                        <span>•</span>
+                        <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ character.classDef.name|default('Classe Desconhecida') }} {{ character.subclassDef ? '(' ~ character.subclassDef.name ~ ')' : '' }}</span>
+                        <span>•</span>
+                        <span>{{ character.background.name|default('Sem Antecedente') }}</span>
+                         {% if character.alignment %}
+                            <span>•</span>
+                            <span class="italic">{{ character.alignment }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Attributes Grid #}
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+                    {% for attr in character.characterAttributes %}
+                        {% set mod = ((attr.value - 10) / 2)|round(0, 'floor') %}
+                        <div class="flex flex-col items-center bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2 border border-slate-200 dark:border-slate-700">
+                            <span class="text-[10px] font-bold uppercase text-slate-500 mb-1">{{ attr.attribute.name|slice(0,3) }}</span>
+                            <span class="text-xl font-bold text-slate-800 dark:text-white leading-none">{{ mod >= 0 ? '+' : '' }}{{ mod }}</span>
+                            <div class="mt-1 w-6 h-6 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-400">
+                                {{ attr.value }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# Combat Stats Row #}
+                <div class="flex gap-4">
+                     {# HP Calculation (Simplified for display based on Step 11 logic logic) #}
+                     {% set conMod = 0 %}
+                     {% for attr in character.characterAttributes %}
+                        {% if attr.attribute.name == 'Constituição' %}
+                             {% set conMod = ((attr.value - 10) / 2)|round(0, 'floor') %}
+                        {% endif %}
+                     {% endfor %}
+                     {# Warning: This is dynamic calc in view, ideally passed from controller or persisted #}
+                     {% set maxHp = (character.classDef.hitDie|default(8)) + conMod %} 
+
+                     <div class="flex-1 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-xl p-3 flex flex-col items-center justify-center relative">
+                        <span class="text-[10px] font-bold uppercase text-red-500 mb-0.5">Pontos de Vida</span>
+                        <span class="text-2xl font-bold text-red-700 dark:text-red-400">{{ maxHp }}</span>
+                        <span class="text-[10px] text-red-400">Total</span>
+                     </div>
+                     
+                     {# AC #}
+                     {% set dexMod = 0 %}
+                     {% for attr in character.characterAttributes %}
+                        {% if attr.attribute.name == 'Destreza' %}
+                             {% set dexMod = ((attr.value - 10) / 2)|round(0, 'floor') %}
+                        {% endif %}
+                     {% endfor %}
+                     <div class="flex-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col items-center justify-center">
+                        <span class="text-[10px] font-bold uppercase text-slate-500 mb-0.5">Classe de Armadura</span>
+                         <div class="relative">
+                            {{ ux_icon('lucide:shield', {class: 'w-8 h-8 text-slate-300 dark:text-slate-600'}) }}
+                            <span class="absolute inset-0 flex items-center justify-center font-bold text-slate-800 dark:text-slate-200 text-lg">{{ 10 + dexMod }}</span>
+                        </div>
+                     </div>
+
+                     <div class="flex-1 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-xl p-3 flex flex-col items-center justify-center">
+                        <span class="text-[10px] font-bold uppercase text-amber-600 mb-0.5">Iniciativa</span>
+                        <span class="text-2xl font-bold text-amber-700 dark:text-amber-400">{{ dexMod >= 0 ? '+' : '' }}{{ dexMod }}</span>
+                     </div>
+                     
+                     <div class="flex-1 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-900/30 rounded-xl p-3 flex flex-col items-center justify-center">
+                        <span class="text-[10px] font-bold uppercase text-indigo-600 mb-0.5">Deslocamento</span>
+                        <span class="text-2xl font-bold text-indigo-700 dark:text-indigo-400">9m</span>
+                     </div>
+                </div>
+            </div>
+             <div class="flex flex-col gap-2">
+                <a href="{{ path('admin_character_print', {'id': character.id}) }}" target="_blank" class="btn btn-primary w-full justify-center bg-slate-900 text-white hover:bg-slate-700">Imprimir Ficha</a>
+                <a href="{{ path('admin_character_edit', {'id': character.id}) }}" class="btn btn-secondary w-full justify-center" data-turbo="false">Editar Dados</a>
+                <a href="{{ path('admin_character_index') }}" class="btn btn-text w-full justify-center">Voltar</a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {# Left Column: Skills & Proficiencies #}
+            <div class="lg:col-span-4 space-y-6">
+                 
+                {# Skills #}
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <div class="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wide">Perícias</h3>
+                        <span class="text-xs font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">Bônus +2</span>
+                    </div>
+                    {% set profBonus = 2 %}
+                    <div class="divide-y divide-slate-100 dark:divide-slate-800 p-2">
+                        {% for skill in character.skills %}
+                             {# Calculate mod - Logic duplicated from controller for now #}
+                             {% set ability = skill.ability|default('Sabedoria') %} 
+                             {% set attrVal = 10 %}
+                             {% for ca in character.characterAttributes %}
+                                {% if ca.attribute.name == ability %} {% set attrVal = ca.value %} {% endif %}
+                             {% endfor %}
+                             {% set mod = ((attrVal - 10) / 2)|round(0, 'floor') %}
+                             {% set total = mod + profBonus %}
+
+                            <div class="flex items-center justify-between px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded-lg transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ skill.name }}</span>
+                                    <span class="text-[10px] uppercase text-slate-400">({{ ability|slice(0,3) }})</span>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800 dark:text-white">{{ total >= 0 ? '+' : '' }}{{ total }}</span>
+                            </div>
+                        {% else %}
+                            <p class="text-slate-400 text-sm text-center py-4">Nenhuma perícia treinada.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {# Proficiencies #}
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+                     <div>
+                        <h4 class="text-xs font-bold uppercase text-slate-400 mb-2">Idiomas</h4>
+                         <div class="flex flex-wrap gap-2">
+                            {% for lang in character.languages %}
+                                <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
+                                    {{ lang.name }}
+                                </span>
+                            {% else %}
+                                <span class="text-slate-400 text-sm italic">Nenhum</span>
+                            {% endfor %}
+                        </div>
+                     </div>
+                     
+                     <div class="border-t border-slate-100 dark:border-slate-800 pt-4">
+                        <h4 class="text-xs font-bold uppercase text-slate-400 mb-2">Ferramentas & Equip.</h4>
+                         <div class="flex flex-wrap gap-2">
+                            {% for tool in character.toolProficiencies %}
+                                <span class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                    {{ tool.namePt|default(tool.name) }}
+                                </span>
+                            {% else %}
+                                <span class="text-slate-400 text-sm italic">Nenhuma ferramenta.</span>
+                            {% endfor %}
+                            
+                             {# Hardcoded Armor/Weapons based on Class for display #}
+                             <span class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                Armaduras: {{ character.classDef.profArmor|default('-') }}
+                             </span>
+                              <span class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                Armas: {{ character.classDef.profWeapons|default('-') }}
+                             </span>
+                        </div>
+                     </div>
+                </div>
+
+            </div>
+
+             {# Center/Right: Actions, features, Lore #}
+            <div class="lg:col-span-8 space-y-8">
+                
+                {# Actions & Spells #}
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                     <div class="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+                        <h3 class="font-bold text-slate-800 dark:text-white text-lg">Ações, Magias & Truques</h3>
+                    </div>
+                    <div class="p-6">
+                        {# Spells grouped #}
+                        {% set cantrips = [] %}
+                        {% set spellsL1 = [] %}
+                        {% for cs in character.characterSpells %}
+                            {% if cs.spell.level == 0 %} {% set cantrips = cantrips|merge([cs.spell]) %} {% endif %}
+                            {% if cs.spell.level == 1 %} {% set spellsL1 = spellsL1|merge([cs.spell]) %} {% endif %}
+                        {% endfor %}
+
+                        {% if cantrips|length > 0 %}
+                            <h4 class="text-sm font-bold uppercase text-indigo-600 mb-3 flex items-center gap-2">
+                                {{ ux_icon('lucide:sparkles', {class: 'w-4 h-4'}) }} Truques (Nível 0)
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                {% for spell in cantrips %}
+                                    <div class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <span class="font-bold text-slate-800 dark:text-white">{{ spell.name }}</span>
+                                            <span class="text-[10px] uppercase bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300">{{ spell.castingTime }}</span>
+                                        </div>
+                                        <p class="text-xs text-slate-500 line-clamp-2">{{ spell.descriptionMd|striptags }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if spellsL1|length > 0 %}
+                             <h4 class="text-sm font-bold uppercase text-indigo-600 mb-3 flex items-center gap-2">
+                                {{ ux_icon('lucide:zap', {class: 'w-4 h-4'}) }} Magias (Nível 1)
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {% for spell in spellsL1 %}
+                                     <div class="bg-indigo-50 dark:bg-indigo-900/10 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <span class="font-bold text-indigo-900 dark:text-indigo-200">{{ spell.name }}</span>
+                                             <span class="text-[10px] uppercase bg-white dark:bg-indigo-900 px-1.5 py-0.5 rounded text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">{{ spell.spellRange }}</span>
+                                        </div>
+                                         <p class="text-xs text-indigo-700/70 dark:text-indigo-300/70 line-clamp-2">{{ spell.descriptionMd|striptags }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if cantrips|length == 0 and spellsL1|length == 0 %}
+                            <p class="text-slate-400 italic">Nenhuma magia conhecida.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Features #}
+                 <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                     <div class="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+                        <h3 class="font-bold text-slate-800 dark:text-white text-lg">Características de Origem & Classe</h3>
+                    </div>
+                    <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {% for feature in features %}
+                             <div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h4 class="font-bold text-slate-800 dark:text-white">{{ feature.name }}</h4>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                                        {{ feature.ownerType }}
+                                    </span>
+                                </div>
+                                <div class="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
+                                    {{ feature.descriptionMd|markdown_to_html }}
+                                </div>
+                             </div>
+                        {% else %}
+                             <div class="p-8 text-center text-slate-400">
+                                Nenhuma característica encontrada para este nível.
+                             </div>
+                        {% endfor %}
+                    </div>
+                 </div>
+
+                 {# Lore #}
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+                         <h3 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                            {{ ux_icon('lucide:book', {class: 'w-4 h-4'}) }} História & Origem
+                         </h3>
+                         <div class="prose prose-sm dark:prose-invert text-slate-600 dark:text-slate-300 space-y-4">
+                            {% if character.origin %}
+                                <div>
+                                    <strong class="text-slate-800 dark:text-white block mb-1">Origem</strong>
+                                    {{ character.origin|nl2br }}
+                                </div>
+                            {% endif %}
+                            {% if character.bonds %}
+                                <div>
+                                    <strong class="text-slate-800 dark:text-white block mb-1">Vínculos</strong>
+                                    {{ character.bonds|nl2br }}
+                                </div>
+                            {% endif %}
+                            {% if not character.origin and not character.bonds %}
+                                <p class="italic text-slate-400">Nenhum detalhe histórico registrado.</p>
+                            {% endif %}
+                         </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+                         <h3 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                            {{ ux_icon('lucide:user', {class: 'w-4 h-4'}) }} Aparência & Personalidade
+                         </h3>
+                         <div class="prose prose-sm dark:prose-invert text-slate-600 dark:text-slate-300">
+                            {% if character.appearance %}
+                                {{ character.appearance|nl2br }}
+                            {% else %}
+                                <p class="italic text-slate-400">Nenhuma descrição disponível.</p>
+                            {% endif %}
+                         </div>
+                    </div>
+                 </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

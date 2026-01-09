@@ -4,90 +4,114 @@
 
 {% block wizard_content %}
 <form id="wizard-form" method="post" action="{{ path('app_character_creation_step1', {id: character ? character.id : null}) }}">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-12rem)]">
+    
+    {# Top Instruction #}
+    <div class="mb-8 text-center" id="initial-instruction">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Selecione uma classe para ver os detalhes</h2>
+        <p class="text-slate-500">Clique nas opções abaixo para explorar os arquétipos.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-16rem)]">
         
         {# Left Column: Class List #}
         <div class="lg:col-span-4 flex flex-col h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-            <div class="p-6 border-b border-slate-100 dark:border-slate-800">
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Escolha sua Classe</h2>
-                <p class="text-sm text-slate-500 mt-1">O arquétipo principal do seu herói.</p>
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Escolha sua Classe</h2>
+                <p class="text-xs text-slate-500 mt-1">O arquétipo principal do seu herói.</p>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-4 space-y-2">
+            <div class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
                 {% for class in classes %}
                     <label class="cursor-pointer group block">
                         <input type="radio" name="class_def" value="{{ class.id }}" class="peer sr-only" {% if current_class and current_class.id == class.id %}checked{% endif %} required onchange="updateClassDetails('{{ class.id }}')">
-                        <div class="p-4 rounded-xl border border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 peer-checked:bg-indigo-50 dark:peer-checked:bg-indigo-900/20 peer-checked:border-indigo-200 dark:peer-checked:border-indigo-800 transition-all flex items-center gap-4">
+                        <div class="p-3 rounded-xl border border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 peer-checked:bg-indigo-50 dark:peer-checked:bg-indigo-900/20 peer-checked:border-indigo-200 dark:peer-checked:border-indigo-800 transition-all flex items-center gap-3">
                             {# Icon/Logo Placeholder #}
-                            <div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                                 {% if class.logoName %}
                                     <img src="{{ vich_uploader_asset(class, 'logoFile') }}" alt="{{ class.name }}" class="w-8 h-8 object-contain">
                                 {% else %}
-                                    {{ ux_icon('lucide:shield', {class: 'w-6 h-6 text-slate-400'}) }}
+                                    {{ ux_icon('lucide:shield', {class: 'w-5 h-5 text-slate-400'}) }}
                                 {% endif %}
                             </div>
                             
-                            <div class="flex-1">
-                                <h3 class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ class.name }}</h3>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">d{{ class.hitDie }}</span>
-                                    <span class="text-xs text-slate-400 truncate">{{ class.primaryAbility1.name|default('-') }}</span>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">{{ class.name }}</h3>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">d{{ class.hitDie }}</span>
+                                    <span class="text-[10px] text-slate-400 truncate">{{ class.primaryAbility1.name|default('-') }}</span>
                                 </div>
                             </div>
 
-                            {{ ux_icon('lucide:check-circle', {class: 'w-5 h-5 text-indigo-500 opacity-0 peer-checked:opacity-100 transition-opacity'}) }}
+                            {{ ux_icon('lucide:chevron-right', {class: 'w-4 h-4 text-slate-300 peer-checked:text-indigo-500 transition-colors'}) }}
                         </div>
                     </label>
 
-                    {# Hidden Data for JS update #}
+                    {# Hidden Data for JS update - Rich Structure based on Admin Show #}
                     <template id="details-{{ class.id }}">
-                        <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            {# Header #}
-                            <div class="flex items-center gap-6 mb-8">
-                                <div class="w-20 h-20 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+                        <div class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                            {# Header Card #}
+                            <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 rounded-2xl p-6 flex items-center gap-6 shadow-lg text-white">
+                                <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
                                      {% if class.logoName %}
-                                        <img src="{{ vich_uploader_asset(class, 'logoFile') }}" alt="{{ class.name }}" class="w-12 h-12 object-contain">
+                                        <img src="{{ vich_uploader_asset(class, 'logoFile') }}" alt="{{ class.name }}" class="w-16 h-16 object-contain">
                                     {% else %}
-                                        {{ ux_icon('lucide:shield', {class: 'w-10 h-10 text-indigo-500'}) }}
+                                        {{ ux_icon('lucide:shield', {class: 'w-12 h-12 text-white'}) }}
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">{{ class.name }}</h2>
-                                    <div class="flex gap-2 mt-2">
-                                        <div class="badge badge-indigo">Dado de Vida: d{{ class.hitDie }}</div>
-                                        <div class="badge badge-emerald">
-                                            Salvaguardas: {{ class.savingThrow1.name|default('?') }} & {{ class.savingThrow2.name|default('?') }}
-                                        </div>
-                                    </div>
+                                    <h2 class="text-3xl font-bold font-serif text-white">{{ class.name }}</h2>
+                                    <p class="text-indigo-200 italic">Classe de Personagem</p>
                                 </div>
                             </div>
 
-                            {# Content Grid #}
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                <div class="card p-4">
-                                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Pontos de Vida</h4>
-                                    <p class="text-sm text-slate-600 dark:text-slate-300">
-                                        <strong class="text-slate-900 dark:text-white">{{ class.hpAt1stLevel }}</strong> no 1º nível.<br>
-                                        <strong class="text-slate-900 dark:text-white">{{ class.hpAtHigherLevels }}</strong> por nível seguinte.
-                                    </p>
+                            {# Stats Grid #}
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-indigo-50 dark:bg-slate-800 rounded-xl p-4 border border-indigo-100 dark:border-slate-700 text-center">
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 mb-1">Dado de Vida</div>
+                                    <div class="text-3xl font-bold text-indigo-950 dark:text-indigo-100">d{{ class.hitDie }}</div>
                                 </div>
-                                <div class="card p-4">
-                                     <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Atributo Primário</h4>
-                                     <p class="text-sm text-slate-600 dark:text-slate-300">
-                                        {{ class.primaryAbility1.name|default('') }}
-                                        {% if class.primaryAbility2 %} ou {{ class.primaryAbility2.name }}{% endif %}
-                                     </p>
+                                <div class="bg-emerald-50 dark:bg-slate-800 rounded-xl p-4 border border-emerald-100 dark:border-slate-700 text-center md:col-span-2">
+                                     <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-300 mb-2">Atributos Primários</div>
+                                     <div class="flex flex-wrap justify-center gap-2">
+                                        <span class="px-2 py-1 bg-white/60 dark:bg-slate-900/50 rounded-lg text-emerald-800 dark:text-emerald-200 text-sm font-bold shadow-sm">{{ class.primaryAbility1.name|default('') }}</span>
+                                        {% if class.primaryAbility2 %}
+                                            <span class="px-2 py-1 bg-white/60 dark:bg-slate-900/50 rounded-lg text-emerald-800 dark:text-emerald-200 text-sm font-bold shadow-sm">{{ class.primaryAbility2.name }}</span>
+                                        {% endif %}
+                                     </div>
                                 </div>
                             </div>
 
-                            {# Markdown Description #}
-                            <div class="prose prose-slate dark:prose-invert max-w-none">
-                                {{ class.descriptionMd|markdown_to_html }}
-
-                                <h3 class="mt-8 mb-4">Tabela da Classe</h3>
-                                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-                                    {{ class.classTableMd|markdown_to_html }}
+                            {# Content Tabs/Sections #}
+                            <div class="space-y-6">
+                                {% if class.descriptionMd %}
+                                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                                        {{ ux_icon('lucide:book-open', {class: 'w-5 h-5 text-indigo-500'}) }}
+                                        Descrição
+                                    </h3>
+                                    <div class="prose prose-sm prose-slate dark:prose-invert max-w-none js-markdown-content" data-content="{{ class.descriptionMd|e('html_attr') }}"></div>
                                 </div>
+                                {% endif %}
+
+                                {% if class.classTableMd %}
+                                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                                        {{ ux_icon('lucide:table', {class: 'w-5 h-5 text-indigo-500'}) }}
+                                        Tabela de Progressão
+                                    </h3>
+                                    <div class="overflow-x-auto prose prose-sm prose-slate dark:prose-invert max-w-none js-markdown-content" data-content="{{ class.classTableMd|e('html_attr') }}"></div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if class.characterCreationHelp %}
+                                <div class="bg-amber-50 dark:bg-amber-950/30 rounded-2xl p-6 border border-amber-100 dark:border-amber-900/50 shadow-sm">
+                                    <h3 class="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-2 mb-4">
+                                        {{ ux_icon('lucide:lightbulb', {class: 'w-5 h-5 text-amber-500'}) }}
+                                        Ajuda na Criação
+                                    </h3>
+                                    <div class="prose prose-sm prose-amber dark:prose-invert max-w-none js-markdown-content" data-content="{{ class.characterCreationHelp|e('html_attr') }}"></div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </template>
@@ -96,27 +120,40 @@
         </div>
 
         {# Right Column: Details Preview #}
-        <div class="lg:col-span-8 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 overflow-y-auto custom-scrollbar relative">
-            <div id="class-details-container">
+        <div class="lg:col-span-8 flex flex-col h-full bg-slate-50 dark:bg-slate-950/50 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden relative">
+            <div id="class-details-container" class="flex-1 overflow-y-auto p-8 custom-scrollbar">
                 {# Initial Empty State #}
                 <div class="flex flex-col items-center justify-center h-full text-center text-slate-400">
-                    <div class="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
-                        {{ ux_icon('lucide:search', {class: 'w-8 h-8 opacity-50'}) }}
+                    <div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center mb-6 animate-pulse">
+                        {{ ux_icon('lucide:layout-template', {class: 'w-10 h-10 opacity-50'}) }}
                     </div>
-                    <p class="text-lg font-medium">Selecione uma classe para ver os detalhes</p>
+                    <p class="text-xl font-medium text-slate-600 dark:text-slate-400">Preview da Classe</p>
+                    <p class="text-sm mt-2 max-w-xs mx-auto">As informações detalhadas aparecerão aqui assim que você selecionar uma opção.</p>
                 </div>
             </div>
         </div>
     </div>
 </form>
 
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     function updateClassDetails(classId) {
         const template = document.getElementById('details-' + classId);
         const container = document.getElementById('class-details-container');
+        const instruction = document.getElementById('initial-instruction');
         
         if (template && container) {
             container.innerHTML = template.innerHTML;
+            
+            // Render Markdown for the new content
+            container.querySelectorAll('.js-markdown-content').forEach(el => {
+                if (el.dataset.content) {
+                    el.innerHTML = marked.parse(el.dataset.content);
+                }
+            });
+
+            // Hide instruction if shown (optional, or keep it)
+             if (instruction) instruction.style.display = 'none';
         }
     }
 
@@ -130,17 +167,151 @@
 </script>
 
 <style>
-    .badge {
-        @apply px-2 py-1 rounded text-xs font-bold;
+    /* ... existing styles ... */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
     }
-    .badge-indigo {
-        @apply bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400;
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
     }
-    .badge-emerald {
-        @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400;
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.3);
+        border-radius: 20px;
     }
-    .card {
-        @apply bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700;
+
+    /* Markdown Typography Improvements - Vanilla CSS */
+    .js-markdown-content {
+        line-height: 1.6;
+        color: #334155; /* slate-700 */
+    }
+
+    /* Paragraphs */
+    .js-markdown-content p {
+        margin-bottom: 1.25rem; /* mb-5 */
+    }
+
+    /* Headers Common */
+    .js-markdown-content h1,
+    .js-markdown-content h2,
+    .js-markdown-content h3,
+    .js-markdown-content h4,
+    .js-markdown-content h5,
+    .js-markdown-content h6 {
+        font-weight: 700;
+        color: #1e293b; /* slate-800 */
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+
+    /* H1 */
+    .js-markdown-content h1 {
+        font-size: 1.875rem; /* 3xl */
+        line-height: 2.25rem;
+        border-bottom: 2px solid #e2e8f0; /* slate-200 */
+        padding-bottom: 0.5rem;
+        color: #312e81; /* indigo-900 */
+    }
+
+    /* H2 */
+    .js-markdown-content h2 {
+        font-size: 1.5rem; /* 2xl */
+        line-height: 2rem;
+        color: #3730a3; /* indigo-800 */
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0.25rem;
+    }
+
+    /* H3 */
+    .js-markdown-content h3 {
+        font-size: 1.25rem; /* xl */
+        line-height: 1.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #4338ca; /* indigo-700 */
+        margin-top: 2.5rem;
+    }
+    
+    /* Dark Mode Overrides (Media Query or helper class strategy if .dark is on html/body) */
+    :is(.dark .js-markdown-content) {
+        color: #cbd5e1; /* slate-300 */
+    }
+    :is(.dark .js-markdown-content h1) {
+        border-color: #334155; /* slate-700 */
+        color: #818cf8; /* indigo-400 */
+    }
+    :is(.dark .js-markdown-content h2) {
+        border-color: #334155;
+        color: #a5b4fc; /* indigo-300 */
+    }
+    :is(.dark .js-markdown-content h3) {
+        color: #c7d2fe; /* indigo-200 */
+    }
+    :is(.dark .js-markdown-content h4),
+    :is(.dark .js-markdown-content h5),
+    :is(.dark .js-markdown-content strong) {
+        color: #f1f5f9; /* slate-100 */
+    }
+
+    /* Lists */
+    .js-markdown-content ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+    .js-markdown-content li {
+        margin-bottom: 0.25rem;
+    }
+
+    /* Strong */
+    .js-markdown-content strong {
+        font-weight: 700;
+        color: #0f172a; /* slate-900 */
+    }
+
+    /* Table Styles */
+    .js-markdown-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem; /* text-sm */
+    }
+
+    .js-markdown-content th {
+        background-color: #f1f5f9; /* slate-100 */
+        color: #334155; /* slate-700 */
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem; /* text-xs */
+        letter-spacing: 0.05em;
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid #e2e8f0; /* slate-200 */
+        text-align: left;
+    }
+
+    .js-markdown-content td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e2e8f0; /* slate-200 */
+        color: #475569; /* slate-600 */
+    }
+
+    .js-markdown-content tr:nth-child(even) {
+        background-color: #f8fafc; /* slate-50 */
+    }
+
+    /* Dark Mode Table overrides */
+    :is(.dark .js-markdown-content th) {
+        background-color: #1e293b; /* slate-800 */
+        color: #cbd5e1; /* slate-300 */
+        border-color: #334155; /* slate-700 */
+    }
+    :is(.dark .js-markdown-content td) {
+        border-color: #334155; /* slate-700 */
+        color: #94a3b8; /* slate-400 */
+    }
+    :is(.dark .js-markdown-content tr:nth-child(even)) {
+        background-color: #1e293b; /* slate-800/50 approx */
+        background-color: rgba(30, 41, 59, 0.5);
     }
 </style>
 {% endblock %}

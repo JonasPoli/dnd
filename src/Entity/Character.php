@@ -7,9 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: CharacterRepository::class)]
 #[ORM\Table(name: '`character`')]
+#[Vich\Uploadable]
 class Character
 {
     #[ORM\Id]
@@ -24,22 +27,44 @@ class Character
     private ?int $level = 1;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?ClassDef $classDef = null;
 
     #[ORM\ManyToOne]
     private ?SubclassDef $subclassDef = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Species $species = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Background $background = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Subrace $subrace = null;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $alignment = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $appearance = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $bonds = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $origin = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagePath = null;
+
+    #[Vich\UploadableField(mapping: 'character_image', fileNameProperty: 'imagePath')]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    private ?bool $isComplete = false;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -58,6 +83,35 @@ class Character
     #[ORM\JoinTable(name: 'character_tool_proficiency')]
     private Collection $toolProficiencies;
 
+    #[ORM\ManyToMany(targetEntity: Language::class)]
+    #[ORM\JoinTable(name: 'character_language')]
+    private Collection $languages;
+
+    #[ORM\ManyToMany(targetEntity: Equipment::class)]
+    #[ORM\JoinTable(name: 'character_inventory')]
+    private Collection $inventory;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinCp = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinSp = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinEp = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinGp = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private ?int $coinPp = 0;
+
+    #[ORM\OneToMany(targetEntity: CharacterAttribute::class, mappedBy: 'character', orphanRemoval: true)]
+    private Collection $characterAttributes;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $attributeBonuses = [];
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -65,6 +119,9 @@ class Character
         $this->characterSpells = new ArrayCollection();
         $this->skills = new ArrayCollection();
         $this->toolProficiencies = new ArrayCollection();
+        $this->languages = new ArrayCollection();
+        $this->inventory = new ArrayCollection();
+        $this->characterAttributes = new ArrayCollection();
     }
 
     // ... existing getters ...
@@ -147,6 +204,60 @@ class Character
         return $this;
     }
 
+    /**
+     * @return Collection<int, Language>
+     */
+    public function getLanguages(): Collection
+    {
+        return $this->languages;
+    }
+
+    public function addLanguage(Language $language): static
+    {
+        if (!$this->languages->contains($language)) {
+            $this->languages->add($language);
+        }
+
+        return $this;
+    }
+
+    public function removeLanguage(Language $language): static
+    {
+        $this->languages->removeElement($language);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CharacterAttribute>
+     */
+    public function getCharacterAttributes(): Collection
+    {
+        return $this->characterAttributes;
+    }
+
+    public function addCharacterAttribute(CharacterAttribute $characterAttribute): static
+    {
+        if (!$this->characterAttributes->contains($characterAttribute)) {
+            $this->characterAttributes->add($characterAttribute);
+            $characterAttribute->setCharacter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCharacterAttribute(CharacterAttribute $characterAttribute): static
+    {
+        if ($this->characterAttributes->removeElement($characterAttribute)) {
+            // set the owning side to null (unless already changed)
+            if ($characterAttribute->getCharacter() === $this) {
+                $characterAttribute->setCharacter(null);
+            }
+        }
+
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -212,6 +323,18 @@ class Character
         return $this;
     }
 
+    public function getSubrace(): ?Subrace
+    {
+        return $this->subrace;
+    }
+
+    public function setSubrace(?Subrace $subrace): static
+    {
+        $this->subrace = $subrace;
+
+        return $this;
+    }
+
     public function getBackground(): ?Background
     {
         return $this->background;
@@ -232,6 +355,82 @@ class Character
     public function setAlignment(?string $alignment): static
     {
         $this->alignment = $alignment;
+
+        return $this;
+    }
+
+    public function getAppearance(): ?string
+    {
+        return $this->appearance;
+    }
+
+    public function setAppearance(?string $appearance): static
+    {
+        $this->appearance = $appearance;
+
+        return $this;
+    }
+
+    public function getBonds(): ?string
+    {
+        return $this->bonds;
+    }
+
+    public function setBonds(?string $bonds): static
+    {
+        $this->bonds = $bonds;
+
+        return $this;
+    }
+
+    public function getOrigin(): ?string
+    {
+        return $this->origin;
+    }
+
+    public function setOrigin(?string $origin): static
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getImagePath(): ?string
+    {
+        return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): static
+    {
+        $this->imagePath = $imagePath;
+
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function isComplete(): ?bool
+    {
+        return $this->isComplete;
+    }
+
+    public function setIsComplete(bool $isComplete): static
+    {
+        $this->isComplete = $isComplete;
 
         return $this;
     }
@@ -264,5 +463,100 @@ class Character
     public function updateTimestamp(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * @return Collection<int, Equipment>
+     */
+    public function getInventory(): Collection
+    {
+        return $this->inventory;
+    }
+
+    public function addInventoryItem(Equipment $item): static
+    {
+        if (!$this->inventory->contains($item)) {
+            $this->inventory->add($item);
+        }
+
+        return $this;
+    }
+
+    public function removeInventoryItem(Equipment $item): static
+    {
+        $this->inventory->removeElement($item);
+
+        return $this;
+    }
+
+    public function getCoinCp(): ?int
+    {
+        return $this->coinCp;
+    }
+
+    public function setCoinCp(int $coinCp): static
+    {
+        $this->coinCp = $coinCp;
+
+        return $this;
+    }
+
+    public function getCoinSp(): ?int
+    {
+        return $this->coinSp;
+    }
+
+    public function setCoinSp(int $coinSp): static
+    {
+        $this->coinSp = $coinSp;
+
+        return $this;
+    }
+
+    public function getCoinEp(): ?int
+    {
+        return $this->coinEp;
+    }
+
+    public function setCoinEp(int $coinEp): static
+    {
+        $this->coinEp = $coinEp;
+
+        return $this;
+    }
+
+    public function getCoinGp(): ?int
+    {
+        return $this->coinGp;
+    }
+
+    public function setCoinGp(int $coinGp): static
+    {
+        $this->coinGp = $coinGp;
+
+        return $this;
+    }
+
+    public function getCoinPp(): ?int
+    {
+        return $this->coinPp;
+    }
+
+    public function setCoinPp(int $coinPp): static
+    {
+        $this->coinPp = $coinPp;
+
+        return $this;
+    }
+    public function getAttributeBonuses(): ?array
+    {
+        return $this->attributeBonuses;
+    }
+
+    public function setAttributeBonuses(?array $attributeBonuses): static
+    {
+        $this->attributeBonuses = $attributeBonuses;
+
+        return $this;
     }
 }

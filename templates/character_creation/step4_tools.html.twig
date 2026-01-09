@@ -1,0 +1,230 @@
+{% extends 'character_creation/base_wizard.html.twig' %}
+
+{% set step = 4 %}
+
+{% block wizard_content %}
+<form id="wizard-form" method="post" action="{{ path('app_character_creation_step4', {id: character.id}) }}">
+    
+    {# Top Instruction #}
+    <div class="mb-8 text-center" id="initial-instruction">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Escolha suas Ferramentas</h2>
+        {% if max_tools > 0 %}
+            <p class="text-slate-500">
+                Sua classe concede proficiência em 
+                <span class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">{{ max_tools }}</span> 
+                perícias iniciais da lista abaixo.
+            </p>
+            {% if character.classDef.profTools %}
+                <p class="text-xs text-slate-400 mt-2">
+                    Opções disponíveis: {{ character.classDef.profTools|replace({'"': ''})|trim('[]') }}
+                </p>
+            {% endif %}
+        {% else %}
+             <p class="text-slate-500">Sua classe não possui escolhas de ferramentas adicionais neste nível.</p>
+        {% endif %}
+    </div>
+
+    <div class="max-w-4xl mx-auto h-[calc(100vh-16rem)] flex flex-col">
+        
+        {# Filters #}
+        <div class="mb-4 flex gap-2 overflow-x-auto pb-2 custom-scrollbar" id="filters-container">
+            <button type="button" data-filter="all" class="filter-btn px-4 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-bold whitespace-nowrap shadow-md transition-all active-filter">
+                Todos
+            </button>
+            {% set filters = [
+                'Ferramentas', 'Instrumento Musical', 'Kit de Jogos', 
+                'Arma', 'Armadura', 'Apetrechos de Montaria', 
+                'Equipamento de Aventura', 'Item Mágico', 'Montaria', 'Veículo'
+            ] %}
+            {% for filter in filters %}
+                <button type="button" data-filter="{{ filter }}" class="filter-btn px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-bold whitespace-nowrap transition-all">
+                    {{ filter }}
+                </button>
+            {% endfor %}
+        </div>
+
+        {# Content #}
+        {% if max_tools == 0 %}
+             <div class="flex-1 flex flex-col items-center justify-center text-center text-slate-400">
+                <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                    {{ ux_icon('lucide:ban', {class: 'w-8 h-8 opacity-50'}) }}
+                </div>
+                <p>Nenhuma seleção necessária.</p>
+                <div class="mt-8">
+                     <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all transform hover:scale-105">
+                        Continuar
+                    </button>
+                </div>
+            </div>
+            {# Hidden input to submit empty form #}
+            <input type="hidden" name="dummy" value="1">
+        {% else %}
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-1">
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 text-center text-sm font-bold">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="tools-grid">
+                    {% for tool in available_tools %}
+                        {% set is_selected = false %}
+                        {% for current in current_tools %}
+                            {% if current.id == tool.id %}
+                                {% set is_selected = true %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {# Standardize type for filtering #}
+                        {% set rawType = tool.typePt|default('Outro') %}
+
+                        <label class="cursor-pointer group relative tool-card" data-category="{{ rawType }}">
+                            <input type="checkbox" name="tools[]" value="{{ tool.id }}" 
+                                   class="peer sr-only tool-checkbox" 
+                                   {% if is_selected %}checked{% endif %}
+                                   onchange="checkLimit()">
+                            
+                            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all h-full peer-checked:border-emerald-500 dark:peer-checked:border-emerald-500 peer-checked:ring-1 peer-checked:ring-emerald-500 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed flex flex-col">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors pr-2 leading-tight">
+                                        {{ tool.namePt|default(tool.name) }}
+                                    </h3>
+                                    <div class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 peer-checked:bg-emerald-500 peer-checked:border-emerald-500 flex items-center justify-center transition-colors shrink-0 mt-0.5">
+                                        {{ ux_icon('lucide:check', {class: 'w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100'}) }}
+                                    </div>
+                                </div>
+                                
+                                <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-2 flex-grow">
+                                    {{ tool.descriptionMdPt|default('Sem descrição.')|u.truncate(80, '...') }}
+                                </p>
+
+                                <div class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10">
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase tracking-wide truncate max-w-[70%]">
+                                        {{ rawType }}
+                                    </span>
+                                </div>
+                            </div>
+                        </label>
+                    {% endfor %}
+                </div>
+                
+                {# Empty State for Filter #}
+                <div id="empty-filter-state" class="hidden flex-col items-center justify-center py-12 text-center text-slate-400">
+                     {{ ux_icon('lucide:filter-x', {class: 'w-12 h-12 opacity-30 mb-2'}) }}
+                     <p>Nenhum item encontrado nesta categoria.</p>
+                </div>
+            </div>
+
+            {# Footer Status #}
+            <div class="mt-6 flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div class="text-sm">
+                    <span class="text-slate-500">Selecionadas:</span>
+                    <strong class="text-slate-800 dark:text-white" id="count-display">0</strong>
+                    <span class="text-slate-400">/ {{ max_tools }}</span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</form>
+
+<script>
+    const maxTools = {{ max_tools }};
+    
+    function checkLimit() {
+        if (maxTools <= 0) return;
+        
+        const checkboxes = document.querySelectorAll('.tool-checkbox');
+        const checkedCount = document.querySelectorAll('.tool-checkbox:checked').length;
+        const countDisplay = document.getElementById('count-display');
+        
+        // Update display
+        if(countDisplay) countDisplay.textContent = checkedCount;
+
+        // Disable unchecked if limit reached
+        if (checkedCount >= maxTools) {
+            checkboxes.forEach(cb => {
+                if (!cb.checked) {
+                    cb.disabled = true;
+                    // Disable visual wrapper
+                    const wrapper = cb.nextElementSibling; 
+                    if(wrapper) wrapper.classList.add('opacity-50', 'pointer-events-none');
+                }
+            });
+        } else {
+            checkboxes.forEach(cb => {
+                cb.disabled = false;
+                const wrapper = cb.nextElementSibling; 
+                if(wrapper) wrapper.classList.remove('opacity-50', 'pointer-events-none');
+            });
+        }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        checkLimit();
+        initFilters();
+    });
+
+    function initFilters() {
+        const buttons = document.querySelectorAll('.filter-btn');
+        const cards = document.querySelectorAll('.tool-card');
+        const emptyState = document.getElementById('empty-filter-state');
+        const grid = document.getElementById('tools-grid');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all
+                buttons.forEach(b => {
+                    b.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+                    b.classList.add('bg-white', 'dark:bg-slate-800', 'border', 'border-slate-200', 'dark:border-slate-700', 'text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-100', 'dark:hover:bg-slate-700');
+                });
+                // Add active to clicked
+                btn.classList.remove('bg-white', 'dark:bg-slate-800', 'border', 'border-slate-200', 'dark:border-slate-700', 'text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-100', 'dark:hover:bg-slate-700');
+                btn.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+
+                const filter = btn.dataset.filter;
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+                    const category = card.dataset.category;
+                    if (filter === 'all' || category === filter) {
+                        card.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    emptyState.classList.remove('hidden');
+                    emptyState.classList.add('flex');
+                    grid.classList.add('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                    emptyState.classList.remove('flex');
+                    grid.classList.remove('hidden');
+                }
+            });
+        });
+    }
+</script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.3);
+        border-radius: 20px;
+    }
+    .active-filter {
+        /* Utility classes handle this mostly, just backup */
+    }
+</style>
+{% endblock %}

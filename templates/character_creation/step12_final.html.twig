@@ -1,0 +1,149 @@
+{% extends 'character_creation/base_wizard.html.twig' %}
+
+{% set step = 12 %}
+
+{% block wizard_content %}
+<form id="wizard-form" method="post" action="{{ path('app_character_creation_step12', {id: character.id}) }}" enctype="multipart/form-data" data-turbo="false">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-12rem)]">
+        
+        {# Left Column: Stats Review #}
+        <div class="lg:col-span-4 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2 space-y-6">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Resumo de Combate</h2>
+            <p class="text-slate-500 text-sm mb-4">Estes valores foram calculados com base nas suas escolhas.</p>
+
+            <div class="grid grid-cols-2 gap-4">
+                {# HP #}
+                <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-xl border border-red-100 dark:border-red-800 flex flex-col items-center">
+                    <span class="text-xs font-bold text-red-500 uppercase tracking-wider mb-1">Vida Máxima</span>
+                    <span class="text-3xl font-bold text-red-700 dark:text-red-400 font-serif">{{ stats.hp }}</span>
+                    <span class="text-[10px] text-red-400 mt-1">Dados: {{ stats.hit_dice }}</span>
+                </div>
+
+                {# AC #}
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Classe de Armadura</span>
+                    <div class="relative">
+                        {{ ux_icon('lucide:shield', {class: 'w-10 h-10 text-slate-300 dark:text-slate-600'}) }}
+                        <span class="absolute inset-0 flex items-center justify-center font-bold text-slate-800 dark:text-slate-200">{{ stats.ac }}</span>
+                    </div>
+                </div>
+
+                {# Initiative #}
+                <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-100 dark:border-amber-800 flex flex-col items-center">
+                    <span class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Iniciativa</span>
+                    <span class="text-2xl font-bold text-amber-700 dark:text-amber-400">{{ stats.initiative }}</span>
+                </div>
+
+                {# Passive Perception #}
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800 flex flex-col items-center">
+                    <span class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Percepção Passiva</span>
+                     <div class="flex items-center gap-2">
+                         {{ ux_icon('lucide:eye', {class: 'w-5 h-5 text-blue-400'}) }}
+                        <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">{{ stats.passive_perception }}</span>
+                     </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="font-bold text-slate-800 dark:text-white mb-4">Resumo do Personagem</h3>
+                <ul class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                    <li class="flex justify-between">
+                        <span>Raça:</span>
+                        <strong class="text-slate-800 dark:text-white">{{ character.species.name }}</strong>
+                    </li>
+                    <li class="flex justify-between">
+                        <span>Classe:</span>
+                        <strong class="text-slate-800 dark:text-white">{{ character.classDef.name }}</strong>
+                    </li>
+                    <li class="flex justify-between">
+                        <span>Antecedente:</span>
+                        <strong class="text-slate-800 dark:text-white">{{ character.background.name|default('-') }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {# Right Column: Final Form #}
+        <div class="lg:col-span-8 flex flex-col h-full overflow-y-auto custom-scrollbar pb-40 pr-2">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Identidade & História</h2>
+            
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-8">
+                
+                {# Basic Info #}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nome do Personagem <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" value="{{ character.name }}" required class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow" placeholder="Ex: Gimble Nackle">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Alinhamento</label>
+                        <select name="alignment" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
+                            {% for align in ['Leal e Bom', 'Neutro e Bom', 'Caótico e Bom', 'Leal e Neutro', 'Neutro', 'Caótico e Neutro', 'Leal e Mau', 'Neutro e Mau', 'Caótico e Mau'] %}
+                                <option value="{{ align }}" {% if character.alignment == align %}selected{% endif %}>{{ align }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                {# Image Upload #}
+                <div>
+                     <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Imagem do Personagem</label>
+                     <div class="flex items-center gap-4">
+                        {% if character.imagePath %}
+                            <div class="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                                <img src="{{ vich_uploader_asset(character, 'imageFile') }}" class="w-full h-full object-cover">
+                            </div>
+                        {% endif %}
+                        <input type="file" name="image" accept="image/*" class="block w-full text-sm text-slate-500
+                            file:mr-4 file:py-2.5 file:px-4
+                            file:rounded-xl file:border-0
+                            file:text-sm file:font-bold
+                            file:bg-indigo-50 file:text-indigo-700
+                            hover:file:bg-indigo-100
+                            dark:file:bg-indigo-900/30 dark:file:text-indigo-400
+                        ">
+                     </div>
+                     <p class="text-xs text-slate-400 mt-1">Formatos aceitos: JPG, PNG, WEBP.</p>
+                </div>
+
+                {# Lore Questions #}
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            {{ ux_icon('lucide:user', {class: 'w-4 h-4'}) }} Aparência e Personalidade
+                        </label>
+                        <p class="text-xs text-slate-500 mb-2">Como você se parece? Como você age? Quais são seus traços marcantes?</p>
+                        <textarea name="appearance" rows="3" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">{{ character.appearance }}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            {{ ux_icon('lucide:heart', {class: 'w-4 h-4'}) }} Vínculos e Relacionamentos
+                        </label>
+                        <p class="text-xs text-slate-500 mb-2">Quem foi seu amigo de infância? Você se apaixonou? Quem é importante para você?</p>
+                        <textarea name="bonds" rows="3" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">{{ character.bonds }}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            {{ ux_icon('lucide:map-pin', {class: 'w-4 h-4'}) }} Origem e Motivação
+                        </label>
+                        <p class="text-xs text-slate-500 mb-2">Quem criou você? Você pertence a alguma guilda? O que te levou a se aventurar?</p>
+                        <textarea name="origin" rows="3" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">{{ character.origin }}</textarea>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all transform hover:scale-105 flex items-center gap-3">
+                        {{ ux_icon('lucide:save', {class: 'w-5 h-5'}) }}
+                        Finalizar Personagem
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</form>
+{% endblock %}
