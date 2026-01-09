@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SpeciesRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -43,6 +45,14 @@ class Species
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $languages = null;
+
+    #[ORM\OneToMany(targetEntity: Subrace::class, mappedBy: 'species', orphanRemoval: true)]
+    private Collection $subraces;
+
+    public function __construct()
+    {
+        $this->subraces = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -146,5 +156,13 @@ class Species
         $this->languages = $languages;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Subrace>
+     */
+    public function getSubraces(): Collection
+    {
+        return $this->subraces;
     }
 }

@@ -1,0 +1,253 @@
+{% extends 'character_creation/base_wizard.html.twig' %}
+
+{% set step = 8 %}
+
+{% block wizard_content %}
+<form id="wizard-form" method="post" action="{{ path('app_character_creation_step8', {id: character.id}) }}">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-12rem)]">
+        
+        {# Left Column: List #}
+        <div class="lg:col-span-4 flex flex-col h-full">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">Escolha seu Antecedente</h2>
+            <p class="text-slate-500 mb-6 text-sm">Seu passado define quem você era antes de se tornar um aventureiro, concedendo atributos, perícias e talentos.</p>
+            
+            <div class="flex-1 overflow-y-auto custom-scrollbar pb-40 pr-2 space-y-3">
+                {% for bg in backgrounds %}
+                    <label class="block cursor-pointer group">
+                        <input type="radio" name="background" value="{{ bg.id }}" 
+                               class="peer sr-only background-radio" 
+                               {% if current_background and current_background.id == bg.id %}checked{% endif %}
+                               data-name="{{ bg.name }}"
+                               data-description="{{ bg.descriptionMd|escape }}"
+                               data-attr1="{{ bg.attribute1 ? bg.attribute1.name : '' }}"
+                               data-attr2="{{ bg.attribute2 ? bg.attribute2.name : '' }}"
+                               data-attr3="{{ bg.attribute3 ? bg.attribute3.name : '' }}"
+                               data-feat="{{ bg.feat ? bg.feat.name : '' }}"
+                               data-skill1="{{ bg.skill1 ? bg.skill1.name : '' }}"
+                               data-skill2="{{ bg.skill2 ? bg.skill2.name : '' }}"
+                               data-tool="{{ bg.toolProficiency ? (bg.toolProficiency.namePt|default(bg.toolProficiency.name)) : '' }}"
+                               onchange="updatePreview(this)">
+                        
+                        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-amber-400 dark:hover:border-amber-600 transition-all peer-checked:border-amber-500 peer-checked:ring-1 peer-checked:ring-amber-500 peer-checked:bg-amber-50 dark:peer-checked:bg-amber-900/10">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-amber-700 dark:group-hover:text-amber-400 block">
+                                        {{ bg.name }}
+                                    </span>
+                                    <span class="text-xs text-slate-400 group-hover:text-amber-600/70 transition-colors">
+                                        {{ bg.attribute1.name|default('') }} {{ bg.attribute2 ? '/ ' ~ bg.attribute2.name : '' }} {{ bg.attribute3 ? '/ ' ~ bg.attribute3.name : '' }}
+                                    </span>
+                                </div>
+                                <div class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 peer-checked:border-amber-500 peer-checked:bg-amber-500 shrink-0"></div>
+                            </div>
+                        </div>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Right Column: Preview #}
+        <div class="lg:col-span-8 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm flex flex-col relative overflow-hidden">
+            
+            {# Background Pattern #}
+            <div class="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                {{ ux_icon('lucide:scroll', {class: 'w-64 h-64'}) }}
+            </div>
+
+            <div id="preview-content" class="relative z-10 flex flex-col h-full {{ current_background ? '' : 'hidden' }}">
+                <div class="flex items-center justify-between mb-8 border-b border-slate-100 dark:border-slate-800 pb-6">
+                    <div>
+                        <h2 class="text-4xl font-bold text-slate-800 dark:text-white mb-2 font-serif text-amber-900 dark:text-amber-100" id="preview-title">
+                            {{ current_background.name|default('') }}
+                        </h2>
+                        <div class="flex items-center gap-2 text-sm text-slate-500">
+                             {{ ux_icon('lucide:book-open', {class: 'w-4 h-4'}) }} Antecedente
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto custom-scrollbar space-y-8">
+                    
+                    {# Attributes Section #}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                                {{ ux_icon('lucide:trending-up', {class: 'w-4 h-4'}) }} Bônus de Atributo
+                            </h3>
+                            <div class="flex flex-wrap gap-2" id="preview-attributes">
+                                {# Populated by JS #}
+                            </div>
+                         </div>
+
+                         <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                                {{ ux_icon('lucide:award', {class: 'w-4 h-4'}) }} Talento Inicial
+                            </h3>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                    {{ ux_icon('lucide:star', {class: 'w-6 h-6'}) }}
+                                </div>
+                                <span class="font-bold text-lg text-slate-800 dark:text-slate-200" id="preview-feat">
+                                    {{ current_background.feat.name|default('-') }}
+                                </span>
+                            </div>
+                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         {# Skills #}
+                         <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                                {{ ux_icon('lucide:graduation-cap', {class: 'w-4 h-4'}) }} Perícias
+                            </h3>
+                            <ul class="space-y-2" id="preview-skills">
+                                {# Populated by JS #}
+                            </ul>
+                         </div>
+
+                         {# Tools #}
+                         <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                                {{ ux_icon('lucide:hammer', {class: 'w-4 h-4'}) }} Ferramentas
+                            </h3>
+                            <div class="flex items-center gap-2" id="preview-tool-container">
+                                <span class="text-slate-700 dark:text-slate-300 font-medium" id="preview-tool"></span>
+                            </div>
+                         </div>
+                    </div>
+
+                    {# Description #}
+                    <div>
+                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                                {{ ux_icon('lucide:file-text', {class: 'w-4 h-4'}) }} Descrição / Narrativa
+                        </h3>
+                        <div class="prose prose-slate dark:prose-invert max-w-none">
+                            <div id="preview-description" class="js-markdown-content leading-relaxed text-slate-600 dark:text-slate-300">
+                                 {{ current_background.descriptionMd|default('') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Empty State #}
+            <div id="empty-state" class="absolute inset-0 z-0 flex flex-col items-center justify-center text-slate-400 {{ current_background ? 'hidden' : '' }}">
+                {{ ux_icon('lucide:mouse-pointer-click', {class: 'w-16 h-16 mb-4 opacity-50'}) }}
+                <p class="text-lg font-medium">Selecione um antecedente para ver os detalhes</p>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<script type="module">
+    import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
+    window.marked = marked;
+    
+    // Initial Render
+    const initialDesc = document.getElementById('preview-description');
+    if (initialDesc && initialDesc.textContent.trim()) {
+        initialDesc.innerHTML = marked.parse(initialDesc.textContent.trim());
+    }
+    
+    // Initial Population for other fields if selected
+    const checked = document.querySelector('input[name="background"]:checked');
+    if(checked) updatePreview(checked);
+</script>
+
+<script>
+    function updatePreview(input) {
+        const title = document.getElementById('preview-title');
+        const desc = document.getElementById('preview-description');
+        const feat = document.getElementById('preview-feat');
+        const tool = document.getElementById('preview-tool');
+        const attributesContainer = document.getElementById('preview-attributes');
+        const skillsContainer = document.getElementById('preview-skills');
+        
+        const previewContent = document.getElementById('preview-content');
+        const emptyState = document.getElementById('empty-state');
+
+        // Show Content
+        previewContent.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+
+        // Update Text Fields
+        title.textContent = input.dataset.name;
+        feat.textContent = input.dataset.feat || 'Nenhum';
+        tool.textContent = input.dataset.tool || 'Nenhuma';
+        
+        // Render Markdown
+        if (window.marked) {
+            desc.innerHTML = window.marked.parse(input.dataset.description || '');
+        } else {
+            desc.textContent = input.dataset.description; 
+        }
+
+        // Update Attributes Badges
+        attributesContainer.innerHTML = '';
+        const attrs = [input.dataset.attr1, input.dataset.attr2, input.dataset.attr3].filter(a => a);
+        if (attrs.length > 0) {
+            attrs.forEach(attr => {
+                const badge = document.createElement('span');
+                badge.className = 'px-3 py-1.5 bg-white dark:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-200 font-bold text-sm shadow-sm border border-slate-200 dark:border-slate-600';
+                badge.textContent = attr;
+                attributesContainer.appendChild(badge);
+            });
+        } else {
+            attributesContainer.innerHTML = '<span class="text-slate-400 text-sm italic">Nenhum bônus fixo</span>';
+        }
+
+        // Update Skills List
+        skillsContainer.innerHTML = '';
+        const skills = [input.dataset.skill1, input.dataset.skill2].filter(s => s);
+        if (skills.length > 0) {
+            skills.forEach(skill => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center gap-2 text-slate-700 dark:text-slate-300';
+                li.innerHTML = `
+                    <div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                    <span>${skill}</span>
+                `;
+                skillsContainer.appendChild(li);
+            });
+        } else {
+            skillsContainer.innerHTML = '<li class="text-slate-400 text-sm italic">Nenhuma perícia fixa</li>';
+        }
+    }
+</script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.3);
+        border-radius: 20px;
+    }
+
+    /* Markdown Typography (Step 7 Style) */
+     .js-markdown-content {
+        line-height: 1.6;
+        color: #334155;
+    }
+    .js-markdown-content p {
+        margin-bottom: 1.25rem;
+    }
+    .js-markdown-content h1, .js-markdown-content h2, .js-markdown-content h3 {
+        font-weight: 700;
+        color: #1e293b;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    :is(.dark .js-markdown-content) {
+        color: #cbd5e1;
+    }
+    :is(.dark .js-markdown-content h1), :is(.dark .js-markdown-content h2), :is(.dark .js-markdown-content h3) {
+        color: #f1f5f9;
+    }
+</style>
+{% endblock %}

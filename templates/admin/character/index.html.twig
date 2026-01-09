@@ -47,6 +47,9 @@
                         </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex items-center justify-end space-x-3">
+                                <a href="{{ path('admin_character_show', {'id': character.id}) }}" class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors" title="Visualizar Ficha">
+                                    {{ ux_icon('lucide:book-open', {class: 'w-5 h-5'}) }}
+                                </a>
                                 <a href="{{ path('admin_character_edit', {'id': character.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors">
                                     {{ ux_icon('lucide:edit-3', {class: 'w-5 h-5'}) }}
                                 </a>

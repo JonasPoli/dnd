@@ -44,22 +44,22 @@ class CharacterController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}', name: 'admin_character_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function show(Character $character, \App\Repository\FeatureRepository $featureRepository): Response
+    {
+        $features = $featureRepository->findFeaturesForCharacter($character);
+
+        return $this->render('admin/character/show.html.twig', [
+            'character' => $character,
+            'features' => $features,
+        ]);
+    }
+
     #[Route('/{id}/edit', name: 'admin_character_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Character $character, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(CharacterType::class, $character);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            $this->addFlash('success', 'Personagem atualizado com sucesso!');
-            return $this->redirectToRoute('admin_character_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('admin/character/edit.html.twig', [
-            'character' => $character,
-            'form' => $form,
-        ]);
+        // User requested to use the "Step-by-Step" (Wizard) system for editing instead of the monolithic form.
+        return $this->redirectToRoute('app_character_creation_step1', ['id' => $character->getId()]);
     }
 
     #[Route('/{id}', name: 'admin_character_delete', methods: ['POST'])]

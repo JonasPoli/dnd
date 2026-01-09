@@ -28,6 +28,12 @@ class SkillType extends AbstractType
                 'required' => false,
                 'attr' => ['rows' => 4],
             ])
+            ->add('descriptionMd', TextareaType::class, [
+                'label' => 'Descrição Completa (Markdown)',
+                'required' => false,
+                'attr' => ['rows' => 10, 'class' => 'font-mono text-sm'],
+                'help' => 'Suporta markdown para formatação rica.',
+            ])
         ;
     }
 

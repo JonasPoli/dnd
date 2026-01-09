@@ -26,6 +26,9 @@ class Skill
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $descriptionMd = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,18 @@ class Skill
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDescriptionMd(): ?string
+    {
+        return $this->descriptionMd;
+    }
+
+    public function setDescriptionMd(?string $descriptionMd): static
+    {
+        $this->descriptionMd = $descriptionMd;
 
         return $this;
     }

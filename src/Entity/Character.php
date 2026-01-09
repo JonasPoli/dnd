@@ -24,22 +24,41 @@ class Character
     private ?int $level = 1;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?ClassDef $classDef = null;
 
     #[ORM\ManyToOne]
     private ?SubclassDef $subclassDef = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Species $species = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Background $background = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Subrace $subrace = null;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $alignment = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $appearance = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $bonds = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $origin = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagePath = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    private ?bool $isComplete = false;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -58,6 +77,13 @@ class Character
     #[ORM\JoinTable(name: 'character_tool_proficiency')]
     private Collection $toolProficiencies;
 
+    #[ORM\ManyToMany(targetEntity: Language::class)]
+    #[ORM\JoinTable(name: 'character_language')]
+    private Collection $languages;
+
+    #[ORM\OneToMany(targetEntity: CharacterAttribute::class, mappedBy: 'character', orphanRemoval: true)]
+    private Collection $characterAttributes;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -65,6 +91,8 @@ class Character
         $this->characterSpells = new ArrayCollection();
         $this->skills = new ArrayCollection();
         $this->toolProficiencies = new ArrayCollection();
+        $this->languages = new ArrayCollection();
+        $this->characterAttributes = new ArrayCollection();
     }
 
     // ... existing getters ...
@@ -147,6 +175,60 @@ class Character
         return $this;
     }
 
+    /**
+     * @return Collection<int, Language>
+     */
+    public function getLanguages(): Collection
+    {
+        return $this->languages;
+    }
+
+    public function addLanguage(Language $language): static
+    {
+        if (!$this->languages->contains($language)) {
+            $this->languages->add($language);
+        }
+
+        return $this;
+    }
+
+    public function removeLanguage(Language $language): static
+    {
+        $this->languages->removeElement($language);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CharacterAttribute>
+     */
+    public function getCharacterAttributes(): Collection
+    {
+        return $this->characterAttributes;
+    }
+
+    public function addCharacterAttribute(CharacterAttribute $characterAttribute): static
+    {
+        if (!$this->characterAttributes->contains($characterAttribute)) {
+            $this->characterAttributes->add($characterAttribute);
+            $characterAttribute->setCharacter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCharacterAttribute(CharacterAttribute $characterAttribute): static
+    {
+        if ($this->characterAttributes->removeElement($characterAttribute)) {
+            // set the owning side to null (unless already changed)
+            if ($characterAttribute->getCharacter() === $this) {
+                $characterAttribute->setCharacter(null);
+            }
+        }
+
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -212,6 +294,18 @@ class Character
         return $this;
     }
 
+    public function getSubrace(): ?Subrace
+    {
+        return $this->subrace;
+    }
+
+    public function setSubrace(?Subrace $subrace): static
+    {
+        $this->subrace = $subrace;
+
+        return $this;
+    }
+
     public function getBackground(): ?Background
     {
         return $this->background;
@@ -232,6 +326,66 @@ class Character
     public function setAlignment(?string $alignment): static
     {
         $this->alignment = $alignment;
+
+        return $this;
+    }
+
+    public function getAppearance(): ?string
+    {
+        return $this->appearance;
+    }
+
+    public function setAppearance(?string $appearance): static
+    {
+        $this->appearance = $appearance;
+
+        return $this;
+    }
+
+    public function getBonds(): ?string
+    {
+        return $this->bonds;
+    }
+
+    public function setBonds(?string $bonds): static
+    {
+        $this->bonds = $bonds;
+
+        return $this;
+    }
+
+    public function getOrigin(): ?string
+    {
+        return $this->origin;
+    }
+
+    public function setOrigin(?string $origin): static
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getImagePath(): ?string
+    {
+        return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): static
+    {
+        $this->imagePath = $imagePath;
+
+        return $this;
+    }
+
+    public function isComplete(): ?bool
+    {
+        return $this->isComplete;
+    }
+
+    public function setIsComplete(bool $isComplete): static
+    {
+        $this->isComplete = $isComplete;
 
         return $this;
     }
