@@ -112,6 +112,7 @@ Você está traduzindo magias de RPG para Português do Brasil. O objetivo é cr
    - **Magias**: Cite magias mencionadas no texto com o nome oficial do *Livro do Jogador* (Player's Handbook).
 
 4. **Terminologia Obrigatória (Glossário Oficial)**:
+   - **unwilling creature** -> "Criatura Relutante.
    - **Ability Check** -> "Teste de Habilidade" (NUNCA "Verificação").
    - **Attack Roll** -> "Jogada de Ataque".
    - **Bludgeoning** -> "Concussão" (NUNCA "Contundente").
