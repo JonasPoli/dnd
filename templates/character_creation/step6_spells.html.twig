@@ -176,12 +176,19 @@
         border-radius: 20px;
     }
     
-    .js-markdown-content p {
-        margin-bottom: 0.5em !important;
-    }
     .js-markdown-content ul {
         padding-left: 1.25em !important;
         list-style-type: disc !important;
     }
 </style>
+{% endblock %}
+
+{% block wizard_actions %}
+    <a href="{{ path(prev_route, {'id': character.id}) }}" class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+        Voltar
+    </a>
+    <button type="submit" form="wizard-form" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2">
+        <span>Próximo Passo</span>
+        {{ ux_icon('lucide:arrow-right', {class: 'w-5 h-5'}) }}
+    </button>
 {% endblock %}

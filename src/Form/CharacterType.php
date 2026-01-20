@@ -60,6 +60,13 @@ class CharacterType extends AbstractType
             ->add('appearance', null, ['label' => 'Aparência & Personalidade'])
             ->add('bonds', null, ['label' => 'Vínculos'])
             ->add('origin', null, ['label' => 'Origem'])
+            ->add('trinket', EntityType::class, [
+                'class' => \App\Entity\Trinket::class,
+                'choice_label' => fn($t) => $t->getRollKey() . ' - ' . substr(strip_tags($t->getTextMd() ?? ''), 0, 80),
+                'label' => 'Bugiganga',
+                'placeholder' => 'Selecione uma bugiganga',
+                'required' => false,
+            ])
             
             ->add('skills', EntityType::class, [
                 'class' => \App\Entity\Skill::class,

@@ -24,6 +24,9 @@ class Subrace
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descriptionMd = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?array $traits = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +64,18 @@ class Subrace
     public function setDescriptionMd(?string $descriptionMd): static
     {
         $this->descriptionMd = $descriptionMd;
+
+        return $this;
+    }
+
+    public function getTraits(): ?array
+    {
+        return $this->traits;
+    }
+
+    public function setTraits(?array $traits): static
+    {
+        $this->traits = $traits;
 
         return $this;
     }

@@ -19,6 +19,10 @@ class SpeciesType extends AbstractType
             ->add('speedDescription')
             ->add('age')
             ->add('languages')
+            ->add('traits', null, [
+                'label' => 'Traços da raça',
+                'attr' => ['rows' => 5],
+            ])
             ->add('descriptionMd')
         ;
     }

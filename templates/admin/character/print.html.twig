@@ -153,6 +153,41 @@
             border-bottom: none;
         }
 
+        /* Auto-height page for long content */
+        .sheet-page-auto {
+            width: 210mm;
+            min-height: 297mm;
+            height: auto;
+            background: #fffbf0;
+            margin: 0 auto;
+            position: relative;
+            overflow: visible;
+            border: 1px solid #d1d5db;
+            padding: 15mm;
+            box-sizing: border-box;
+        }
+        .sheet-page-auto::before {
+            content: "";
+            position: absolute;
+            top: 6mm; bottom: 6mm; left: 6mm; right: 6mm;
+            border: 2px solid #57534e;
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: 50;
+        }
+        .sheet-page-auto::after {
+            content: "";
+            position: absolute;
+            top: 7mm; bottom: 7mm; left: 7mm; right: 7mm;
+            border: 1px solid #a8a29e;
+            border-radius: 6px;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        @media screen {
+            .sheet-page-auto { margin-bottom: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.3); }
+        }
     </style>
 </head>
 <body class="text-gray-900" style="font-size: 8px;">
@@ -196,7 +231,7 @@
         <div class="flex gap-2" style="height: calc(100% - 70px);">
             
             {# LEFT COLUMN: Attributes (2x3 grid) + Equipment #}
-            <div class="w-[32%] flex flex-col gap-1.5">
+            <div class="w-[32%] flex flex-col gap-1.5 overflow-hidden">
                 
                 {# Attributes in 2x3 grid #}
                 {% set attrs = [
@@ -253,9 +288,17 @@
                                                     {% set isProf = true %}
                                                 {% endif %}
                                             {% endfor %}
-                                            <div class="flex items-center gap-1" style="font-size: 7px;">
-                                                <div class="diamond-check {{ isProf ? 'filled' : '' }}"></div>
-                                                <span class="font-semibold">{{ skillName }}</span>
+                                            
+                                            {# Calculate Bonus: Mod + 2 (Proficiency) #}
+                                            {% set skillBonus = mod + (isProf ? 2 : 0) %}
+                                            {% set skillBonusStr = skillBonus >= 0 ? '+' ~ skillBonus : skillBonus %}
+
+                                            <div class="flex items-center justify-between" style="font-size: 7px;">
+                                                <div class="flex items-center gap-1">
+                                                    <div class="diamond-check {{ isProf ? 'filled' : '' }}"></div>
+                                                    <span class="font-semibold">{{ skillName }}</span>
+                                                </div>
+                                                <div class="text-[6px] text-gray-400 font-mono font-bold">{{ skillBonusStr }}</div>
                                             </div>
                                         {% endfor %}
                                     </div>
@@ -278,35 +321,55 @@
                 </div>
 
                 {# Equipment bottom section #}
-                <div class="dnd-box p-2 mt-auto">
+                <div class="dnd-box p-1.5 mt-1.5">
                     <div class="dnd-box-header">EQUIPAMENTO, TREINO & PROFICIÊNCIAS</div>
-                    <div class="mt-1" style="font-size: 6px;">
-                        <div class="flex items-center gap-1 mb-1">
+                    <div class="mt-0.5 leading-tight" style="font-size: 5px;">
+                        <div class="mb-0.5">
                             <span class="font-bold uppercase">ARMADURAS:</span>
-                            <div class="diamond-check"></div>
-                            <span>Leve</span>
-                            <div class="diamond-check"></div>
-                            <span>Média</span>
-                            <div class="diamond-check"></div>
-                            <span>Pesada</span>
-                            <div class="diamond-check"></div>
-                            <span>Escudos</span>
+                            <span>{{ character.classDef.profArmor|default('-')|replace({"\n":", "}) }}</span>
                         </div>
-                        <div class="mb-1">
+                        <div class="mb-0.5">
                             <span class="font-bold uppercase">ARMAS:</span>
-                            <div class="input-line mt-0.5"></div>
+                            <span>{{ character.classDef.profWeapons|default('-')|replace({"\n":", "}) }}</span>
                         </div>
                         <div>
                             <span class="font-bold uppercase">FERRAMENTAS:</span>
-                            <div class="input-line mt-0.5"></div>
+                            <span>{{ character.classDef.profTools|default('-')|replace({"\n":", "}) }}</span>
                         </div>
+                    </div>
+                </div>
+
+                {# Passive Skills (New) #}
+                <div class="grid grid-cols-2 gap-2 mt-1.5">
+                    {% set passive_skills = [
+                        {'name': 'Investigação', 'attr': 'Inteligência', 'label': 'INVESTIGAÇÃO'},
+                        {'name': 'Intuição', 'attr': 'Sabedoria', 'label': 'INTUIÇÃO'},
+                        {'name': 'Percepção', 'attr': 'Sabedoria', 'label': 'PERCEPÇÃO'}
+                    ] %}
+                    
+                    {% for skill in passive_skills %}
+                        {# Calculate #}
+                        {% set attrVal = 10 %}{% for a in character.characterAttributes %}{% if a.attribute.name == skill.attr %}{% set attrVal = a.value %}{% endif %}{% endfor %}
+                        {% set mod = ((attrVal - 10) / 2)|round(0, 'floor') %}
+                        {% set isProf = false %}{% for s in character.skills %}{% if s.name == skill.name %}{% set isProf = true %}{% endif %}{% endfor %}
+                        {# Prof Bonus is fixed at 2 for level 1 mainly, but using global 2 for now as inferred from template #}
+                        {% set passive = 10 + mod + (isProf ? 2 : 0) %}
+                        
+                        <div class="dnd-box p-1 flex flex-col items-center">
+                            <div class="dnd-box-header w-full">{{ skill.label }} PASSIVA</div>
+                            <div class="font-serif font-bold my-0.5" style="font-size: 14px;">{{ passive }}</div>
+                        </div>
+                    {% endfor %}
+                    
+                    {# Empty 4th Box #}
+                    <div class="dnd-box p-1 flex flex-col items-center justify-center bg-gray-50 border-dashed border-gray-300">
                     </div>
                 </div>
 
             </div>
 
             {# MIDDLE COLUMN: Combat Stats #}
-            <div class="w-[38%] flex flex-col gap-1.5">
+            <div class="w-[38%] flex flex-col gap-1.5 overflow-hidden">
                 
                 {# AC, Initiative, Speed #}
                 <div class="grid grid-cols-3 gap-2">
@@ -314,9 +377,11 @@
                         <div class="dnd-box-header w-full">CLASSE DE ARMADURA</div>
                         <div class="font-serif font-bold mt-1" style="font-size: 20px;">15</div>
                     </div>
+                    {% set dexScore = 10 %}{% for a in character.characterAttributes %}{% if a.attribute.name == 'Destreza' %}{% set dexScore = a.value %}{% endif %}{% endfor %}
+                    {% set dexMod = ((dexScore - 10) / 2)|round(0, 'floor') %}
                     <div class="dnd-box p-2 flex flex-col items-center">
                         <div class="dnd-box-header w-full">INICIATIVA</div>
-                        <div class="font-serif font-bold mt-1" style="font-size: 20px;">+2</div>
+                        <div class="font-serif font-bold mt-1" style="font-size: 20px;">{{ dexMod >= 0 ? '+'~dexMod : dexMod }}</div>
                     </div>
                     <div class="dnd-box p-2 flex flex-col items-center">
                         <div class="dnd-box-header w-full">VELOCIDADE</div>
@@ -332,7 +397,10 @@
                     </div>
                     <div class="dnd-box p-2">
                         <div class="dnd-box-header">PERCEPÇÃO PASSIVA</div>
-                        <div class="text-center font-bold mt-1" style="font-size: 16px;">10</div>
+                        {% set wisScore = 10 %}{% for a in character.characterAttributes %}{% if a.attribute.name == 'Sabedoria' %}{% set wisScore = a.value %}{% endif %}{% endfor %}
+                        {% set wisMod = ((wisScore - 10) / 2)|round(0, 'floor') %}
+                        {% set isPercProf = false %}{% for s in character.skills %}{% if s.name == 'Percepção' %}{% set isPercProf = true %}{% endif %}{% endfor %}
+                        <div class="text-center font-bold mt-1" style="font-size: 16px;">{{ 10 + wisMod + (isPercProf ? 2 : 0) }}</div>
                     </div>
                 </div>
 
@@ -353,8 +421,13 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
-                        <div class="border border-gray-300 p-2 h-12"></div>
-                        <div class="border border-gray-300 p-2 h-12"></div>
+                        {# MAX HP Calculation (Level 1) #}
+                        {% set conScore = 10 %}{% for a in character.characterAttributes %}{% if a.attribute.name == 'Constituição' %}{% set conScore = a.value %}{% endif %}{% endfor %}
+                        {% set conMod = ((conScore - 10) / 2)|round(0, 'floor') %}
+                        {% set initialHP = character.classDef.hitDie + conMod %}
+                        
+                        <div class="border border-gray-300 p-2 h-12 flex items-center justify-center font-serif text-3xl font-bold">{{ initialHP }}</div>
+                        <div class="border border-gray-300 p-2 h-12 flex items-center justify-center font-serif text-lg">1d{{ character.classDef.hitDie }}</div>
                         <div class="border border-gray-300 p-2 h-12"></div>
                     </div>
                     
@@ -380,62 +453,182 @@
                 </div>
 
                 {# Attacks & Spellcasting - Large table #}
-                <div class="dnd-box p-2 flex-1">
-                    <div class="dnd-box-header">ARMAS & TRUQUES DE DANO</div>
-                    <table class="w-full mt-2" style="font-size: 7px;">
-                        <thead>
-                            <tr class="border-b border-gray-400">
-                                <th class="text-left font-bold pb-1">Nome</th>
-                                <th class="text-center font-bold pb-1">Ataque/CD</th>
-                                <th class="text-center font-bold pb-1">Dano & Tipo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for i in 1..8 %}
-                                <tr class="border-b border-gray-200">
-                                    <td class="py-1"></td>
-                                    <td class="py-1"></td>
-                                    <td class="py-1"></td>
+                <div class="dnd-box p-2 flex flex-col overflow-hidden">
+                    <div class="dnd-box-header">ATAQUES</div>
+                    
+                    {# SECTION 1: ATTACKS #}
+                    <div class="flex-1">
+                        <table class="w-full mt-2" style="font-size: 7px;">
+                            <thead>
+                                <tr class="border-b border-gray-400">
+                                    <th class="text-left font-bold pb-1 w-1/2">Nome</th>
+                                    <th class="text-center font-bold pb-1">Ataque/CD</th>
+                                    <th class="text-center font-bold pb-1">Dano & Tipo</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {# 1. Weapons from Inventory #}
+                                {% set attackRows = 0 %}
+                                {% for item in character.inventory %}
+                                    {# Stricter check: Must be 'Arma' in PT or 'Weapon' in EN #}
+                                    {% if (item.typePt is defined and item.typePt == 'Arma') or (item.type is defined and item.type|lower == 'weapon') %}
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-1 pl-1 align-top">
+                                                <div class="font-bold">{{ item.namePt|default(item.name) }}</div>
+                                                {% if item.weaponRange %}
+                                                    <div class="text-[6px] text-gray-500 leading-tight">Alcance: {{ item.weaponRange }}</div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="py-1 text-center align-top">+{{ (2 + (item.isFinesse is defined and item.isFinesse ? dexMod : 0)) }}</td> {# Placeholder Bonus Logic #}
+                                            <td class="py-1 text-center text-[6px] align-top">
+                                                {% if item.damageDice %}
+                                                    <div class="font-bold">{{ item.damageDice }}</div>
+                                                    <div class="text-gray-500">{{ item.damageTypePt|default(item.damageType)|slice(0,10) }}</div>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% set attackRows = attackRows + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {# 2. Damaging Cantrips #}
+                                {% for spellData in character.characterSpells %}
+                                    {% set spell = spellData.spell %}
+                                    {% if spell.level == 0 and ('dano' in spell.descriptionMdPt|default('')|lower or 'damage' in spell.descriptionMd|default('')|lower) %}
+                                         <tr class="border-b border-gray-200">
+                                            <td class="py-1 pl-1 align-top">
+                                                <div class="font-bold text-indigo-800">{{ spell.namePt|default(spell.name) }}</div>
+                                                <div class="text-[6px] text-gray-500 leading-tight">Alcance: {{ spell.spellRange|default('-') }}</div>
+                                            </td>
+                                            <td class="py-1 text-center align-top">CD {{ 8 + 2 + 3 }}</td> {# Placeholder DC logic #}
+                                            <td class="py-1 text-center text-[6px] align-top">
+                                                Ver Desc.
+                                            </td>
+                                        </tr>
+                                        {% set attackRows = attackRows + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {# Fill Exact Empty Rows #}
+                                {% for i in 1..5 %}
+                                    <tr class="border-b border-gray-200">
+                                        <td class="py-1">&nbsp;</td>
+                                        <td class="py-1"></td>
+                                        <td class="py-1"></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
             </div>
 
             {# RIGHT COLUMN: Features #}
-            <div class="w-[30%] flex flex-col gap-1.5">
+            <div class="w-[30%] flex flex-col gap-1.5 overflow-hidden">
                 
                 {# Class Features #}
-                <div class="dnd-box p-2 flex-1">
+                <div class="dnd-box p-2 flex flex-col gap-2 overflow-hidden">
                     <div class="dnd-box-header">CARACTERÍSTICAS DE CLASSE</div>
-                    <div class="mt-2 space-y-1" style="font-size: 7px;">
+                    
+                    {# 1. HP Details #}
+                    {% if hpText %}
+                        <div class="bg-amber-50 p-1 border border-amber-100 rounded">
+                            <div class="font-bold text-[6px] tracking-wide text-amber-800 uppercase mb-0.5">Pontos de Vida</div>
+                            <div class="text-[6px] text-gray-700 whitespace-pre-line leading-tight">{{ hpText|replace({'**': '', 'DV:': 'DV:', 'Pontos de Vida no 1º Nível:': 'PV 1º Nível:', 'Pontos de Vida nos Níveis Seguintes:': 'PV Níveis Seguintes:'}) }}</div>
+                        </div>
+                    {% endif %}
+
+                    {# 2. Class Table #}
+                    {% if classTableRows is not empty %}
+                        <div class="overflow-hidden">
+                            <div class="font-bold text-[6px] tracking-wide text-gray-500 uppercase mb-0.5">Tabela de Classe</div>
+                            <table class="w-full text-[5px] border-collapse">
+                                <thead>
+                                    <tr>
+                                        {% for header in classTableHeaders %}
+                                            <th class="border border-gray-300 bg-gray-100 px-1 py-0.5 text-center">{{ header }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in classTableRows %}
+                                        <tr>
+                                            {% for col in row %}
+                                                <td class="border border-gray-200 px-1 py-0.5 text-center">{{ col }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+
+                    {# 3. Proficiencies #}
+                    <div>
+                         <div class="font-bold text-[6px] tracking-wide text-gray-500 uppercase mb-0.5">Proficiências</div>
+                         <div class="text-[6px] space-y-0.5">
+                            <div><span class="font-bold">Armaduras:</span> {{ proficiencies.armor }}</div>
+                            <div><span class="font-bold">Armas:</span> {{ proficiencies.weapons }}</div>
+                            <div><span class="font-bold">Ferramentas:</span> {{ proficiencies.toolsString }}</div>
+                         </div>
+                    </div>
+
+                    {# 4. Other Features List #}
+                    <div class="flex-1 mt-1 overflow-hidden">
+                        <div class="font-bold text-[6px] tracking-wide text-gray-500 uppercase mb-0.5">Características</div>
+                        <div class="space-y-1.5">
                         {% for feature in features|slice(0, 8) %}
                             <div>
-                                <div class="font-bold">{{ feature.name }}</div>
-                                <div class="text-gray-600">{{ feature.descriptionMd|striptags|slice(0, 60) }}...</div>
+                                <div class="font-bold text-[7px]">{{ feature.name }}</div>
+                                <div class="text-[6px] text-gray-600 leading-tight">{{ feature.descriptionMd|striptags|slice(0, 80) }}...</div>
                             </div>
                         {% endfor %}
+                        </div>
                     </div>
                 </div>
 
                 {# Racial Features #}
-                <div class="dnd-box p-2" style="height: 90px;">
+                <div class="dnd-box p-2">
                     <div class="dnd-box-header">CARACTERÍSTICAS RACIAIS</div>
-                    <div class="mt-2" style="font-size: 7px;">
-                        {# Species traits to be added when available #}
+                    <div class="mt-2 leading-tight prose prose-sm max-w-none [&>p]:mb-1 [&>ul]:list-disc [&>ul]:pl-2" style="font-size: 7px;">
+                        {% if character.species.traits %}
+                            {{ character.species.traits|markdown_to_html|raw }}
+                        {% else %}
+                             <span class="text-gray-400 italic">Sem características raciais.</span>
+                        {% endif %}
                     </div>
                 </div>
 
                 {# Talents #}
-                <div class="dnd-box p-2" style="height: 90px;">
+                <div class="dnd-box p-2">
                     <div class="dnd-box-header">TALENTOS</div>
-                    <div class="mt-2" style="font-size: 7px;">
+                    <div class="mt-2 text-[7px] space-y-1">
+                        {# Gather Feats #}
+                        {% set feats_to_show = [] %}
                         {% if character.background.feat %}
-                            <div class="font-bold">{{ character.background.feat.name }}</div>
-                            <div>{{ character.background.feat.descriptionMd|striptags|slice(0, 100) }}</div>
+                             {% set feats_to_show = feats_to_show|merge([character.background.feat]) %}
                         {% endif %}
+                        {% for f in character.feats %}
+                             {% set is_dup = false %}
+                             {% for existing in feats_to_show %}{% if existing.id == f.id %}{% set is_dup = true %}{% endif %}{% endfor %}
+                             {% if not is_dup %}
+                                {% set feats_to_show = feats_to_show|merge([f]) %}
+                             {% endif %}
+                        {% endfor %}
+
+                        {% for feat in feats_to_show %}
+                            <div>
+                                <div class="font-bold">{{ feat.namePt|default(feat.name) }}</div>
+                                <div class="leading-tight prose prose-sm max-w-none [&>p]:mb-1 [&>ul]:list-disc [&>ul]:pl-2">
+                                    {{ feat.descriptionMdPt|default(feat.descriptionMd)|markdown_to_html|raw }}
+                                </div>
+                            </div>
+                        {% else %}
+                             <div class="text-gray-400 italic">Nenhum talento selecionado.</div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -499,41 +692,55 @@
                     <table class="w-full mt-2" style="font-size: 6px;">
                         <thead>
                             <tr class="border-b border-gray-400">
-                                <th class="text-left font-bold py-1">Nível</th>
-                                <th class="text-left font-bold py-1">Nome</th>
-                                <th class="text-center font-bold py-1">Conjur.</th>
-                                <th class="text-center font-bold py-1">V</th>
-                                <th class="text-center font-bold py-1">S</th>
-                                <th class="text-center font-bold py-1">M</th>
-                                <th class="text-center font-bold py-1">Conc.</th>
-                                <th class="text-center font-bold py-1">Ritual</th>
+                                <th class="text-left font-bold py-1 w-[3%]">Nvl</th>
+                                <th class="text-left font-bold py-1 w-[25%]">Nome</th>
+                                <th class="text-left font-bold py-1 w-[12%]">Tempo</th>
+                                <th class="text-left font-bold py-1 w-[12%]">Alcance</th>
+                                <th class="text-left font-bold py-1 w-[12%]">Duração</th>
+                                <th class="text-center font-bold py-1 w-[5%]">V</th>
+                                <th class="text-center font-bold py-1 w-[5%]">S</th>
+                                <th class="text-center font-bold py-1 w-[5%]">M</th>
+                                <th class="text-center font-bold py-1 w-[5%]">Conc.</th>
+                                <th class="text-center font-bold py-1 w-[5%]">Ritual</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for spell in character.characterSpells|slice(0, 25) %}
+                            {% for spellData in character.characterSpells|slice(0, 25) %}
+                                {% set spell = spellData.spell %}
+                                <tr class="bg-gray-50/50">
+                                    <td class="py-0.5 border-t border-gray-200">{{ spell.level }}</td>
+                                    <td class="py-0.5 font-bold truncate border-t border-gray-200">{{ spell.namePt|default(spell.name) }}</td>
+                                    <td class="py-0.5 truncate border-t border-gray-200">{{ spell.castingTime }}</td>
+                                    <td class="py-0.5 truncate border-t border-gray-200">{{ spell.spellRange }}</td>
+                                    <td class="py-0.5 truncate border-t border-gray-200">{{ spell.duration }}</td>
+                                    <td class="text-center border-t border-gray-200"><div class="diamond-check {{ spell.isVerbal ? 'filled' : '' }} inline-block"></div></td>
+                                    <td class="text-center border-t border-gray-200"><div class="diamond-check {{ spell.isSomatic ? 'filled' : '' }} inline-block"></div></td>
+                                    <td class="text-center border-t border-gray-200"><div class="diamond-check {{ spell.isMaterial ? 'filled' : '' }} inline-block"></div></td>
+                                    <td class="text-center border-t border-gray-200"><div class="diamond-check {{ spell.isConcentration ? 'filled' : '' }} inline-block"></div></td>
+                                    <td class="text-center border-t border-gray-200"><div class="diamond-check {{ spell.isRitual ? 'filled' : '' }} inline-block"></div></td>
+                                </tr>
                                 <tr class="border-b border-gray-200">
-                                    <td class="py-0.5">{{ spell.spell.level }}</td>
-                                    <td class="py-0.5">{{ spell.spell.name }}</td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
+                                    <td colspan="10" class="py-0.5 pl-1 text-[5px] text-gray-500 italic pb-1">
+                                        {{ spell.descriptionMdPt|default(spell.descriptionMd)|striptags|slice(0, 300) }}
+                                    </td>
                                 </tr>
                             {% endfor %}
                             {# Empty rows #}
-                            {% for i in 1..10 %}
+                            {% for i in 1..(25 - character.characterSpells|length)|round(0, 'ceil') %}
+                                {% if i > 0 %}
                                 <tr class="border-b border-gray-200">
                                     <td class="py-1"></td>
                                     <td></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
-                                    <td class="text-center"><div class="diamond-check inline-block"></div></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
+                                {% endif %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -545,9 +752,9 @@
             <div class="w-[40%] flex flex-col gap-3">
                 
                 {# Appearance/Image #}
-                <div class="dnd-box p-2" style="height: 180px;">
+                <div class="dnd-box p-2 flex flex-col" style="height: 180px;">
                     <div class="dnd-box-header">APARÊNCIA</div>
-                    <div class="flex items-center justify-center h-full">
+                    <div class="flex items-center justify-center flex-1 min-h-0 overflow-hidden">
                         {% if character.imagePath %}
                             <img src="{{ vich_uploader_asset(character, 'imageFile') }}" class="max-h-full max-w-full object-contain">
                         {% else %}
@@ -557,7 +764,7 @@
                 </div>
 
                 {# History & Personality #}
-                <div class="dnd-box p-2 flex-1">
+                <div class="dnd-box p-2 min-h-[50px] max-h-[200px] overflow-hidden">
                     <div class="dnd-box-header">HISTÓRIA & PERSONALIDADE</div>
                     <div class="mt-2" style="font-size: 7px; line-height: 1.4;">
                         {{ character.origin|default('...')|slice(0, 600) }}
@@ -573,19 +780,70 @@
                 {# Languages #}
                 <div class="dnd-box p-2">
                     <div class="dnd-box-header">IDIOMAS</div>
-                    <div class="mt-1" style="font-size: 7px;">Comum, Élfico</div>
+                    <div class="mt-1" style="font-size: 7px;">
+                        {% set langs = [] %}
+                        {% for l in character.languages %}
+                            {% set langs = langs|merge([l.name]) %}
+                        {% endfor %}
+                        {{ langs|join(', ') }}
+                    </div>
                 </div>
 
                 {# Equipment #}
-                <div class="dnd-box p-2" style="height: 120px;">
-                    <div class="dnd-box-header">EQUIPAMENTO</div>
+                <div class="dnd-box p-2 flex-1">
+                    <div class="dnd-box-header">EQUIPAMENTO, TREINO & PROFICIÊNCIAS</div>
                     <div class="mt-2 space-y-0.5" style="font-size: 7px;">
-                        {% for item in character.inventory|slice(0, 10) %}
-                            <div class="flex justify-between border-b border-gray-200">
-                                <span>{{ item.namePt|default(item.name) }}</span>
-                                <span class="text-gray-500">{{ item.weightKg }}kg</span>
+                        {% set totalCost = 0 %}
+                        {% set totalWeight = 0 %}
+                        {% for item in character.inventory|slice(0, 26) %}
+                            {% set totalCost = totalCost + item.costGp|default(0) %}
+                            {% set totalWeight = totalWeight + item.weightKg|default(0) %}
+                            <div class="grid grid-cols-[1fr_auto_auto] gap-2 border-b border-gray-200 py-0.5 items-start">
+                                <div class="leading-tight">
+                                    <div class="font-bold">
+                                        {{ item.namePt|default(item.name) }}
+                                        <span class="font-normal text-gray-500 italic text-[6px]">({{ item.typePt|default(item.type) }})</span>
+                                    </div>
+                                    <div class="text-[6px] text-gray-400">
+                                        {{ item.descriptionMdPt|default(item.descriptionMd)|striptags|slice(0, 80) }}
+                                    </div>
+                                </div>
+                                <div class="text-gray-600 whitespace-nowrap text-right min-w-[25px]">
+                                    {{ item.costGp|default('0') }} <span class="text-[5px]">PO</span>
+                                </div>
+                                <div class="text-gray-500 whitespace-nowrap text-right min-w-[25px]">
+                                    {{ item.weightKg }}<span class="text-[5px]">kg</span>
+                                </div>
                             </div>
                         {% endfor %}
+
+                        {# Trinket #}
+                        {% if character.trinket %}
+                            <div class="grid grid-cols-[1fr_auto_auto] gap-2 border-b border-gray-200 py-0.5 items-start bg-indigo-50/50">
+                                <div class="leading-tight">
+                                    <div class="font-bold text-indigo-900">
+                                        Bugiganga #{{ character.trinket.rollKey }}
+                                        <span class="font-normal text-gray-500 italic text-[6px]">(Item Especial)</span>
+                                    </div>
+                                    <div class="text-[6px] text-gray-600">
+                                        {{ character.trinket.textMd|striptags }}
+                                    </div>
+                                </div>
+                                <div class="text-gray-400 whitespace-nowrap text-right min-w-[25px] text-[5px] self-center">-</div>
+                                <div class="text-gray-400 whitespace-nowrap text-right min-w-[25px] text-[5px] self-center">-</div>
+                            </div>
+                        {% endif %}
+                        
+                        {# Totals #}
+                        <div class="grid grid-cols-[1fr_auto_auto] gap-2 border-t-2 border-gray-300 py-1 pt-2 mt-1 font-bold bg-gray-50/50">
+                            <div class="text-right text-[6px] uppercase tracking-wide text-gray-500 self-center">Total</div>
+                            <div class="text-gray-800 whitespace-nowrap text-right min-w-[25px]">
+                                {{ totalCost }} <span class="text-[5px]">PO</span>
+                            </div>
+                            <div class="text-gray-800 whitespace-nowrap text-right min-w-[25px]">
+                                {{ totalWeight }}<span class="text-[5px]">kg</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -622,5 +880,131 @@
 
     </div>
 
-</body>
+    {# ==================================================================================== #}
+    {# PAGE 3: CLASS DESCRIPTION                                                            #}
+    {# ==================================================================================== #}
+    <div class="sheet-page-auto page-break p-8 pt-10">
+        <div class="mb-4 text-center">
+            <div class="font-serif text-2xl font-bold">{{ character.classDef.name|upper }}</div>
+            <div style="font-size: 7px;" class="font-bold uppercase text-gray-500">DESCRIÇÃO E CARACTERÍSTICAS</div>
+        </div>
+        
+        <div class="columns-2 gap-8 text-justify leading-relaxed" style="column-rule: 1px solid #e5e7eb;">
+            <div class="prose prose-sm max-w-none [&>h1]:font-serif [&>h1]:text-lg [&>h1]:font-bold [&>h1]:mb-2 [&>h2]:font-bold [&>h2]:text-base [&>h2]:mt-2 [&>h2]:mb-1 [&>h3]:font-bold [&>h3]:text-sm [&>h3]:mt-2 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4 [&>li]:mb-1">
+                {{ character.classDef.descriptionMd|default('')|markdown_to_html|raw }}
+            </div>
+        </div>
+    </div>
+
+    {# Details Page (Species, Background, Feats, Skills, Spells) #}
+    <div class="sheet-page-auto columns-2 gap-4 mt-8 break-before-page">
+        
+        {# Species #}
+        {% if character.species %}
+        <div class="dnd-box mb-4 break-inside-avoid">
+            <div class="dnd-box-header">{{ character.species.name }} (Espécie)</div>
+            <div class="p-2 text-[8px] leading-relaxed species-content">
+                {{ character.species.descriptionMd|markdown_to_html|raw }}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Feats #}
+        {% for feat in character.feats %}
+        <div class="dnd-box mb-4 break-inside-avoid">
+            <div class="dnd-box-header">{{ feat.name }} ({{ feat.type|default('Talento') }})</div>
+            <div class="p-2 text-[8px] leading-relaxed">
+                {{ feat.descriptionMd|markdown_to_html|raw }}
+            </div>
+        </div>
+        {% endfor %}
+
+        {# Background #}
+        {% if character.background %}
+        <div class="dnd-box mb-4 break-inside-avoid">
+            <div class="dnd-box-header">{{ character.background.name }} (Antecedente)</div>
+            <div class="p-2 text-[8px] leading-relaxed">
+                {{ character.background.descriptionMd|markdown_to_html|raw }}
+                
+                <div class="mt-3 pt-2 border-t border-gray-200">
+                    <div class="font-bold text-gray-500 uppercase tracking-wide mb-1 text-[7px]">Aumento de Atributos</div>
+                    <div class="flex flex-wrap gap-1">
+                        {% if character.attributeBonuses %}
+                            {% for attr, val in character.attributeBonuses %}
+                                {% if val > 0 %}
+                                <span class="px-2 py-0.5 bg-gray-100 rounded border border-gray-200 font-bold text-gray-700 text-[7px]">
+                                    {{ attr }} +{{ val }}
+                                </span>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                             <span class="text-gray-400 italic text-[7px]">Nenhum bônus selecionado.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# Skills #}
+        {% for skill in character.skills %}
+        <div class="dnd-box mb-4 break-inside-avoid">
+            <div class="dnd-box-header">{{ skill.name }} (Perícia)</div>
+            <div class="p-2 text-[8px] leading-relaxed">
+                <div class="mb-1">
+                    <span class="font-bold text-gray-700">Atributo Base:</span> {{ skill.attribute.name }}
+                </div>
+                {% if skill.description %}
+                <div class="mb-2 text-gray-600 italic">
+                    {{ skill.description }}
+                </div>
+                {% endif %}
+                <div class="markdown-content">
+                    {{ skill.descriptionMd|markdown_to_html|raw }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {# Spells & Cantrips #}
+        {% for charSpell in character.characterSpells %}
+            {% set spell = charSpell.spell %}
+            <div class="dnd-box mb-4 break-inside-avoid overflow-hidden">
+                <div class="dnd-box-header flex justify-between items-center group">
+                    <span class="font-bold">{{ spell.namePt|default(spell.name) }}</span>
+                    <span class="text-[7px] font-normal opacity-80 uppercase tracking-wide">{{ spell.level == 0 ? 'Truque' : 'Nível ' ~ spell.level }}</span>
+                </div>
+                <div class="p-2 text-[8px] leading-relaxed">
+                    {# Tags #}
+                    <div class="flex flex-wrap gap-1.5 mb-2 text-[7px] uppercase font-bold text-gray-500">
+                        <span class="bg-gray-100 px-1.5 py-0.5 rounded flex items-center gap-1 border border-gray-200">
+                           <span class="text-gray-400">Tempo:</span> {{ spell.castingTime }}
+                        </span>
+                        <span class="bg-gray-100 px-1.5 py-0.5 rounded flex items-center gap-1 border border-gray-200">
+                           <span class="text-gray-400">Alcance:</span> {{ spell.spellRange }}
+                        </span>
+                        <span class="bg-gray-100 px-1.5 py-0.5 rounded flex items-center gap-1 border border-gray-200">
+                           <span class="text-gray-400">Dur:</span> {{ spell.duration }}
+                        </span>
+                        <span class="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200" title="Componentes">
+                            {% if spell.isVerbal %}V{% endif %}
+                            {% if spell.isSomatic %}S{% endif %}
+                            {% if spell.isMaterial %}M{% endif %}
+                        </span>
+                        {% if spell.isRitual %}
+                            <span class="bg-blue-50 text-blue-700 border border-blue-100 px-1.5 py-0.5 rounded">Ritual</span>
+                        {% endif %}
+                        {% if spell.isConcentration %}
+                            <span class="bg-purple-50 text-purple-700 border border-purple-100 px-1.5 py-0.5 rounded">Conc.</span>
+                        {% endif %}
+                    </div>
+
+                    {# Description #}
+                    <div class="markdown-content">
+                        {{ spell.descriptionMdPt|default(spell.descriptionMd)|markdown_to_html|raw }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 </html>

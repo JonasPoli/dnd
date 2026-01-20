@@ -1,0 +1,57 @@
+Humano
+Eficiente: Você adquire Inspiração Heroica sempre que completar um Descanso Longo.
+Hábil: Você adquire proficiência em uma perícia à sua escolha.
+Versátil: Você adquire um talento de Origem à sua escolha.
+
+Aasimar
+Resistência Celestial: Você tem Resistência a dano Necrótico e Radiante.
+Visão no Escuro: Alcance de 18 metros.
+Mãos Curativas: Como uma ação de Usar Magia, você toca uma criatura e restaura um número de PV igual à soma de um número de d4s igual ao seu Bônus de Proficiência. (1/Descanso Longo).
+Portador da Luz: Você conhece o truque Luz. Carisma é seu atributo de conjuração.
+
+Anão
+Visão no Escuro: Você tem Visão no Escuro com um alcance de 36 metros.
+Resistência a Toxinas: Você tem Resistência a Dano Venenoso e Vantagem nas salvaguardas contra a condição Envenenado.
+Tenacidade Anã: Seus Pontos de Vida máximos aumentam em 1, e novamente em 1 sempre que você atinge um nível de personagem.
+Conhecimento de Pedras: Como uma Ação Bônus, você adquire Sismiconsciência com alcance de 18 metros por 10 minutos enquanto estiver em contato com pedra. Você pode usar isso um número de vezes igual ao seu Bônus de Proficiência por Descanso Longo.
+
+Draconato
+Herança Dracônica: Sua linhagem deriva de um progenitor dracônico (Cromático ou Metálico), o que afeta seu Ataque de Sopro, Resistência a Dano e aparência.
+Visão no Escuro: Alcance de 18 metros.
+Resistência a Dano: Você tem resistência ao tipo de dano determinado pela sua Herança Dracônica.
+Ataque de Sopro: Ao usar a ação Atacar, você pode substituir um ataque por uma emissão de energia (Cone de 4,5m ou Linha de 9m). O dano é de 1d10 (escala com o nível) e a CD é 8 + Const. + Proficiência. Uso igual ao Bônus de Proficiência por Descanso Longo.
+Voo Dracônico: No nível 5, como uma Ação Bônus, você cria asas espectrais que duram 10 minutos, ganhando Deslocamento de Voo igual ao seu deslocamento terrestre (1/Descanso Longo).
+
+Elfo
+Visão no Escuro: Alcance de 18 metros.
+Ancestralidade Feérica: Você tem Vantagem em salvaguardas para evitar ou encerrar a condição Enfeitiçado. Além disso, magia não pode colocar você para dormir.
+Sentidos Aguçados: Você tem proficiência na perícia Percepção.
+Transe: Você não precisa dormir e não pode ser colocado para dormir por magia. Um descanso longo leva apenas 4 horas.
+Linhagens Elfas: Você escolhe uma linhagem no nível 1. (Elfo da Floresta: Passos Longos e Artifício do Passageiro; Alto Elfo: Prestidigitação, Detectar Magia; Drow: Globos de Luz, Fogo Fátuo).
+
+Gnomo
+Visão no Escuro: Alcance de 18 metros.
+Astúcia Gnômica: Você tem Vantagem em salvaguardas de Inteligência, Sabedoria e Carisma.
+Linhagens Gnômicas: Você escolhe uma linhagem (Gnomo da Floresta: Ilusão Menor, Falar com Animais; Gnomo das Rochas: Consertar, Prestidigitação).
+
+Golias
+Porte Poderoso: Você tem Vantagem em testes de atributo para encerrar a condição Imobilizado. Contas como um tamanho maior para carga.
+Forma Grande: A partir do nível 5, como uma Ação Bônus, você pode alterar seu tamanho para Grande por 10 minutos. (Vantagem em Força, +3m Deslocamento).
+Ancestralidade Gigante: Escolha um benefício (Arrepio do Gelo, Queimadura de Fogo, Resistência da Pedra, Salto da Nuvem, Tombo da Colina, Trovão da Tempestade).
+
+Orc
+Visão no Escuro: Alcance de 18 metros.
+Adrenalina: Como Ação Bônus, Dash e ganha PV Temp (Proficiência). (Prof/DL).
+Resistência Inabalável: Cai para 1 PV em vez de 0 (1/DL).
+Porte Poderoso: Vantagem vs Imobilizado e carga maior.
+
+Pequenino
+Corajoso: Vantagem na salvaguarda contra Amedrontado.
+Agilidade Pequenina: Mover pelo espaço de criatura maior.
+Sorte: Rerolar 1 no d20.
+Furtividade Natural: Esconder-se atrás de criatura maior.
+
+Tiferino
+Visão no Escuro: Alcance de 18 metros.
+Presença Sobrenatural: Truque Taumaturgia.
+Legado Ínfero: Escolha um legado (Abissal, Ctônico, Infernal) para resistências e magias.

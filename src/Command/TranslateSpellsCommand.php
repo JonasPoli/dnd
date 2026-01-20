@@ -34,6 +34,8 @@ class TranslateSpellsCommand extends Command
         $this
             ->addOption('limit', null, InputOption::VALUE_OPTIONAL, 'Number of items to process', 1)
             ->addOption('model', null, InputOption::VALUE_OPTIONAL, 'OpenAI model to use', 'gpt-4o-mini')
+            ->addOption('dump', null, InputOption::VALUE_NONE, 'Dump untranslated items to var/spells_source.json')
+            ->addOption('local', null, InputOption::VALUE_NONE, 'Import translations from var/spells_translated.json')
         ;
     }
 
@@ -42,22 +44,37 @@ class TranslateSpellsCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $limit = (int) $input->getOption('limit');
         $model = $input->getOption('model');
+        $isDump = $input->getOption('dump');
+        $isLocal = $input->getOption('local');
 
-        if (empty($this->openAiApiKey)) {
+        // Mode: Local Import
+        if ($isLocal) {
+            return $this->importLocalTranslations($io);
+        }
+
+        // Check API Key only if not dumping
+        if (!$isDump && empty($this->openAiApiKey)) {
             $io->error('OPENAI_API_KEY is not set in .env');
             return Command::FAILURE;
         }
 
-        // Find spells where namePt is null
+        // Find spells where namePt is null or empty
         $items = $this->spellRepository->createQueryBuilder('s')
-            ->where('s.namePt IS NULL')
-            ->setMaxResults($limit)
+            ->where('s.namePt IS NULL OR s.namePt = :empty')
+            ->setParameter('empty', '')
+            ->orderBy('s.level', 'ASC')
+            ->setMaxResults($limit) // Only respecting limit for process/dump
             ->getQuery()
             ->getResult();
 
         if (empty($items)) {
             $io->success('No spells found needing translation (namePt is empty).');
             return Command::SUCCESS;
+        }
+
+        // Mode: Dump
+        if ($isDump) {
+            return $this->dumpItems($items, $io);
         }
 
         $io->info(sprintf('Found %d spells to translate using model %s.', count($items), $model));
@@ -189,6 +206,70 @@ GUIDE;
 
         $io->progressFinish();
         $io->success('Spell translation complete.');
+
+        return Command::SUCCESS;
+    }
+
+    private function dumpItems(array $items, SymfonyStyle $io): int
+    {
+        $export = [];
+        foreach ($items as $item) {
+            $export[] = [
+                'id' => $item->getId(),
+                'name' => $item->getName(),
+                'descriptionMd' => $item->getDescriptionMd(),
+                'higherLevelsMd' => $item->getHigherLevelsMd(),
+            ];
+        }
+
+        $file = 'var/spells_source.json';
+        file_put_contents($file, json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        
+        $io->success(sprintf('Dumped %d items to %s', count($export), $file));
+        return Command::SUCCESS;
+    }
+
+    private function importLocalTranslations(SymfonyStyle $io): int
+    {
+        $file = 'var/spells_translated.json';
+        if (!file_exists($file)) {
+            $io->error("File $file not found.");
+            return Command::FAILURE;
+        }
+
+        $json = json_decode(file_get_contents($file), true);
+        if (!$json) {
+            $io->error("Invalid JSON in $file");
+            return Command::FAILURE;
+        }
+
+        $io->info(sprintf("Found %d items in %s. Importing...", count($json), $file));
+        $io->progressStart(count($json));
+
+        foreach ($json as $entry) {
+            if (!isset($entry['id']) || !isset($entry['namePt'])) {
+                continue;
+            }
+
+            $spell = $this->spellRepository->find($entry['id']);
+            if (!$spell) {
+                continue;
+            }
+
+            $spell->setNamePt($entry['namePt']);
+            if (isset($entry['descriptionMdPt'])) {
+                $spell->setDescriptionMdPt($entry['descriptionMdPt']);
+            }
+            if (isset($entry['higherLevelsMdPt'])) {
+                $spell->setHigherLevelsMdPt($entry['higherLevelsMdPt']);
+            }
+
+            $io->progressAdvance();
+        }
+
+        $this->entityManager->flush();
+        $io->progressFinish();
+        $io->success("Imported local translations successfully.");
 
         return Command::SUCCESS;
     }

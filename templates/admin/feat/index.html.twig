@@ -58,5 +58,42 @@
             </tbody>
         </table>
     </div>
+    <div class="px-8 py-5 border-t border-border flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+        <div class="text-sm text-slate-500 dark:text-slate-400">
+            Mostrando <span class="font-medium text-slate-900 dark:text-white">{{ (current_page - 1) * 20 + 1 }}</span> a <span class="font-medium text-slate-900 dark:text-white">{{ min(current_page * 20, total_items) }}</span> de <span class="font-medium text-slate-900 dark:text-white">{{ total_items }}</span> resultados
+        </div>
+        
+        {% if total_pages > 1 %}
+        <div class="flex items-center space-x-2">
+            {% if current_page > 1 %}
+                <a href="{{ path('admin_feat_index', {'page': current_page - 1, 'search': search}) }}" class="px-3 py-1 text-sm font-medium text-slate-700 bg-white dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Anterior
+                </a>
+            {% else %}
+                <span class="px-3 py-1 text-sm font-medium text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg cursor-not-allowed">
+                    Anterior
+                </span>
+            {% endif %}
+
+            <div class="flex items-center space-x-1">
+                {% for i in max(1, current_page - 2)..min(total_pages, current_page + 2) %}
+                    <a href="{{ path('admin_feat_index', {'page': i, 'search': search}) }}" class="px-3 py-1 text-sm font-medium rounded-lg transition-colors {{ current_page == i ? 'bg-primary text-white border border-primary' : 'text-slate-700 bg-white dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700' }}">
+                        {{ i }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            {% if current_page < total_pages %}
+                <a href="{{ path('admin_feat_index', {'page': current_page + 1, 'search': search}) }}" class="px-3 py-1 text-sm font-medium text-slate-700 bg-white dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Próxima
+                </a>
+            {% else %}
+                <span class="px-3 py-1 text-sm font-medium text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg cursor-not-allowed">
+                    Próxima
+                </span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

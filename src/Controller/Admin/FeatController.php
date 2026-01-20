@@ -20,7 +20,7 @@ class FeatController extends AbstractController
     public function index(Request $request, FeatRepository $repository): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 20;
+        $limit = 500;
         $search = $request->query->get('search', '');
 
         $qb = $repository->createQueryBuilder('f')

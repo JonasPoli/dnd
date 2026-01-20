@@ -112,6 +112,14 @@ class Character
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $attributeBonuses = [];
 
+    #[ORM\ManyToMany(targetEntity: Feat::class)]
+    #[ORM\JoinTable(name: 'character_feat')]
+    private Collection $feats;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Trinket $trinket = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -121,7 +129,21 @@ class Character
         $this->toolProficiencies = new ArrayCollection();
         $this->languages = new ArrayCollection();
         $this->inventory = new ArrayCollection();
+        $this->inventory = new ArrayCollection();
         $this->characterAttributes = new ArrayCollection();
+        $this->feats = new ArrayCollection();
+    }
+
+    public function getTrinket(): ?Trinket
+    {
+        return $this->trinket;
+    }
+
+    public function setTrinket(?Trinket $trinket): static
+    {
+        $this->trinket = $trinket;
+
+        return $this;
     }
 
     // ... existing getters ...
@@ -556,6 +578,30 @@ class Character
     public function setAttributeBonuses(?array $attributeBonuses): static
     {
         $this->attributeBonuses = $attributeBonuses;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Feat>
+     */
+    public function getFeats(): Collection
+    {
+        return $this->feats;
+    }
+
+    public function addFeat(Feat $feat): static
+    {
+        if (!$this->feats->contains($feat)) {
+            $this->feats->add($feat);
+        }
+
+        return $this;
+    }
+
+    public function removeFeat(Feat $feat): static
+    {
+        $this->feats->removeElement($feat);
 
         return $this;
     }

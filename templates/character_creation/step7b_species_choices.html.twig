@@ -1,0 +1,99 @@
+{% extends 'character_creation/base_wizard.html.twig' %}
+
+{% set step = 7 %}
+
+{% block wizard_content %}
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-4">
+                Personalize sua Origem
+            </h1>
+            <p class="text-slate-600 dark:text-slate-400 text-lg">
+                Sua espécie concede escolhas especiais. Defina o que torna seu personagem único.
+            </p>
+        </div>
+
+        <form id="wizard-form-7b" method="POST" action="{{ path('app_character_creation_step7b', {id: character.id}) }}" class="space-y-12">
+            
+            {% for uid, choice in choices %}
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+                    <div class="mb-6">
+                        <div class="flex items-center gap-3 mb-2">
+                             <span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
+                                 Escolha {{ choice.count }}
+                             </span>
+                             <h3 class="text-2xl font-bold text-slate-900 dark:text-white">{{ choice.label }}</h3>
+                        </div>
+                        <p class="text-slate-600 dark:text-slate-400">{{ choice.description }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto custom-scrollbar p-1">
+                        {% for option in choice.options %}
+                            <label class="relative flex items-start p-4 cursor-pointer rounded-xl border border-slate-200 hover:border-primary/50 dark:border-slate-700 transition-all group">
+                                <input type="{{ choice.count > 1 ? 'checkbox' : 'radio' }}" 
+                                       name="{{ uid }}[]" 
+                                       value="{{ option.id }}" 
+                                       class="peer mt-1 accent-primary"
+                                       {% if option.id in choice.selected_ids|default([]) %}checked{% endif %}
+                                       {% if choice.count > 1 %}onclick="limitChecks(this, {{ choice.count }})"{% else %}required{% endif %}>
+                                <div class="ml-3">
+                                    <span class="block font-bold text-slate-800 dark:text-gray-200 group-hover:text-primary transition-colors">
+                                        {{ option.name }}
+                                    </span>
+                                    {% if choice.type == 'feat' %}
+                                        <div class="text-xs text-slate-500 mt-1 line-clamp-2">
+                                            {{ option.descriptionMd|striptags }}
+                                        </div>
+                                        <span class="inline-block mt-2 text-[10px] uppercase font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                                            {{ option.type }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="absolute inset-0 rounded-xl ring-2 ring-transparent peer-checked:ring-primary peer-checked:bg-primary/5 pointer-events-none transition-all"></div>
+                            </label>
+                        {% else %}
+                             <p class="text-slate-500 italic col-span-full">Nenhuma opção disponível para este critério.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+        </form>
+    </div>
+
+    <script>
+        function limitChecks(checkbox, max) {
+            const name = checkbox.name;
+            // Escape special characters for selector
+            const safeName = name.replace(/([\[\]])/g, "\\$1");
+            const checked = document.querySelectorAll(`input[name="${safeName}"]:checked`);
+            if (checked.length > max) {
+                checkbox.checked = false;
+               // Optional: Show toast/alert
+            }
+        }
+    </script>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.3);
+            border-radius: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block wizard_actions %}
+    <a href="{{ path('app_character_creation_step7', {'id': character.id}) }}" class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+        Voltar
+    </a>
+    <button type="submit" form="wizard-form-7b" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2">
+        <span>Confirmar Escolhas</span>
+        {{ ux_icon('lucide:check', {class: 'w-5 h-5'}) }}
+    </button>
+{% endblock %}

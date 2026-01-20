@@ -49,6 +49,9 @@ class Species
     #[ORM\OneToMany(targetEntity: Subrace::class, mappedBy: 'species', orphanRemoval: true)]
     private Collection $subraces;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $traits = null;
+
     public function __construct()
     {
         $this->subraces = new ArrayCollection();
@@ -70,9 +73,6 @@ class Species
 
         return $this;
     }
-
-
-
 
     public function getName(): ?string
     {
@@ -164,5 +164,17 @@ class Species
     public function getSubraces(): Collection
     {
         return $this->subraces;
+    }
+
+    public function getTraits(): ?string
+    {
+        return $this->traits;
+    }
+
+    public function setTraits(?string $traits): static
+    {
+        $this->traits = $traits;
+
+        return $this;
     }
 }

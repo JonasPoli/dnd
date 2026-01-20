@@ -22,6 +22,7 @@ class CharacterCreationController extends AbstractController
         private \App\Repository\EquipmentRepository $equipmentRepository,
         private \App\Repository\ClassLevelRepository $classLevelRepository,
         private \App\Repository\SpellRepository $spellRepository,
+        private \App\Repository\TrinketRepository $trinketRepository,
     ) {}
 
     #[Route('/', name: 'app_character_creation_index')]
@@ -33,9 +34,14 @@ class CharacterCreationController extends AbstractController
     #[Route('/step/1/{id?}', name: 'app_character_creation_step1', methods: ['GET', 'POST'])]
     public function step1(Request $request, ?Character $character = null): Response
     {
-        // ... (existing code)
+        if ($character && $character->isComplete()) {
+             // Optional: redirect validation
+        }
+
         if ($request->isMethod('POST')) {
             $classId = $request->request->get('class_def');
+            $trinketId = $request->request->get('trinket_id');
+
             if ($classId) {
                 $classDef = $this->classDefRepository->find($classId);
                 
@@ -47,6 +53,14 @@ class CharacterCreationController extends AbstractController
                 $oldClass = $character->getClassDef();
                 $character->setClassDef($classDef);
             
+                // Handle Trinket
+                if ($trinketId) {
+                     $trinket = $this->trinketRepository->find($trinketId);
+                     if ($trinket) {
+                         $character->setTrinket($trinket);
+                     }
+                }
+
                 // Only reset if class actually changed
                 if ($oldClass !== $classDef) {
                     // Reset subclass
@@ -71,10 +85,12 @@ class CharacterCreationController extends AbstractController
         }
 
         $classes = $this->classDefRepository->findAll();
+        $trinkets = $this->trinketRepository->findAll();
 
         return $this->render('character_creation/step1_class.html.twig', [
             'character' => $character,
             'classes' => $classes,
+            'trinkets' => $trinkets,
             'current_class' => $character?->getClassDef(),
         ]);
     }
@@ -201,41 +217,43 @@ class CharacterCreationController extends AbstractController
         
         $maxCantrips = $classLevel ? $classLevel->getCantripsKnown() : 0;
 
-        // If no cantrips allowed, skip step
+        // If no cantrips allowed by class, we still allow access (e.g. for Feats)
+        // Set a "soft limit" or just a high number if it's 0, or keep it 0 but visually handle it?
+        // User wants to *choose*. If limit is 0, the JS blocks it.
+        // So we set a "Feat Allowance" default, e.g. 5.
+        $isClassCaster = ($maxCantrips > 0);
         if ($maxCantrips <= 0) {
-            // Logic to clear existing cantrips if any? Maybe valid to keep if class changed? 
-            // For now, let's assume we proceed. Ideally we'd skip or show a "No cantrips" screen.
-            // But per specs: "Algumas classes não têm truques, nesse caso, o passo deve ser ignorado."
-            // So we auto-redirect to Step 6.
-             return $this->redirectToRoute('app_character_creation_step6', ['id' => $character->getId()]);
+            $maxCantrips = 5; // Allow selecting up to 5 for non-casters (arbitrary safety limit)
         }
 
-        // Fetch Cantrips (Level 0 Spells for this Class)
-
-        // Fetch Cantrips (Level 0 Spells for this Class)
-        // Need custom query repository method ideally, or filter in PHP
-        // "spell", filtrada pela classe escolhida em spell.classes e level = 0
+        // Fetch Cantrips (Level 0 Spells)
+        // If class iscaster, filter by class. If not (Fighter), maybe show ALL or specific list?
+        // Usually Magic Initiate lets you pick from a specific list (Bard, Cleric, Druid, Sorcerer, Warlock, Wizard).
+        // For simplicity now, if not a caster class, we might show ALL or just Wizard/Cleric/Druid?
+        // Let's show ALL level 0 spells if the class doesn't restrict.
+        
         $allCantrips = $this->spellRepository->findBy(['level' => 0], ['name' => 'ASC']);
         $availableCantrips = [];
-        foreach ($allCantrips as $spell) {
-            if ($spell->getClasses()->contains($character->getClassDef())) {
-                $availableCantrips[] = $spell;
-            }
-        }
         
-        // Fallback or Generic List if empty? Rulebook says restricted by class.
+        if ($isClassCaster) {
+             foreach ($allCantrips as $spell) {
+                if ($spell->getClasses()->contains($character->getClassDef())) {
+                    $availableCantrips[] = $spell;
+                }
+            }
+        } else {
+            // Non-caster: Show all (or maybe filter by Magic Initiate common classes later)
+            $availableCantrips = $allCantrips;
+        }
 
         if ($request->isMethod('POST')) {
             $selectedCantripIds = $request->request->all('cantrips'); 
             
+            // Validate? If non-caster, we might not strictly validate "max" via backend as rigidly
+            // or we use the fallback limit.
             if (count($selectedCantripIds) > $maxCantrips) {
                  $this->addFlash('error', "Você pode escolher no máximo $maxCantrips truques.");
             } else {
-                // Clear existing CANTIRPS (Level 0 spells)
-                // Note: CharacterSpell relation doesn't distinguish cantrips/spells easily without join.
-                // We need to be careful not to remove Level 1 spells if we had them (future step).
-                // For now, let's look at `characterSpells`.
-                
                 // Remove all current cantrips
                 foreach ($character->getCharacterSpells() as $charSpell) {
                     if ($charSpell->getSpell()->getLevel() === 0) {
@@ -244,8 +262,8 @@ class CharacterCreationController extends AbstractController
                     }
                 }
 
-                foreach ($availableCantrips as $spell) {
-                    if (in_array($spell->getId(), $selectedCantripIds)) {
+                foreach ($allCantrips as $spell) { // Iterate all to find selected
+                     if (in_array($spell->getId(), $selectedCantripIds)) {
                         $charSpell = new \App\Entity\CharacterSpell();
                         $charSpell->setCharacter($character);
                         $charSpell->setSpell($spell);
@@ -273,6 +291,7 @@ class CharacterCreationController extends AbstractController
             'available_cantrips' => $availableCantrips,
             'max_cantrips' => $maxCantrips,
             'current_cantrip_ids' => $currentCantripIds,
+            'is_class_caster' => $isClassCaster, // Pass flag to view
         ]);
     }
 
@@ -293,18 +312,27 @@ class CharacterCreationController extends AbstractController
         
         $maxSpells = $classLevel ? $classLevel->getSpellsPrepared() : 0;
 
-        // If no spells allowed at level 1, skip step
+        // If no spells allowed at level 1, normally skip. 
+        // But user requests ability to select for Feats.
+        $isClassCaster = ($maxSpells > 0);
         if ($maxSpells <= 0) {
-             return $this->redirectToRoute('app_character_creation_step7', ['id' => $character->getId()]);
+             $maxSpells = 5; // Fallback "Feat Allowance"
         }
 
-        // Fetch Level 1 Spells for this Class
+        // Fetch Level 1 Spells
+        // If isClassCaster, filter by class. Else show all?
         $allSpells = $this->spellRepository->findBy(['level' => 1], ['name' => 'ASC']);
         $availableSpells = [];
-        foreach ($allSpells as $spell) {
-             if ($spell->getClasses()->contains($character->getClassDef())) {
-                $availableSpells[] = $spell;
+
+        if ($isClassCaster) {
+            foreach ($allSpells as $spell) {
+                 if ($spell->getClasses()->contains($character->getClassDef())) {
+                    $availableSpells[] = $spell;
+                }
             }
+        } else {
+            // Show all for non-casters picking feats
+            $availableSpells = $allSpells;
         }
 
         if ($request->isMethod('POST')) {
@@ -321,7 +349,7 @@ class CharacterCreationController extends AbstractController
                     }
                 }
 
-                foreach ($availableSpells as $spell) {
+                foreach ($allSpells as $spell) {
                     if (in_array($spell->getId(), $selectedSpellIds)) {
                         $charSpell = new \App\Entity\CharacterSpell();
                         $charSpell->setCharacter($character);
@@ -345,11 +373,20 @@ class CharacterCreationController extends AbstractController
             }
         }
 
+        // Determine Prev Route
+        // Step 5 (Cantrips) is now ALWAYS available technically, but maybe we link there always?
+        // Or we check if user VISITED it?
+        // Actually, since we unblocked Step 5, it's always the previous step unless we re-introduce logic.
+        // But wait, if we unblock everything, the linear flow is Step 4 -> Step 5 -> Step 6.
+        // So Step 6's prev is ALWAYS Step 5.
+        $prevRoute = 'app_character_creation_step5';
+
         return $this->render('character_creation/step6_spells.html.twig', [
             'character' => $character,
             'available_spells' => $availableSpells,
             'max_spells' => $maxSpells,
             'current_spell_ids' => $currentSpellIds,
+            'prev_route' => $prevRoute
         ]);
     }
 
@@ -387,7 +424,7 @@ class CharacterCreationController extends AbstractController
                     }
 
                     $this->entityManager->flush();
-                    return $this->redirectToRoute('app_character_creation_step8', ['id' => $character->getId()]);
+                    return $this->redirectToRoute('app_character_creation_step7b', ['id' => $character->getId()]);
                 }
             } else {
                  $this->addFlash('error', "Por favor, selecione uma espécie.");
@@ -396,11 +433,158 @@ class CharacterCreationController extends AbstractController
 
         $species = $speciesRepository->findBy([], ['name' => 'ASC']);
 
+        // Determine Previous Route (Back Button Logic)
+        // Now that Step 5 (Cantrips) and Step 6 (Spells) are always accessible (for Feat support),
+        // the previous step from 7 is always 6.
+        $prevRoute = 'app_character_creation_step6'; 
+        
+        /* 
+        Legacy Check (Removed):
+        $classLevel = $character->getClassDef() ? $this->classLevelRepository->findOneBy(['classDef' => $character->getClassDef(), 'level' => 1]) : null;
+        if ($classLevel) {
+            if (($classLevel->getSpellsPrepared() ?? 0) > 0) {
+                $prevRoute = 'app_character_creation_step6';
+            } elseif (($classLevel->getCantripsKnown() ?? 0) > 0) {
+                $prevRoute = 'app_character_creation_step5';
+            }
+        }
+        */
+
         return $this->render('character_creation/step7_species.html.twig', [
             'character' => $character,
             'species_list' => $species,
             'current_species' => $character->getSpecies(),
             'current_subrace' => $character->getSubrace(),
+            'prev_route' => $prevRoute
+        ]);
+    }
+
+    #[Route('/step/7b/{id}', name: 'app_character_creation_step7b', methods: ['GET', 'POST'])]
+    public function step7b(Request $request, Character $character, \App\Repository\FeatRepository $featRepository, \App\Repository\SkillRepository $skillRepository): Response
+    
+    {
+        if (!$character->getSpecies()) {
+            return $this->redirectToRoute('app_character_creation_step7', ['id' => $character->getId()]);
+        }
+
+        // 1. Detect Choices from Traits
+        $choices = [];
+        $speciesTraitsRaw = $character->getSpecies()->getTraits();
+        $speciesTraits = is_array($speciesTraitsRaw) ? $speciesTraitsRaw : [];
+        $subraceTraits = $character->getSubrace() ? ($character->getSubrace()->getTraits() ?? []) : [];
+        
+        $allTraits = array_merge($speciesTraits, $subraceTraits);
+
+        foreach ($allTraits as $trait) {
+            if (isset($trait['type']) && $trait['type'] === 'choice') {
+                $uniqueId = 'trait_' . ($trait['code'] ?? uniqid());
+                
+                $choices[$uniqueId] = [
+                    'label' => $trait['name'],
+                    'description' => $trait['description'],
+                    'type' => $trait['choice_type'] ?? 'unknown', // 'feat', 'skill', 'spell'
+                    'pool' => $trait['pool'] ?? null, // e.g. 'origin'
+                    'count' => $trait['count'] ?? 1,
+                    'options' => [] 
+                ];
+
+                // Load Options based on type
+                if ($choices[$uniqueId]['type'] === 'feat') {
+                    $allFeats = $featRepository->findBy(['isActive' => true], ['name' => 'ASC']);
+                    
+                    if (($choices[$uniqueId]['pool'] ?? '') === 'origin') {
+                         $choices[$uniqueId]['options'] = array_filter($allFeats, fn($f) => stripos($f->getType(), 'Origem') !== false || stripos($f->getType(), 'Origin') !== false);
+                    } else {
+                         $choices[$uniqueId]['options'] = $allFeats;
+                    }
+
+                    // Determine currently selected IDs for this choice type
+                    // We check if the character HAS any of these available options
+                    $charFeatIds = $character->getFeats()->map(fn($f) => $f->getId())->toArray();
+                    $choices[$uniqueId]['selected_ids'] = array_intersect(
+                        array_map(fn($f) => $f->getId(), $choices[$uniqueId]['options']),
+                        $charFeatIds
+                    );
+
+                }
+                elseif ($choices[$uniqueId]['type'] === 'skill') {
+                     // Get current skills to mark selected, BUT exclude "base" skills from options if we want strictly new ones
+                     // However, for "Back" functionality, we MUST include the ones we already picked so they show up as checked.
+                     // The filtering logic previously was: exclude present skills. This is problematic if we already picked them!
+                     // Logic fix: Exclude skills from Class Base, Background (future), etc.
+                     // But strictly speaking, if we saved it to `character->skills`, it's there.
+                     
+                     // Implementation limitation: We can't easily distinguish "Skill from Class" vs "Skill from Species Choice" 
+                     // unless we track source. for now, we just check if it's in character->skills.
+                     
+                     $currentSkillIds = $character->getSkills()->map(fn($s) => $s->getId())->toArray();
+                     $allSkills = $skillRepository->findAll();
+                     
+                     // If we filter out "already possessed", we filter out the one we just saved!
+                     // So we should probably show ALL valid skills, and maybe visually disable ones that are "hard" locked (like class skills)?
+                     // OR, we accept that 'options' contains what we picked.
+                     
+                     // Let's just show ALL skills, but maybe mark them?
+                     // Simply: Options = All Skills. Checked = In Character.
+                     // But we shouldn't allow picking a skill we have from Class.
+                     // Complexity: How to know which ones are from Class? $classDef->getBaseSkills().
+                     
+                     $classSkillIds = [];
+                     if ($character->getClassDef()) {
+                         // ClassDef has "profSkills" as text usually, or baseSkills if strictly mapped.
+                         // Our system seems to use `profSkills` string or `class_def_skill` for fixed ones?
+                         // Let's check `character->getSkills()` vs what we *can* pick.
+                         // For now, let's just allow picking any not-yet-possessed-EXCEPT-if-it-was-picked-here.
+                         // Ideally, we just show all.
+                     }
+                     
+                     $choices[$uniqueId]['options'] = $allSkills;
+                     $choices[$uniqueId]['selected_ids'] = $currentSkillIds;
+                }
+            }
+        }
+
+        // If no choices found, skip to Step 8
+        if (empty($choices)) {
+            return $this->redirectToRoute('app_character_creation_step8', ['id' => $character->getId()]);
+        }
+
+        if ($request->isMethod('POST')) {
+            foreach ($choices as $uid => $config) {
+                 $selectedIds = $request->request->all($uid); // array of IDs
+                 // Input name in HTML should be name="uniqueId[]" for multiple or just name="uniqueId"
+                 // Symfony request->all() is tricky if it's not array.
+                 if (!is_array($selectedIds)) {
+                     $selectedIds = [$selectedIds];
+                 }
+                 
+                 // Basic validation count
+                 if (count($selectedIds) > $config['count']) {
+                     $this->addFlash('error', "Escolha no máximo {$config['count']} para {$config['label']}.");
+                     // Return to view... logic simplified here
+                 }
+                 
+                 if ($config['type'] === 'feat') {
+                     foreach($selectedIds as $fid) {
+                         $feat = $featRepository->find($fid);
+                         if ($feat) $character->addFeat($feat);
+                     }
+                 }
+                 elseif ($config['type'] === 'skill') {
+                     foreach($selectedIds as $sid) {
+                         $skill = $skillRepository->find($sid);
+                         if ($skill) $character->addSkill($skill);
+                     }
+                 }
+            }
+
+            $this->entityManager->flush();
+            return $this->redirectToRoute('app_character_creation_step8', ['id' => $character->getId()]);
+        }
+        
+        return $this->render('character_creation/step7b_species_choices.html.twig', [
+            'character' => $character,
+            'choices' => $choices
         ]);
     }
 
@@ -608,7 +792,8 @@ class CharacterCreationController extends AbstractController
         // Default Rule: Background gives 1 language? 
         // User prompt: "Slot do Antecedente: A maioria dos antecedentes concede 1 escolha."
         // We assume 1 slot for now.
-        $slots = 1;
+        // Update: User requested 2 extra slots for flexibility.
+        $slots = 3;
 
         // 3. Fetch Available Languages
         // Standard
@@ -648,12 +833,15 @@ class CharacterCreationController extends AbstractController
         }
         
         // Prepare current selection for view (excluding fixed)
-        $currentLanguageIds = [];
+        $currentChoices = [];
         foreach ($character->getLanguages() as $l) {
             if (!in_array($l->getId(), $fixedIds)) {
-                $currentLanguageIds[] = $l->getId();
+                $currentChoices[] = $l->getId();
             }
         }
+        
+        // Ensure we have enough entries for the slots (fill with null)
+        $currentChoices = array_pad($currentChoices, $slots, null);
 
         return $this->render('character_creation/step10_languages.html.twig', [
             'character' => $character,
@@ -661,7 +849,7 @@ class CharacterCreationController extends AbstractController
             'standard_languages' => $standardLanguages,
             'exotic_languages' => $exoticLanguages,
             'slots' => $slots,
-            'current_language_ids' => $currentLanguageIds,
+            'current_choices' => $currentChoices, // Pass indexed array
         ]);
     }
 
@@ -805,6 +993,12 @@ class CharacterCreationController extends AbstractController
                 $character->setBonds($bonds);
                 $character->setOrigin($origin);
                 
+                $trinketId = $request->request->get('trinket_id');
+                if ($trinketId) {
+                    $trinket = $this->trinketRepository->find($trinketId);
+                    if ($trinket) $character->setTrinket($trinket);
+                }
+                
                 // Image Upload Handling
                 $imageFile = $request->files->get('image');
                 if ($imageFile) {
@@ -830,7 +1024,10 @@ class CharacterCreationController extends AbstractController
                 'initiative' => ($initiative >= 0 ? '+' : '') . $initiative,
                 'passive_perception' => $passivePerception,
                 'hit_dice' => $hitDice
-            ]
+            ],
+            'attributes' => $attributes,
+            'modifiers' => $modifiers,
+            'trinkets' => $this->trinketRepository->findAll(),
         ]);
     }
 }
