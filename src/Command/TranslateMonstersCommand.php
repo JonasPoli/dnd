@@ -52,8 +52,8 @@ class TranslateMonstersCommand extends Command
         $items = $this->monsterRepository->createQueryBuilder('m')
             ->where('m.srcJsonPt IS NULL')
             ->andWhere('m.srcJson IS NOT NULL')
-            ->orderBy('m.imgMain', 'DESC') // Prioritize records with images (non-null/non-empty usually sorts higher or checking empty)
-            ->addOrderBy('m.id', 'ASC')
+            ->orderBy('m.challengeRating', 'ASC') // Prioritize records with images (non-null/non-empty usually sorts higher or checking empty)
+            ->addOrderBy('m.imgMain', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -145,7 +145,7 @@ GUIDE;
 
         foreach ($items as $item) {
             $io->text('Processing: ' . $item->getName());
-            
+
             $srcJson = $item->getSrcJson();
             if (!$srcJson) {
                 $io->warning('No srcJson found for monster: ' . $item->getName() . '. Skipping.');
@@ -154,7 +154,7 @@ GUIDE;
 
             // Check if another monster with the same name already has a translation
             $existingTranslation = $this->monsterRepository->createQueryBuilder('m')
-                ->select('m.id')
+                ->select('m.srcJsonPt', 'm.id')
                 ->where('m.name = :name')
                 ->andWhere('m.srcJsonPt IS NOT NULL')
                 ->setParameter('name', $item->getName())
@@ -162,90 +162,95 @@ GUIDE;
                 ->getQuery()
                 ->getOneOrNullResult();
 
+            $jsonPt = null;
+
             if ($existingTranslation) {
-                $io->warning(sprintf('Skipping "%s" (ID: %d) because a translation already exists for this name (ID: %d).', $item->getName(), $item->getId(), $existingTranslation['id']));
-                $io->progressAdvance();
-                continue;
+                $io->info(sprintf('Reusing existing translation for "%s" (ID: %d) from monster ID: %d.', $item->getName(), $item->getId(), $existingTranslation['id']));
+                $jsonPt = $existingTranslation['srcJsonPt'];
             }
 
-            $prompts = [
-                ['role' => 'system', 'content' => "You are a specialized D&D 5e translator and editor for Portuguese (Brazil).
-                Your goal is to provide a fluent, natural, and immersive translation, paraphrasing where necessary to convey the true meaning and feel of the text, rather than a literal word-for-word translation.
+            if (!$jsonPt) {
+                $prompts = [
+                    [
+                        'role' => 'system',
+                        'content' => "You are a specialized D&D 5e translator and editor for Portuguese (Brazil).
+                    Your goal is to provide a fluent, natural, and immersive translation, paraphrasing where necessary to convey the true meaning and feel of the text, rather than a literal word-for-word translation.
 
-                GUIDELINES:
-                1. **Paraphrase**: Avoid robotic or Google Translate-style output. Rephrase sentences to sound like a native RPG book (Livro do Jogador / Manual dos Monstros style).
-                2. **Terminology**: Strict adherence to official D&D 5e PT-BR terminology (e.g., 'Saving Throw' -> 'Teste de Resistência', 'Spell' -> 'Magia', 'Grapple' -> 'Agarram').
-                3. **Structure**: Keep the JSON structure EXACTLY identical to the source. Do not add or remove keys.
-                4. **Values**: Translate all text values. For numeric or code values (like 'cr', 'ac'), keep them as is unless it's a descriptive text field.
+                    GUIDELINES:
+                    1. **Paraphrase**: Avoid robotic or Google Translate-style output. Rephrase sentences to sound like a native RPG book (Livro do Jogador / Manual dos Monstros style).
+                    2. **Terminology**: Strict adherence to official D&D 5e PT-BR terminology (e.g., 'Saving Throw' -> 'Teste de Resistência', 'Spell' -> 'Magia', 'Grapple' -> 'Agarram').
+                    3. **Structure**: Keep the JSON structure EXACTLY identical to the source. Do not add or remove keys.
+                    4. **Values**: Translate all text values. For numeric or code values (like 'cr', 'ac'), keep them as is unless it's a descriptive text field.
 
-                CONTEXT (Field Guide):
-                $fieldGuide
+                    CONTEXT (Field Guide):
+                    $fieldGuide
 
-                Return ONLY the valid JSON object."],
-                ['role' => 'user', 'content' => sprintf("Source JSON:\n%s", json_encode($srcJson, JSON_PRETTY_PRINT))],
-            ];
+                    Return ONLY the valid JSON object."
+                    ],
+                    ['role' => 'user', 'content' => sprintf("Source JSON:\n%s", json_encode($srcJson, JSON_PRETTY_PRINT))],
+                ];
 
-            $jsonPt = null;
-            $attempts = 0;
-            $maxRetries = 3;
-            $validationError = null;
+                $attempts = 0;
+                $maxRetries = 3;
+                $validationError = null;
 
-            while ($attempts < $maxRetries) {
-                $attempts++;
-                
-                // If retrying, append formatting instruction
-                $currentPrompts = $prompts;
-                if ($attempts > 1 && $validationError) {
-                    $io->warning(sprintf("Attempt %d/%d failed validation for '%s'. Retrying with feedback...", $attempts - 1, $maxRetries, $item->getName()));
-                    $currentPrompts[] = [
-                        'role' => 'user', 
-                        'content' => "Your previous translation failed validation:\n$validationError\n\nCRITICAL: You MUST preserve ALL keys from the source JSON. Do not drop 'attack_bonus', 'damage_dice', or any other fields. Return the COMPLETE object structure."
-                    ];
-                }
+                while ($attempts < $maxRetries) {
+                    $attempts++;
 
-                try {
-                    $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
-                        'headers' => [
-                            'Authorization' => 'Bearer ' . $this->openAiApiKey,
-                            'Content-Type' => 'application/json',
-                        ],
-                        'json' => [
-                            'model' => $model,
-                            'messages' => $currentPrompts,
-                            'temperature' => 0.2,
-                            'response_format' => ['type' => 'json_object'],
-                        ],
-                        'timeout' => 120,
-                    ]);
-
-                    $data = $response->toArray();
-                    $content = $data['choices'][0]['message']['content'] ?? null;
-                    
-                    if ($content) {
-                        $decoded = json_decode($content, true);
-
-                        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                            // Validate structure
-                            $errorMsg = null;
-                            if ($this->validateStructure($srcJson, $decoded, $errorMsg)) {
-                                // Success!
-                                $jsonPt = $decoded;
-                                break; // Exit retry loop
-                            } else {
-                                $validationError = $errorMsg;
-                            }
-                        } else {
-                            $validationError = "Invalid JSON syntax.";
-                        }
-                    } else {
-                        $validationError = "Empty response from API.";
+                    // If retrying, append formatting instruction
+                    $currentPrompts = $prompts;
+                    if ($attempts > 1 && $validationError) {
+                        $io->warning(sprintf("Attempt %d/%d failed validation for '%s'. Retrying with feedback...", $attempts - 1, $maxRetries, $item->getName()));
+                        $currentPrompts[] = [
+                            'role' => 'user',
+                            'content' => "Your previous translation failed validation:\n$validationError\n\nCRITICAL: You MUST preserve ALL keys from the source JSON. Do not drop 'attack_bonus', 'damage_dice', or any other fields. Return the COMPLETE object structure."
+                        ];
                     }
 
-                } catch (\Exception $e) {
-                    $validationError = "Request error: " . $e->getMessage();
+                    try {
+                        $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $this->openAiApiKey,
+                                'Content-Type' => 'application/json',
+                            ],
+                            'json' => [
+                                'model' => $model,
+                                'messages' => $currentPrompts,
+                                'temperature' => 0.2,
+                                'response_format' => ['type' => 'json_object'],
+                            ],
+                            'timeout' => 120,
+                        ]);
+
+                        $data = $response->toArray();
+                        $content = $data['choices'][0]['message']['content'] ?? null;
+
+                        if ($content) {
+                            $decoded = json_decode($content, true);
+
+                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                // Validate structure
+                                $errorMsg = null;
+                                if ($this->validateStructure($srcJson, $decoded, $errorMsg)) {
+                                    // Success!
+                                    $jsonPt = $decoded;
+                                    break; // Exit retry loop
+                                } else {
+                                    $validationError = $errorMsg;
+                                }
+                            } else {
+                                $validationError = "Invalid JSON syntax.";
+                            }
+                        } else {
+                            $validationError = "Empty response from API.";
+                        }
+
+                    } catch (\Exception $e) {
+                        $validationError = "Request error: " . $e->getMessage();
+                    }
+
+                    usleep(500000); // Wait 0.5s before retry
                 }
-                
-                usleep(500000); // Wait 0.5s before retry
             }
 
             if ($jsonPt) {
@@ -276,7 +281,7 @@ GUIDE;
             }
 
             $io->progressAdvance();
-            usleep(250000); 
+            usleep(250000);
         }
 
         $io->progressFinish();
@@ -315,7 +320,7 @@ GUIDE;
                 // If both are lists (numeric keys), we generally don't enforce same length for translation often (text length varies),
                 // BUT for lists of objects (like actions), we might want to ensure structure of items matches?
                 // The prompt says "same structure", usually implies same hierarchy of objects.
-                
+
                 // Let's check if it is associative array vs sequential list
                 $isSourceAssoc = array_keys($value) !== range(0, count($value) - 1);
                 $isDestAssoc = array_keys($dest[$key]) !== range(0, count($dest[$key]) - 1);
@@ -343,7 +348,7 @@ GUIDE;
                     // Or iterate all. Let's iterate all to be safe.
                     foreach ($value as $idx => $item) {
                         if (is_array($item) && isset($dest[$key][$idx]) && is_array($dest[$key][$idx])) {
-                             if (!$this->validateStructure($item, $dest[$key][$idx], $subError)) {
+                            if (!$this->validateStructure($item, $dest[$key][$idx], $subError)) {
                                 $errorMsg = "In key '$key'[$idx]: $subError";
                                 return false;
                             }

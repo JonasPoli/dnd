@@ -40,7 +40,7 @@
         .sheet-page::before {
             content: "";
             position: absolute;
-            top: 6mm; bottom: 6mm; left: 6mm; right: 6mm;
+            top: 12mm; bottom: 6mm; left: 6mm; right: 6mm;
             border: 2px solid #57534e;
             border-radius: 8px;
             pointer-events: none;
@@ -49,7 +49,7 @@
         .sheet-page::after {
             content: "";
             position: absolute;
-            top: 7mm; bottom: 7mm; left: 7mm; right: 7mm;
+            top: 13mm; bottom: 7mm; left: 7mm; right: 7mm;
             border: 1px solid #a8a29e;
             border-radius: 6px;
             pointer-events: none;
@@ -208,7 +208,7 @@
         {# Header #}
         <div class="flex justify-between items-start mb-2">
             <div class="w-1/3">
-                <div class="font-serif text-2xl font-bold mb-1">{{ character.name|upper }}</div>
+                <div class="font-serif font-bold mb-1" style="font-size: 1.4rem;">{{ character.name|upper }}</div>
                 <div style="font-size: 7px;" class="font-bold uppercase text-gray-500">NOME DO PERSONAGEM</div>
             </div>
             <div class="w-2/3 grid grid-cols-3 gap-3">
@@ -641,7 +641,7 @@
     {# ==================================================================================== #}
     {# PAGE 2                                                                               #}
     {# ==================================================================================== #}
-    <div class="sheet-page page-break p-8 pt-10">
+    <div class="sheet-page page-break p-8 pt-18">
         
         <div class="flex gap-4 h-full">
             
@@ -897,7 +897,7 @@
     </div>
 
     {# Details Page (Species, Background, Feats, Skills, Spells) #}
-    <div class="sheet-page-auto columns-2 gap-4 mt-8 break-before-page">
+    <div class="sheet-page-auto columns-2 gap-4 mt-8 break-before-page p-8 pt-10">
         
         {# Species #}
         {% if character.species %}
