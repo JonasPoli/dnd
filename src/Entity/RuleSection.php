@@ -31,6 +31,12 @@ class RuleSection
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $contentMd = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $namePt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $contentMdPt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -88,6 +94,28 @@ class RuleSection
     public function setContentMd(?string $contentMd): static
     {
         $this->contentMd = $contentMd;
+        return $this;
+    }
+
+    public function getNamePt(): ?string
+    {
+        return $this->namePt;
+    }
+
+    public function setNamePt(?string $namePt): static
+    {
+        $this->namePt = $namePt;
+        return $this;
+    }
+
+    public function getContentMdPt(): ?string
+    {
+        return $this->contentMdPt;
+    }
+
+    public function setContentMdPt(?string $contentMdPt): static
+    {
+        $this->contentMdPt = $contentMdPt;
         return $this;
     }
 }

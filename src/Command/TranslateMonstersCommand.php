@@ -101,14 +101,14 @@ class TranslateMonstersCommand extends Command
 
         // Determine total items to process
         $idFilter = $input->getOption('id') ? (int) $input->getOption('id') : null;
-        
+
         $qb = $this->monsterRepository->createQueryBuilder('m')
             ->select('COUNT(m.id)')
             ->where('m.srcJson IS NOT NULL');
 
         if ($idFilter) {
             $qb->andWhere('m.id = :idFilter')
-               ->setParameter('idFilter', $idFilter);
+                ->setParameter('idFilter', $idFilter);
         } else {
             $qb->andWhere('m.srcJsonPt IS NULL');
         }
@@ -122,7 +122,7 @@ class TranslateMonstersCommand extends Command
         $maxToProcess = (int) $input->getOption('limit');
         // If an ID filter is set, we process 1 item regardless of limit (unless limit is 0, which is weird)
         if ($idFilter) {
-             $maxToProcess = 1;
+            $maxToProcess = 1;
         }
 
         $io->title(sprintf('Translate Monsters (Found %d, Limit %d%s)', $totalItems, $maxToProcess, $idFilter ? ", ID: $idFilter" : ''));
@@ -132,17 +132,17 @@ class TranslateMonstersCommand extends Command
 
         while ($processed < $maxToProcess) {
             $currentBatchSize = min($batchSize, $maxToProcess - $processed);
-            
+
             $queryBuilder = $this->monsterRepository->createQueryBuilder('m')
                 ->where('m.srcJson IS NOT NULL');
 
             if ($idFilter) {
                 $queryBuilder->andWhere('m.id = :idFilter')
-                   ->setParameter('idFilter', $idFilter);
+                    ->setParameter('idFilter', $idFilter);
             } else {
                 $queryBuilder->andWhere('m.srcJsonPt IS NULL');
             }
-            
+
             $items = $queryBuilder
                 ->orderBy('m.challengeRating', 'ASC')
                 ->addOrderBy('m.imgMain', 'DESC')
@@ -293,10 +293,10 @@ GUIDE;
 
                 if ($jsonPt) {
                     $item->setSrcJsonPt($jsonPt);
-                    
+
                     // Set source description
                     $item->setDescriptionMd($srcJson['description'] ?? null);
-                    
+
                     // Set translated basic fields
                     $item->setNamePt($jsonPt['name'] ?? null);
                     $item->setSizePt($jsonPt['size'] ?? null);
@@ -305,10 +305,10 @@ GUIDE;
                     $item->setGroupPt($jsonPt['group'] ?? null);
                     $item->setAlignmentPt($jsonPt['alignment'] ?? null);
                     $item->setArmorDescPt($jsonPt['armorDesc'] ?? null);
-                    
+
                     // Set translated description
                     $item->setDescriptionMdPt($jsonPt['description'] ?? null);
-                    
+
                     // Update additional text fields from translated JSON
                     if (isset($jsonPt['senses'])) {
                         $item->setSenses($jsonPt['senses']);
@@ -331,10 +331,12 @@ GUIDE;
                     if (isset($jsonPt['legendaryDesc'])) {
                         $item->setLegendaryDesc($jsonPt['legendaryDesc']);
                     }
-                    
+
                     // Update JSON array fields from translated JSON
                     if (isset($jsonPt['speed'])) {
-                        $item->setSpeedJson($jsonPt['speed']);
+                        // Converte velocidade de pés para metros (ft -> m)
+                        $speedMetros = $this->convertSpeedToMeters($jsonPt['speed']);
+                        $item->setSpeedJson($speedMetros);
                     }
                     if (isset($jsonPt['skills'])) {
                         $item->setSkillsJson($jsonPt['skills']);
@@ -360,7 +362,7 @@ GUIDE;
                     if (isset($jsonPt['environments'])) {
                         $item->setEnvironments($jsonPt['environments']);
                     }
-                    
+
                     $this->entityManager->flush();
                     if ($maxToProcess === 1) {
                         $io->note(sprintf(
@@ -453,5 +455,38 @@ GUIDE;
             }
         }
         return $data;
+    }
+
+    private function convertSpeedToMeters(array $speed): array
+    {
+        $converted = [];
+        foreach ($speed as $key => $value) {
+            // Se for booleano (ex: "hover": true), mantém
+            if (is_bool($value)) {
+                $converted[$key] = $value;
+                continue;
+            }
+
+            // Remove 'ft.' ou outros textos, tenta pegar o número
+            // Ex: "30 ft." -> 30
+            $number = (float) filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+
+            if ($number > 0) {
+                // 1 ft = 0.3048 metros. D&D 5e usa aproximação 5ft = 1.5m (fator 0.3)
+                $metros = $number * 0.3;
+
+                // Formata: se for inteiro (ex: 9.0), exibe 9. Se for quebrado (ex: 1.5), exibe 1.5
+                $formatted = (float) $metros; // Cast remove zeros extras de decimal
+
+                // Se a chave for "walk", pode ser salvo apenas como número ou string com 'm'
+                // O pedido diz "convertendo de pés para metros".
+                // Vou manter o padrão do JSON original (valores numéricos ou strings numéricas) mas convertidos.
+                $converted[$key] = $formatted;
+            } else {
+                // Se não conseguiu converter (ex: texto sem número), mantém original
+                $converted[$key] = $value;
+            }
+        }
+        return $converted;
     }
 }

@@ -16,8 +16,13 @@ class ConditionType extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('namePt')
             ->add('ruleSlug')
             ->add('descriptionMd', TextareaType::class, [
+                'required' => false,
+                'attr' => ['rows' => 10]
+            ])
+            ->add('descriptionMdPt', TextareaType::class, [
                 'required' => false,
                 'attr' => ['rows' => 10]
             ])

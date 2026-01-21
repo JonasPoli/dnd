@@ -20,7 +20,7 @@ class MonsterController extends AbstractController
     public function index(Request $request, MonsterRepository $repository): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 20;
+        $limit = 50; // Aumentado para 50 itens por página
         $sort = $request->query->get('sort', 'name');
         $order = $request->query->get('order', 'asc');
         $search = $request->query->get('search', '');
@@ -33,7 +33,7 @@ class MonsterController extends AbstractController
 
         // Apply filters
         if ($search) {
-            $qb->andWhere('m.name LIKE :search')
+            $qb->andWhere('m.name LIKE :search OR m.namePt LIKE :search OR m.ruleSlug LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
 
@@ -47,13 +47,14 @@ class MonsterController extends AbstractController
                 ->setParameter('size', $sizeFilter);
         }
 
+        // Use a coluna decimal 'cr' para filtragem numérica correta em vez de CAST
         if ($crMin !== '') {
-            $qb->andWhere('CAST(m.challengeRating AS DECIMAL(10,2)) >= :crMin')
+            $qb->andWhere('m.cr >= :crMin')
                 ->setParameter('crMin', (float) $crMin);
         }
 
         if ($crMax !== '') {
-            $qb->andWhere('CAST(m.challengeRating AS DECIMAL(10,2)) <= :crMax')
+            $qb->andWhere('m.cr <= :crMax')
                 ->setParameter('crMax', (float) $crMax);
         }
 
@@ -63,7 +64,14 @@ class MonsterController extends AbstractController
             $sort = 'name';
         }
         $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
-        $qb->orderBy('m.' . $sort, $order);
+
+        // Mapeia ordenação de 'challengeRating' para a coluna numérica 'cr'
+        $sortField = $sort;
+        if ($sort === 'challengeRating') {
+            $sortField = 'cr';
+        }
+
+        $qb->orderBy('m.' . $sortField, $order);
 
         $totalItems = count($qb->getQuery()->getResult());
         $totalPages = ceil($totalItems / $limit);

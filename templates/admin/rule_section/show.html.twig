@@ -19,22 +19,28 @@
     </div>
 
     {# Rule Section Document #}
-    <div class="bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-4 border-slate-700 dark:border-slate-600 shadow-2xl overflow-hidden">
+    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-4 border-indigo-900 dark:border-indigo-700 shadow-2xl overflow-hidden">
         {# Header #}
-        <div class="bg-gradient-to-r from-slate-800 to-gray-800 dark:from-slate-700 dark:to-gray-700 px-8 py-6 border-b-4 border-slate-900">
-            <h1 class="text-4xl font-bold text-slate-50 mb-2 font-serif">{{ rule_section.name }}</h1>
-            <p class="text-slate-300 text-lg italic flex items-center space-x-2">
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-6 border-b-4 border-indigo-950">
+            <h1 class="text-4xl font-bold text-indigo-50 mb-2 font-serif">{{ rule_section.namePt|default(rule_section.name) }}</h1>
+            <p class="text-indigo-200 text-lg italic flex items-center space-x-2">
                 {{ ux_icon('lucide:book-open', {class: 'w-5 h-5'}) }}
                 <span>Seção de Regras</span>
+                {% if rule_section.namePt %}
+                    <span class="text-xs bg-indigo-500 text-white px-2 py-0.5 rounded-full ml-2">PT-BR</span>
+                {% endif %}
             </p>
         </div>
 
         <div class="px-8 py-8">
             {# Content #}
-            {% if rule_section.contentMd %}
-            <div class="prose prose-slate dark:prose-invert max-w-none bg-white/50 dark:bg-slate-800/50 rounded-2xl p-8 border-2 border-slate-300 dark:border-slate-600 shadow-inner">
-                <div class="text-slate-900 dark:text-slate-100 leading-relaxed">
-                    {{ rule_section.contentMd|markdown_to_html|raw }}
+            {# Content #}
+            {% set content = rule_section.contentMdPt|default(rule_section.contentMd) %}
+            
+            {% if content %}
+            <div class="prose prose-indigo dark:prose-invert max-w-none bg-white/50 dark:bg-slate-800/50 p-8 md:p-12 border-2 border-indigo-900/20 dark:border-indigo-700/20 shadow-inner rounded-2xl">
+                <div class="markdown-formatted text-indigo-950 dark:text-indigo-50 columns-1 md:columns-2 gap-12">
+                     {{ content|parse_markdown_tables|markdown_to_html|raw }}
                 </div>
             </div>
             {% else %}
@@ -48,8 +54,8 @@
         </div>
 
         {# Footer #}
-        <div class="bg-gradient-to-r from-slate-800 to-gray-800 dark:from-slate-700 dark:to-gray-700 px-8 py-4 border-t-4 border-slate-900">
-            <div class="flex items-center justify-between text-slate-300 text-sm">
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 dark:from-indigo-800 dark:to-purple-800 px-8 py-4 border-t-4 border-indigo-950">
+            <div class="flex items-center justify-between text-indigo-200 text-sm">
                 <span>Fonte: {{ rule_section.rulesSource.name }}</span>
                 <span class="font-mono">{{ rule_section.ruleSlug }}</span>
             </div>

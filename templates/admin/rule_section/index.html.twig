@@ -47,10 +47,15 @@
                 {% for section in rule_sections %}
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-8 py-5">
-                            <div class="font-bold text-slate-900 dark:text-white">{{ section.name }}</div>
+                            <div class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                {{ section.namePt|default(section.name) }}
+                                {% if section.namePt %}
+                                    <span class="text-[10px] font-bold bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">PT</span>
+                                {% endif %}
+                            </div>
                         </td>
                         <td class="px-8 py-5">
-                            <span class="text-sm text-slate-600 dark:text-slate-400">{{ section.contentMd|default('-')|u.truncate(100, '...') }}</span>
+                            <span class="text-sm text-slate-600 dark:text-slate-400">{{ section.contentMdPt|default(section.contentMd)|default('-')|u.truncate(100, '...') }}</span>
                         </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex items-center justify-end space-x-3">

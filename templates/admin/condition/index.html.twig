@@ -28,11 +28,21 @@
                 {% for condition in conditions %}
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-8 py-5">
-                            <div class="font-bold text-slate-900 dark:text-white">{{ condition.name }}</div>
+                            <div class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                {{ condition.namePt|default(condition.name) }}
+                                {% if condition.namePt %}
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary uppercase tracking-widest">PT</span>
+                                {% endif %}
+                            </div>
                             <div class="text-xs text-slate-400">{{ condition.ruleSlug }}</div>
+                            {% if condition.namePt is not empty and condition.name != condition.namePt %}
+                                <div class="text-xs text-slate-400 mt-0.5">en: {{ condition.name }}</div>
+                            {% endif %}
                         </td>
                         <td class="px-8 py-5">
-                            <span class="text-sm text-slate-600 dark:text-slate-400">{{ condition.descriptionMd|default('-')|u.truncate(80, '...') }}</span>
+                             <span class="text-sm text-slate-600 dark:text-slate-400">
+                                {{ condition.descriptionMdPt|default(condition.descriptionMd)|default('-')|u.truncate(80, '...') }}
+                            </span>
                         </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex items-center justify-end space-x-3">

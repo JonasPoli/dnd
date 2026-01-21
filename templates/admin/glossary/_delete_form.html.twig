@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('app_admin_glossary_delete', {'id': glossary.id}) }}" onsubmit="return confirm('Tem certeza que deseja excluir este termo?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ glossary.id) }}">
+    <button class="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl transition-all">
+        {{ ux_icon('lucide:trash-2', {class: 'w-5 h-5'}) }}
+    </button>
+</form>

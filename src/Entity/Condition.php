@@ -32,6 +32,12 @@ class Condition
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descriptionMd = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $namePt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionMdPt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -81,6 +87,17 @@ class Condition
         return $this;
     }
 
+    public function getNamePt(): ?string
+    {
+        return $this->namePt;
+    }
+
+    public function setNamePt(?string $namePt): static
+    {
+        $this->namePt = $namePt;
+        return $this;
+    }
+
     public function getDescriptionMd(): ?string
     {
         return $this->descriptionMd;
@@ -89,6 +106,17 @@ class Condition
     public function setDescriptionMd(?string $descriptionMd): static
     {
         $this->descriptionMd = $descriptionMd;
+        return $this;
+    }
+
+    public function getDescriptionMdPt(): ?string
+    {
+        return $this->descriptionMdPt;
+    }
+
+    public function setDescriptionMdPt(?string $descriptionMdPt): static
+    {
+        $this->descriptionMdPt = $descriptionMdPt;
         return $this;
     }
 }

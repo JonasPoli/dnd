@@ -35,12 +35,16 @@ services:
             tags: ['app.importer']
 
     # Markdown GFM (Tables, etc.)
-    League\CommonMark\GithubFlavoredMarkdownConverter:
+    app.markdown.converter:
+        class: League\CommonMark\GithubFlavoredMarkdownConverter
         arguments:
-            - { 'html_input': 'strip', 'allow_unsafe_links': false }
+            - { 'html_input': 'allow', 'allow_unsafe_links': false }
             
     # Alias for Twig Markdown Extension
     Twig\Extra\Markdown\MarkdownInterface:
         class: Twig\Extra\Markdown\LeagueMarkdown
         public: true
-        arguments: ['@League\CommonMark\GithubFlavoredMarkdownConverter']
+        arguments: ['@app.markdown.converter']
+
+    Twig\Extra\Markdown\MarkdownRuntime:
+        arguments: ['@Twig\Extra\Markdown\MarkdownInterface']

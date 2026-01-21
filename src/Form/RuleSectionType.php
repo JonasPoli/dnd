@@ -20,12 +20,22 @@ class RuleSectionType extends AbstractType
                 'label' => 'Nome',
                 'attr' => ['class' => 'form-input'],
             ])
+            ->add('namePt', TextType::class, [
+                'label' => 'Nome (PT)',
+                'attr' => ['class' => 'form-input'],
+                'required' => false,
+            ])
             ->add('ruleSlug', TextType::class, [
                 'label' => 'Slug',
                 'attr' => ['class' => 'form-input'],
             ])
             ->add('contentMd', TextareaType::class, [
                 'label' => 'Conteúdo (Markdown)',
+                'attr' => ['class' => 'form-textarea', 'rows' => 10],
+                'required' => false,
+            ])
+            ->add('contentMdPt', TextareaType::class, [
+                'label' => 'Conteúdo (Markdown PT)',
                 'attr' => ['class' => 'form-textarea', 'rows' => 10],
                 'required' => false,
             ])
