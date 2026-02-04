@@ -174,7 +174,7 @@ class CharacterCreationController extends AbstractController
         $maxTools = $character->getClassDef()->getInitialToolsCount() ?? 0;
         
         // Fetch ALL equipment to allow user-requested filtering (Arma, Montaria, etc.)
-        $availableTools = $this->equipmentRepository->findBy([], ['name' => 'ASC']);
+        $availableTools = $this->equipmentRepository->findBy(['isActive' => true], ['name' => 'ASC']);
 
         if ($request->isMethod('POST')) {
             $selectedToolIds = $request->request->all('tools'); 
@@ -232,7 +232,7 @@ class CharacterCreationController extends AbstractController
         // For simplicity now, if not a caster class, we might show ALL or just Wizard/Cleric/Druid?
         // Let's show ALL level 0 spells if the class doesn't restrict.
         
-        $allCantrips = $this->spellRepository->findBy(['level' => 0], ['name' => 'ASC']);
+        $allCantrips = $this->spellRepository->findBy(['level' => 0, 'isActive' => true], ['name' => 'ASC']);
         $availableCantrips = [];
         
         if ($isClassCaster) {
@@ -321,7 +321,7 @@ class CharacterCreationController extends AbstractController
 
         // Fetch Level 1 Spells
         // If isClassCaster, filter by class. Else show all?
-        $allSpells = $this->spellRepository->findBy(['level' => 1], ['name' => 'ASC']);
+        $allSpells = $this->spellRepository->findBy(['level' => 1, 'isActive' => true], ['name' => 'ASC']);
         $availableSpells = [];
 
         if ($isClassCaster) {
@@ -675,6 +675,7 @@ class CharacterCreationController extends AbstractController
             'Mago' => ['Força' => 8, 'Destreza' => 12, 'Constituição' => 13, 'Inteligência' => 15, 'Sabedoria' => 14, 'Carisma' => 10],
             'Monge' => ['Força' => 12, 'Destreza' => 15, 'Constituição' => 13, 'Inteligência' => 10, 'Sabedoria' => 14, 'Carisma' => 8],
             'Paladino' => ['Força' => 15, 'Destreza' => 10, 'Constituição' => 13, 'Inteligência' => 8, 'Sabedoria' => 12, 'Carisma' => 14],
+            'Psiônico' => ['Força' => 8, 'Destreza' => 12, 'Constituição' => 13, 'Inteligência' => 15, 'Sabedoria' => 14, 'Carisma' => 10],
         ];
 
         // Ensure Attributes exist in DB (Seed logic really, but handling here for safety)
@@ -879,6 +880,26 @@ class CharacterCreationController extends AbstractController
                 $character->setCoinPp((int)$request->request->get('coinP'));
 
                 $this->entityManager->flush();
+                $character->setCoinPp((int)$request->request->get('coinP'));
+
+                $this->entityManager->flush();
+
+                // Check for Class Feats (Step 11b)
+                $featsKnown = 0;
+                if ($character->getClassDef()) {
+                    $classLevel = $this->classLevelRepository->findOneBy([
+                        'classDef' => $character->getClassDef(),
+                        'level' => 1
+                    ]);
+                    if ($classLevel) {
+                        $featsKnown = $classLevel->getFeatsKnown() ?? 0;
+                    }
+                }
+
+                if ($featsKnown > 0) {
+                     return $this->redirectToRoute('app_character_creation_step11b', ['id' => $character->getId()]);
+                }
+
                 return $this->redirectToRoute('app_character_creation_step12', ['id' => $character->getId()]);
             }
 
@@ -910,13 +931,91 @@ class CharacterCreationController extends AbstractController
 
         // Fetch All Equipment for List
         // Optimize: Group by type
-        $allEquipment = $equipmentRepository->findBy([], ['namePt' => 'ASC', 'name' => 'ASC']);
+        $allEquipment = $equipmentRepository->findBy(['isActive' => true], ['namePt' => 'ASC', 'name' => 'ASC']);
         
         return $this->render('character_creation/step11_equipment.html.twig', [
             'character' => $character,
             'equipment_list' => $allEquipment,
             'current_weight' => $currentWeight,
             'current_cost' => $currentCost,
+        ]);
+    }
+
+    #[Route('/step/11b/{id}', name: 'app_character_creation_step11b', methods: ['GET', 'POST'])]
+    public function step11b(Request $request, Character $character, \App\Repository\FeatRepository $featRepository): Response
+    {
+        if (!$character->getClassDef()) {
+             return $this->redirectToRoute('app_character_creation_step1', ['id' => $character->getId()]);
+        }
+
+        // Determine Feats Known
+        $featsKnown = 0;
+        $classLevel = $this->classLevelRepository->findOneBy([
+            'classDef' => $character->getClassDef(),
+            'level' => 1
+        ]);
+        if ($classLevel) {
+            $featsKnown = $classLevel->getFeatsKnown() ?? 0;
+        }
+
+        // Safety: If 0, skip
+        if ($featsKnown <= 0) {
+            return $this->redirectToRoute('app_character_creation_step12', ['id' => $character->getId()]);
+        }
+        
+        // Get Available Feats from ClassDef
+        $availableFeats = $character->getClassDef()->getAvailableFeats();
+
+        if ($request->isMethod('POST')) {
+            $selectedFeatIds = $request->request->all('feats');
+            
+            if (count($selectedFeatIds) > $featsKnown) {
+                 $this->addFlash('error', "Você pode escolher no máximo $featsKnown talentos.");
+            } else {
+                // We need to distinguish Class Feats vs Origin Feats vs Specie Feats?
+                // Currently Character->feats covers all.
+                // WE SHOULD NOT wipe all feats, because Specie feats (Step 7b) are there.
+                // But we should replace PREVIOUS Class Feats... 
+                // Problem: How do we know which are Class Feats?
+                // Assumption: The ones available in this list are Class Feats.
+                // Strategy: Remove any feat from character that IS present in $availableFeats list, then add selected.
+                
+                $availableFeatIds = [];
+                foreach ($availableFeats as $af) {
+                    $availableFeatIds[] = $af->getId();
+                    // Remove if present
+                    if ($character->getFeats()->contains($af)) {
+                        $character->removeFeat($af);
+                    }
+                }
+                
+                // Add Selected
+                foreach ($selectedFeatIds as $fid) {
+                    $feat = $featRepository->find($fid);
+                    // Verify it is allowed
+                    if ($feat && in_array($feat->getId(), $availableFeatIds)) {
+                         $character->addFeat($feat);
+                    }
+                }
+                
+                $this->entityManager->flush();
+                return $this->redirectToRoute('app_character_creation_step12', ['id' => $character->getId()]);
+            }
+        }
+        
+        // Determine current selection (intersection of char feats and available feats)
+        $currentFeatIds = [];
+        foreach ($character->getFeats() as $f) {
+            if ($availableFeats->contains($f)) {
+                $currentFeatIds[] = $f->getId();
+            }
+        }
+
+        return $this->render('character_creation/step11b_feats.html.twig', [
+            'character' => $character,
+            'available_feats' => $availableFeats,
+            'feats_known' => $featsKnown,
+            'current_feat_ids' => $currentFeatIds,
         ]);
     }
 

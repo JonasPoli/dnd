@@ -1,0 +1,126 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block header_title %}Talentos de {{ class_def.name }}{% endblock %}
+
+{% block body %}
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+        {% if vich_uploader_asset(class_def, 'logoFile') %}
+            <img src="{{ vich_uploader_asset(class_def, 'logoFile') }}" alt="{{ class_def.name }}" class="w-16 h-16 object-contain rounded-xl bg-white p-1 ring-2 ring-slate-200 dark:ring-slate-700 shadow-md">
+        {% endif %}
+        <div>
+            <div class="flex items-center gap-2 text-slate-500 mb-1">
+                <a href="{{ path('admin_class_index') }}" class="hover:text-primary transition-colors">Classes</a>
+                <span>/</span>
+                <span>Configuração</span>
+            </div>
+            <h1 class="text-3xl font-bold dark:text-white flex items-center gap-3">
+                Talentos: {{ class_def.name }}
+            </h1>
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-2">
+         <a href="{{ path('admin_class_show', {'id': class_def.id}) }}" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl font-bold shadow-sm border border-border hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center space-x-2">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+            <span>Voltar</span>
+         </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    {# Main Content: List of Feats #}
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border overflow-hidden shadow-sm">
+            <div class="p-6 border-b border-border flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 class="font-bold text-lg dark:text-white">Talentos Selecionáveis</h2>
+                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">
+                    {{ class_def.availableFeats|length }}
+                </span>
+            </div>
+            
+            {% if class_def.availableFeats is empty %}
+                <div class="p-12 text-center text-slate-400">
+                    <div class="mb-4 bg-slate-100 dark:bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                        {{ ux_icon('lucide:sparkles', {class: 'w-8 h-8 opacity-50'}) }}
+                    </div>
+                    <p>Nenhum talento associado a esta classe ainda.</p>
+                </div>
+            {% else %}
+                <ul class="divide-y divide-border">
+                    {% for feat in class_def.availableFeats %}
+                        <li class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-purple-50 dark:bg-purple-900/30 p-2 rounded-lg text-purple-600 dark:text-purple-400">
+                                    {{ ux_icon('lucide:check-circle-2', {class: 'w-6 h-6'}) }}
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 dark:text-slate-200">{{ feat.name }}</h3>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                                            {{ feat.type }}
+                                        </span>
+                                        {% if feat.prerequisite %}
+                                            <span class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded border border-amber-100 dark:border-amber-900/30">
+                                                Pré-req: {{ feat.prerequisite }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if feat.descriptionMd %}
+                                        <div class="text-sm text-slate-500 mt-2 line-clamp-2 prose prose-sm max-w-none">{{ feat.descriptionMd|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <form method="post" action="{{ path('admin_class_feat_remove', {'id': class_def.id, 'feat_id': feat.id}) }}" class="opacity-0 group-hover:opacity-100 transition-opacity" onsubmit="return confirm('Remover este talento da lista?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ feat.id) }}">
+                                <button class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Remover Talento">
+                                    {{ ux_icon('lucide:trash-2', {class: 'w-5 h-5'}) }}
+                                </button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Sidebar: Add Feat Form #}
+    <div>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border overflow-hidden shadow-sm sticky top-8">
+            <div class="p-6 border-b border-border bg-gradient-to-br from-purple-50 to-white dark:from-slate-800 dark:to-slate-900">
+                <h2 class="font-bold text-lg dark:text-white flex items-center gap-2">
+                    {{ ux_icon('lucide:plus-circle', {class: 'w-5 h-5 text-purple-500'}) }}
+                    Adicionar Talento
+                </h2>
+            </div>
+            <div class="p-6">
+                <form method="post">
+                    <div class="mb-4">
+                        <label for="feat" class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Selecione um Talento</label>
+                        <select name="feat" id="feat" class="block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 rounded-2xl focus:ring-2 focus:ring-purple-500/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none border-2 border-slate-400 dark:border-slate-700 text-sm">
+                            <option value="">Selecione...</option>
+                            {% for feat in all_feats %}
+                                {% if not class_def.availableFeats.contains(feat) %}
+                                    <option value="{{ feat.id }}">{{ feat.name }} ({{ feat.type }})</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-purple-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-purple-600/25 hover:bg-purple-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        {{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
+                        Adicionar
+                    </button>
+                </form>
+                
+                <div class="mt-6 pt-6 border-t border-border">
+                    <p class="text-xs text-slate-400 text-center">
+                        Talentos adicionados aqui aparecerão como opção de escolha para o jogador criar seu personagem, dependendo do nível da classe.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

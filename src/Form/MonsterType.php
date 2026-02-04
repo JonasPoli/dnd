@@ -18,6 +18,10 @@ class MonsterType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('isActive', \Symfony\Component\Form\Extension\Core\Type\CheckboxType::class, [
+                'label' => 'Ativo',
+                'required' => false,
+            ])
             ->add('name')
             ->add('namePt', TextType::class, ['required' => false, 'label' => 'Name (PT)'])
             ->add('ruleSlug')

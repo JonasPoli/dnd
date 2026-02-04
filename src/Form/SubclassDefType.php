@@ -32,14 +32,6 @@ class SubclassDefType extends AbstractType
                 'attr' => ['rows' => 6],
                 'label' => 'Description (Markdown)',
             ])
-            ->add('subclassSpells', \Symfony\Component\Form\Extension\Core\Type\CollectionType::class, [
-                'entry_type' => SubclassSpellType::class,
-                'entry_options' => ['label' => false],
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
-                'label' => 'Spells (Always Prepared)',
-            ])
             ->add('rulesSource', EntityType::class, [
                 'class' => RulesSource::class,
                 'choice_label' => 'name',

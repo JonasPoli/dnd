@@ -1,0 +1,95 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Níveis de Classe{% endblock %}
+
+{% block body %}
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-2 text-slate-500 mb-1">
+                <a href="{{ path('admin_class_index') }}" class="hover:text-primary transition-colors">Classes</a>
+                <span>/</span>
+                <span>Configuração</span>
+            </div>
+            <h1 class="text-3xl font-bold dark:text-white">Níveis de {{ class_def.name }}</h1>
+            <p class="text-slate-500 text-sm">Configure a progressão, slots de magia e talentos por nível.</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ path('admin_class_show', {'id': class_def.id}) }}" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl font-bold shadow-sm border border-border hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center space-x-2">
+                {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+                <span>Voltar</span>
+            </a>
+            <a href="{{ path('admin_class_level_new', {'id': class_def.id}) }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all flex items-center space-x-2">
+                {{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
+                <span>Novo Nível</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-border">
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Nível</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">PB</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Truques</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Magias Prep.</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-purple-600">Talentos</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 w-1/4">Slots (JSON)</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 w-1/4">Features (JSON)</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                {% for level in levels|sort((a, b) => a.level <=> b.level) %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                            <span class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-sm select-none">Lv {{ level.level }}</span>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-sm">+{{ level.proficiencyBonus }}</td>
+                        <td class="px-6 py-4 font-mono text-sm">{{ level.cantripsKnown ?? '-' }}</td>
+                        <td class="px-6 py-4 font-mono text-sm">{{ level.spellsPrepared ?? '-' }}</td>
+                        <td class="px-6 py-4 font-mono text-sm">
+                            {% if level.featsKnown > 0 %}
+                                <span class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-1 rounded font-bold">
+                                    {{ level.featsKnown }}
+                                </span>
+                            {% else %}
+                                <span class="text-slate-300">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if level.spellSlotsJson %}
+                                <code class="text-[10px] bg-slate-50 dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-100 dark:border-slate-700 block truncate max-w-[150px]" title="{{ level.spellSlotsJson|json_encode }}">{{ level.spellSlotsJson|json_encode }}</code>
+                            {% else %}
+                                <span class="text-slate-300 text-xs">-</span>
+                            {% endif %}
+                        </td>
+                         <td class="px-6 py-4">
+                            {% if level.featuresConfig %}
+                                <code class="text-[10px] bg-slate-50 dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-100 dark:border-slate-700 block truncate max-w-[150px]" title="{{ level.featuresConfig|json_encode }}">{{ level.featuresConfig|json_encode }}</code>
+                            {% else %}
+                                <span class="text-slate-300 text-xs">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end space-x-2">
+                                <a href="{{ path('admin_class_level_edit', {'id': class_def.id, 'level_id': level.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 hover:text-primary transition-colors">
+                                    {{ ux_icon('lucide:edit-3', {class: 'w-4 h-4'}) }}
+                                </a>
+                                {{ include('admin/class_level/_delete_form.html.twig') }}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-slate-400">
+                            Nenhum nível configurado ainda.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

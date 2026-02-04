@@ -28,4 +28,17 @@ return [
     'alpinejs' => [
         'version' => '3.15.3',
     ],
+    'tom-select' => [
+        'version' => '2.4.4',
+    ],
+    '@orchidjs/sifter' => [
+        'version' => '1.1.0',
+    ],
+    '@orchidjs/unicode-variants' => [
+        'version' => '1.1.2',
+    ],
+    'tom-select/dist/css/tom-select.default.min.css' => [
+        'version' => '2.4.4',
+        'type' => 'css',
+    ],
 ];

@@ -6,9 +6,17 @@ use App\Repository\SubclassDefRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraint as SymfonyConstraint;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SubclassDefRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_CLASS_KEY', fields: ['classDef', 'ruleSlug'])]
+#[UniqueEntity(
+    fields: ['classDef', 'ruleSlug'],
+    errorPath: 'ruleSlug',
+    message: 'Já existe uma subclasse com este slug nesta classe principal.'
+)]
 class SubclassDef
 {
     #[ORM\Id]
@@ -24,13 +32,18 @@ class SubclassDef
     private ?ClassDef $classDef = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: "O slug é obrigatório")]
+    #[Assert\Regex(pattern: "/^[a-z0-9-]+$/", message: "O slug deve conter apenas letras minúsculas, números e hífens")]
     private ?string $ruleSlug = null;
 
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "O nome é obrigatório")]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "O nível disponível é obrigatório")]
+    #[Assert\Range(min: 1, max: 20)]
     private ?int $availableFromLevel = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

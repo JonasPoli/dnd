@@ -25,14 +25,23 @@ class SpellController extends AbstractController
         $levelFilter = $request->query->get('level', '');
         $schoolFilter = $request->query->get('school', '');
         $classFilter = $request->query->get('class', '');
+        $statusFilter = $request->query->get('status', 'active');
 
         $qb = $repository->createQueryBuilder('s')
             ->leftJoin('s.classes', 'c')
             ->orderBy('s.level', 'ASC')
             ->addOrderBy('s.name', 'ASC');
 
+        if ($statusFilter === 'active') {
+            $qb->andWhere('s.isActive = :active')
+                ->setParameter('active', true);
+        } elseif ($statusFilter === 'inactive') {
+            $qb->andWhere('s.isActive = :active')
+                ->setParameter('active', false);
+        }
+
         if ($search) {
-            $qb->andWhere('s.name LIKE :search OR s.descriptionMd LIKE :search')
+            $qb->andWhere('s.name LIKE :search OR s.descriptionMd LIKE :search OR s.namePt LIKE :search OR s.descriptionMdPt LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
 
@@ -80,6 +89,7 @@ class SpellController extends AbstractController
             'level_filter' => $levelFilter,
             'school_filter' => $schoolFilter,
             'class_filter' => $classFilter,
+            'status_filter' => $statusFilter,
             'available_schools' => $schools,
             'available_classes' => $classes,
         ]);

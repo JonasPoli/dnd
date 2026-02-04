@@ -16,6 +16,10 @@ class EquipmentType extends AbstractType
     {
         $builder
 
+            ->add('isActive', \Symfony\Component\Form\Extension\Core\Type\CheckboxType::class, [
+                'label' => 'Ativo',
+                'required' => false,
+            ])
             ->add('name')
             ->add('namePt', null, ['label' => 'Nome (PT)', 'required' => false])
             ->add('type')

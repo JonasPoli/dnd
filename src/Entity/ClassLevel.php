@@ -5,9 +5,16 @@ namespace App\Entity;
 use App\Repository\ClassLevelRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ClassLevelRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_CLASS_LEVEL', fields: ['classDef', 'level'])]
+#[UniqueEntity(
+    fields: ['classDef', 'level'],
+    errorPath: 'level',
+    message: 'Já existe uma configuração para este nível nesta classe.'
+)]
 class ClassLevel
 {
     #[ORM\Id]
@@ -20,9 +27,13 @@ class ClassLevel
     private ?ClassDef $classDef = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
+    #[Assert\Range(min: 1, max: 20)]
     private ?int $level = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\Range(min: 2, max: 6)]
     private ?int $proficiencyBonus = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -34,11 +45,23 @@ class ClassLevel
     #[ORM\Column(nullable: true)]
     private ?int $spellsPrepared = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $featsKnown = null;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $featuresConfig = [];
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notesMd = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $featuresList = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $customDie = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $customCount = null;
 
     public function getId(): ?int
     {
@@ -117,6 +140,18 @@ class ClassLevel
         return $this;
     }
 
+    public function getFeatsKnown(): ?int
+    {
+        return $this->featsKnown;
+    }
+
+    public function setFeatsKnown(?int $featsKnown): static
+    {
+        $this->featsKnown = $featsKnown;
+
+        return $this;
+    }
+
     public function getFeaturesConfig(): ?array
     {
         return $this->featuresConfig;
@@ -137,6 +172,42 @@ class ClassLevel
     public function setNotesMd(?string $notesMd): static
     {
         $this->notesMd = $notesMd;
+
+        return $this;
+    }
+
+    public function getFeaturesList(): ?string
+    {
+        return $this->featuresList;
+    }
+
+    public function setFeaturesList(?string $featuresList): static
+    {
+        $this->featuresList = $featuresList;
+
+        return $this;
+    }
+
+    public function getCustomDie(): ?string
+    {
+        return $this->customDie;
+    }
+
+    public function setCustomDie(?string $customDie): static
+    {
+        $this->customDie = $customDie;
+
+        return $this;
+    }
+
+    public function getCustomCount(): ?int
+    {
+        return $this->customCount;
+    }
+
+    public function setCustomCount(?int $customCount): static
+    {
+        $this->customCount = $customCount;
 
         return $this;
     }

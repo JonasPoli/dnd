@@ -48,14 +48,7 @@ class ClassDefType extends AbstractType
             ->add('classTableMd', TextareaType::class, ['label' => 'Tabela da Classe (MD)', 'required' => false, 'attr' => ['rows' => 6]])
             ->add('characterCreationHelp', TextareaType::class, ['label' => 'Ajuda ao Criar Personagem (MD)', 'required' => false, 'attr' => ['rows' => 6]])
 
-            ->add('classLevels', \Symfony\Component\Form\Extension\Core\Type\CollectionType::class, [
-                'entry_type' => ClassLevelType::class,
-                'entry_options' => ['label' => false],
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
-                'label' => false, // We'll manage label in template
-            ])
+
 
             ->add('initialSkillsCount', IntegerType::class, [
                 'label' => 'Quantidade de Perícias Iniciais',

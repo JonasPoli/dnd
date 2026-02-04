@@ -11,6 +11,16 @@
         </a>
         <h1 class="text-2xl font-bold dark:text-white">Editar Classe: {{ class_def.name }}</h1>
         <p class="text-slate-500 text-sm">Atualize as informações da classe selecionada.</p>
+        <div class="mt-4 flex gap-2">
+            <a href="{{ path('admin_class_feat_index', {'id': class_def.id}) }}" class="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-semibold hover:bg-purple-700 transition-all inline-flex items-center space-x-2">
+                 {{ ux_icon('lucide:sparkles', {class: 'w-4 h-4'}) }}
+                <span>Gerenciar Talentos</span>
+            </a>
+            <a href="{{ path('admin_class_skill_index', {'id': class_def.id}) }}" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all inline-flex items-center space-x-2">
+                 {{ ux_icon('lucide:scroll', {class: 'w-4 h-4'}) }}
+                <span>Gerenciar Perícias</span>
+            </a>
+        </div>
     </div>
     
     {{ include('admin/class_def/_delete_form.html.twig') }}

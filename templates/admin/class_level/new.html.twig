@@ -1,0 +1,17 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Novo Nível - {{ class_def.name }}{% endblock %}
+
+{% block body %}
+    <div class="mb-8">
+        <a href="{{ path('admin_class_level_index', {'id': class_def.id}) }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-primary transition-colors mb-4">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4 mr-2'}) }}
+            Voltar para Níveis
+        </a>
+        <h1 class="text-2xl font-bold dark:text-white">Adicionar Nível em {{ class_def.name }}</h1>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-8 shadow-sm max-w-2xl">
+        {{ include('admin/class_level/_form.html.twig') }}
+    </div>
+{% endblock %}

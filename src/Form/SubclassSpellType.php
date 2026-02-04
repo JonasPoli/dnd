@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Spell;
 use App\Entity\SubclassSpell;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -17,13 +18,37 @@ class SubclassSpellType extends AbstractType
         $builder
             ->add('levelAcquired', IntegerType::class, [
                 'label' => 'Nível',
-                'attr' => ['class' => 'w-20']
+                'attr' => [
+                    'class' => 'form-input w-20 text-center px-2 py-1.5 rounded-lg border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-primary/20 focus:border-primary',
+                    'min' => 1,
+                    'max' => 20,
+                    'placeholder' => '1'
+                ]
             ])
             ->add('spell', EntityType::class, [
                 'class' => Spell::class,
-                'choice_label' => 'name',
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('s')
+                        ->where('s.isActive = :active')
+                        ->setParameter('active', true)
+                        ->orderBy('s.name', 'ASC');
+                },
+                'choice_label' => function (Spell $spell) {
+                    $pt = $spell->getNamePt();
+                    $en = $spell->getName();
+                    
+                    if ($pt && $pt !== $en) {
+                        return sprintf('%s (%s)', $pt, $en);
+                    }
+                    
+                    return $en;
+                },
                 'label' => 'Magia',
-                'attr' => ['class' => 'w-full']
+                'attr' => [
+                    'class' => 'form-select w-full rounded-lg border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-primary/20 focus:border-primary',
+                    'data-controller' => 'tom-select',
+                    'placeholder' => 'Selecione uma magia...'
+                ]
             ])
         ;
     }

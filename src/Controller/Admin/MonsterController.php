@@ -27,11 +27,20 @@ class MonsterController extends AbstractController
         $typeFilter = $request->query->get('type', '');
         $sizeFilter = $request->query->get('size', '');
         $crMin = $request->query->get('cr_min', '');
+        $crMin = $request->query->get('cr_min', '');
         $crMax = $request->query->get('cr_max', '');
+        $statusFilter = $request->query->get('status', 'active');
 
         $qb = $repository->createQueryBuilder('m');
 
         // Apply filters
+        if ($statusFilter === 'active') {
+            $qb->andWhere('m.isActive = :active')
+                ->setParameter('active', true);
+        } elseif ($statusFilter === 'inactive') {
+            $qb->andWhere('m.isActive = :active')
+                ->setParameter('active', false);
+        }
         if ($search) {
             $qb->andWhere('m.name LIKE :search OR m.namePt LIKE :search OR m.ruleSlug LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
@@ -108,7 +117,9 @@ class MonsterController extends AbstractController
             'type_filter' => $typeFilter,
             'size_filter' => $sizeFilter,
             'cr_min' => $crMin,
+            'cr_min' => $crMin,
             'cr_max' => $crMax,
+            'status_filter' => $statusFilter,
             'available_types' => $types,
             'available_sizes' => $sizes,
         ]);

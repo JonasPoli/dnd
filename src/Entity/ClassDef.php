@@ -9,12 +9,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraint as SymfonyConstraint;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: ClassDefRepository::class)]
 #[Vich\Uploadable]
 #[ORM\UniqueConstraint(name: 'UNIQ_SOURCE_KEY', fields: ['rulesSource', 'ruleSlug'])]
+#[UniqueEntity(
+    fields: ['rulesSource', 'ruleSlug'],
+    errorPath: 'ruleSlug',
+    message: 'Já existe uma classe com este slug nesta fonte de regras.'
+)]
 class ClassDef
 {
     #[ORM\Id]
@@ -36,12 +44,17 @@ class ClassDef
     private ?RulesSource $rulesSource = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: "O slug é obrigatório")]
+    #[Assert\Regex(pattern: "/^[a-z0-9-]+$/", message: "O slug deve conter apenas letras minúsculas, números e hífens")]
     private ?string $ruleSlug = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "O nome é obrigatório")]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "O dado de vida é obrigatório")]
+    #[Assert\Range(min: 4, max: 20, notInRangeMessage: "O dado de vida deve ser entre {{ min }} e {{ max }}")]
     private ?int $hitDie = null;
 
     #[ORM\Column(nullable: true)]
@@ -148,6 +161,7 @@ class ClassDef
         $this->classLevels = new ArrayCollection();
         $this->subclasses = new ArrayCollection();
         $this->baseSkills = new ArrayCollection();
+        $this->availableFeats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -631,6 +645,33 @@ class ClassDef
     public function setCharacterCreationHelp(?string $characterCreationHelp): static
     {
         $this->characterCreationHelp = $characterCreationHelp;
+
+        return $this;
+    }
+    /**
+     * @var Collection<int, Feat>
+     */
+    #[ORM\ManyToMany(targetEntity: Feat::class)]
+    #[ORM\JoinTable(name: 'class_def_feat')]
+    private Collection $availableFeats;
+
+    public function getAvailableFeats(): Collection
+    {
+        return $this->availableFeats;
+    }
+
+    public function addAvailableFeat(Feat $feat): static
+    {
+        if (!$this->availableFeats->contains($feat)) {
+            $this->availableFeats->add($feat);
+        }
+
+        return $this;
+    }
+
+    public function removeAvailableFeat(Feat $feat): static
+    {
+        $this->availableFeats->removeElement($feat);
 
         return $this;
     }

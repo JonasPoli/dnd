@@ -19,6 +19,11 @@ class SpellType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('isActive', CheckboxType::class, [
+                'label' => 'Ativo',
+                'required' => false,
+                'attr' => ['class' => 'form-checkbox'],
+            ])
             ->add('name', null, [
                 'label' => 'Nome',
                 'attr' => ['class' => 'form-input'],

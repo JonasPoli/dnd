@@ -17,10 +17,23 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class EquipmentController extends AbstractController
 {
     #[Route('/', name: 'admin_equipment_index', methods: ['GET'])]
-    public function index(EquipmentRepository $equipmentRepository): Response
+    public function index(Request $request, EquipmentRepository $equipmentRepository): Response
     {
+        $statusFilter = $request->query->get('status', 'active');
+        $qb = $equipmentRepository->createQueryBuilder('e')
+            ->orderBy('e.name', 'ASC');
+
+        if ($statusFilter === 'active') {
+            $qb->andWhere('e.isActive = :active')
+                ->setParameter('active', true);
+        } elseif ($statusFilter === 'inactive') {
+            $qb->andWhere('e.isActive = :active')
+                ->setParameter('active', false);
+        }
+
         return $this->render('admin/equipment/index.html.twig', [
-            'equipment_list' => $equipmentRepository->findAll(),
+            'equipment_list' => $qb->getQuery()->getResult(),
+            'status_filter' => $statusFilter,
         ]);
     }
 

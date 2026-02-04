@@ -1,12 +1,45 @@
 {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
     <div class="space-y-6">
-        {% if form_errors(form) %}
+        {% if not form.vars.valid %}
             <div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-2xl border border-red-100 dark:border-red-900/50 mb-6">
                 <div class="font-bold flex items-center mb-2">
                     {{ ux_icon('lucide:alert-circle', {class: 'w-5 h-5 mr-2'}) }}
                     Erros no formulário
                 </div>
-                {{ form_errors(form) }}
+                <ul class="list-disc list-inside text-sm space-y-1">
+                    {# Global errors #}
+                    {% for error in form.vars.errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                    
+                    {# Field errors #}
+                    {% for child in form %}
+                        {% for error in child.vars.errors %}
+                            <li><strong>{{ child.vars.label|default(child.vars.name) }}:</strong> {{ error.message }}</li>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {# Check for errors in collection items #}
+                    {% if form.classLevels is defined %}
+                        {% for levelForm in form.classLevels %}
+                            {% if not levelForm.vars.valid %}
+                                <li>
+                                    <strong>Nível {{ levelForm.vars.value.level|default('?') }}:</strong>
+                                    <ul class="list-circle list-inside ml-4 mt-1">
+                                        {% for error in levelForm.vars.errors %}
+                                            <li>{{ error.message }}</li>
+                                        {% endfor %}
+                                        {% for levelChild in levelForm %}
+                                            {% for error in levelChild.vars.errors %}
+                                                <li>{{ levelChild.vars.label|default(levelChild.vars.name) }}: {{ error.message }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </ul>
             </div>
         {% endif %}
 
@@ -153,44 +186,7 @@
             {{ form_row(form.equipment, {'attr': {'class': 'form-textarea block w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800', 'rows': 4}}) }}
         </div>
 
-        <div class="space-y-6 mt-6">
-            <h3 class="font-bold text-lg text-slate-700 dark:text-slate-200 border-b pb-2">Class Progression (1-20)</h3>
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700"
-                 data-controller="form-collection"
-                 data-form-collection-prototype-value="{{ form_widget(form.classLevels.vars.prototype)|e('html_attr') }}"
-                 data-form-collection-index-value="{{ form.classLevels|length }}">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-xs text-slate-500 uppercase bg-slate-50 dark:bg-slate-700/50">
-                            <tr>
-                                <th class="px-3 py-2">Lv</th>
-                                <th class="px-3 py-2">PB</th>
-                                <th class="px-3 py-2">Cantrips</th>
-                                <th class="px-3 py-2">Prepared</th>
-                                <th class="px-3 py-2 w-1/3">Slots (JSON)</th>
-                                <th class="px-3 py-2 w-1/3">Features (JSON)</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700" 
-                               data-form-collection-target="collection">
-                            {% for levelForm in form.classLevels %}
-                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                                    <td class="px-3 py-2">{{ form_widget(levelForm.level) }}</td>
-                                    <td class="px-3 py-2">{{ form_widget(levelForm.proficiencyBonus) }}</td>
-                                    <td class="px-3 py-2">{{ form_widget(levelForm.cantripsKnown) }}</td>
-                                    <td class="px-3 py-2">{{ form_widget(levelForm.spellsPrepared) }}</td>
-                                    <td class="px-3 py-2">{{ form_widget(levelForm.spellSlotsJson) }}</td>
-                                    <td class="px-3 py-2">{{ form_widget(levelForm.featuresConfig) }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <button type="button" data-action="form-collection#add" class="mt-4 text-xs font-bold uppercase tracking-widest text-primary hover:text-primary/80 flex items-center">
-                    {{ ux_icon('lucide:plus', {class: 'w-4 h-4 mr-2'}) }} Add Level
-                </button>
-            </div>
-        </div>
+
 
         <div class="space-y-6 mt-6">
              <h3 class="font-bold text-lg text-slate-700 dark:text-slate-200 border-b pb-2">Detalhes</h3>

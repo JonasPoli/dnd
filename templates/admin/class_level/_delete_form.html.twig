@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('admin_class_level_delete', {'id': class_def.id, 'level_id': level.id}) }}" onsubmit="return confirm('Tem certeza que deseja apagar este nível?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ level.id) }}">
+    <button class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Apagar Nível">
+        {{ ux_icon('lucide:trash-2', {class: 'w-4 h-4'}) }}
+    </button>
+</form>

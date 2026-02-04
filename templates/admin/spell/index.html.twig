@@ -24,6 +24,15 @@
                        class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
             </div>
             
+            {# Status #}
+            <div>
+                <select name="status" class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Ativos</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inativos</option>
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos</option>
+                </select>
+            </div>
+            
             {# Level #}
             <div>
                 <select name="level" class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">

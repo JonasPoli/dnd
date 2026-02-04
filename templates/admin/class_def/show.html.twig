@@ -10,12 +10,24 @@
             {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
             <span>Voltar para Lista</span>
         </a>
-        <div class="flex items-center space-x-3">
-            <a href="{{ path('admin_class_edit', {'id': class_def.id}) }}" class="px-4 py-2 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center space-x-2">
-                {{ ux_icon('lucide:edit-3', {class: 'w-4 h-4'}) }}
-                <span>Editar</span>
+            <div class="mt-4 flex gap-2">
+            <a href="{{ path('admin_class_feat_index', {'id': class_def.id}) }}" class="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-semibold hover:bg-purple-700 transition-all inline-flex items-center space-x-2">
+                 {{ ux_icon('lucide:sparkles', {class: 'w-4 h-4'}) }}
+                <span>Gerenciar Talentos</span>
             </a>
-        </div>
+            <a href="{{ path('admin_class_skill_index', {'id': class_def.id}) }}" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all inline-flex items-center space-x-2">
+                 {{ ux_icon('lucide:scroll', {class: 'w-4 h-4'}) }}
+                <span>Gerenciar Perícias</span>
+            </a>
+            <a href="{{ path('admin_class_level_index', {'id': class_def.id}) }}" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-all inline-flex items-center space-x-2">
+                 {{ ux_icon('lucide:bar-chart-2', {class: 'w-4 h-4'}) }}
+                <span>Gerenciar Níveis</span>
+            </a>
+            <a href="{{ path('admin_class_edit', {'id': class_def.id}) }}" class="px-4 py-2 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center space-x-2">
+                    {{ ux_icon('lucide:edit-3', {class: 'w-4 h-4'}) }}
+                    <span>Editar</span>
+                </a>
+            </div>
     </div>
 
     {# D&D Class Sheet #}
