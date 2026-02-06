@@ -7,8 +7,8 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 class MonsterImageComposerService
 {
     private string $publicPath;
-    private int $targetWidth = 600;
-    private int $targetHeight = 330; // Easy to adjust as requested
+    private int $targetWidth = 1200;
+    private int $targetHeight = 600; // Easy to adjust as requested
     
     public function __construct(string $projectDir)
     {

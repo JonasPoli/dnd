@@ -224,7 +224,7 @@ class MonsterController extends AbstractController
         // Only regenerate if file doesn't exist or is older than 1 hour (cache)
         if (!file_exists($outputPath) || (time() - filemtime($outputPath)) > 3600) {
             // Set dimensions for image-left layout (350x600)
-            $composerService->setDimensions(350, 600);
+            $composerService->setDimensions(700, 1200);
             $composerService->composeImage($monsterImagePath, $outputPath);
         }
         
