@@ -164,6 +164,110 @@ class MonsterController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/print', name: 'admin_monster_print', methods: ['GET'])]
+    public function print(Request $request, Monster $monster, \App\Service\UnsplashImageService $imageService): Response
+    {
+        if ($monster->getImgMain()) {
+            $imageUrl = '/' . $monster->getImgMain();
+        } else {
+            $imageUrl = $imageService->searchImage('monster', $monster->getName());
+
+            if (!$imageUrl) {
+                $imageUrl = $imageService->getPlaceholderImage('monster');
+            }
+        }
+
+        // Layout Logic System
+        // Get layout from query param, default to 'standard' (or 'layout_top_image' if we prefer)
+        // User requested buttons for both
+        $layout = $request->query->get('layout', 'standard'); 
+        
+        // For top image layout, use the composed image URL
+        if ($layout === 'layout_top_image') {
+            $imageUrl = $this->generateUrl('admin_monster_composed_image', ['id' => $monster->getId()]);
+        }
+        
+        // For image-left layout, use the composed image-left URL
+        if ($layout === 'layout_image_left') {
+            $imageUrl = $this->generateUrl('admin_monster_composed_image_left', ['id' => $monster->getId()]);
+        }
+        
+        $charCount = strlen($monster->getDescriptionMdPt() ?? '') + strlen(json_encode($monster->getSrcJsonPt()));
+        
+        return $this->render('admin/monster/print.html.twig', [
+            'monster' => $monster,
+            'image_url' => $imageUrl,
+            'layout' => $layout,
+            'charCount' => $charCount
+        ]);
+    }
+    
+    #[Route('/{id}/composed-image-left', name: 'admin_monster_composed_image_left', methods: ['GET'])]
+    public function composedImageLeft(Monster $monster, \App\Service\UnsplashImageService $imageService, \App\Service\MonsterImageComposerService $composerService): Response
+    {
+        // Get the original monster image
+        if ($monster->getImgMain()) {
+            $monsterImagePath = '/' . $monster->getImgMain();
+        } else {
+            $monsterImagePath = $imageService->searchImage('monster', $monster->getName());
+
+            if (!$monsterImagePath) {
+                $monsterImagePath = $imageService->getPlaceholderImage('monster');
+            }
+        }
+        
+        // Generate composed image path with left layout dimensions (350x600)
+        $outputDir = $this->getParameter('kernel.project_dir') . '/public/media/composed';
+        $outputFilename = 'monster_' . $monster->getId() . '_layout_image_left.png';
+        $outputPath = $outputDir . '/' . $outputFilename;
+        
+        // Only regenerate if file doesn't exist or is older than 1 hour (cache)
+        if (!file_exists($outputPath) || (time() - filemtime($outputPath)) > 3600) {
+            // Set dimensions for image-left layout (350x600)
+            $composerService->setDimensions(350, 600);
+            $composerService->composeImage($monsterImagePath, $outputPath);
+        }
+        
+        // Serve the composed image
+        $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($outputPath);
+        $response->headers->set('Content-Type', 'image/png');
+        $response->headers->set('Cache-Control', 'public, max-age=3600');
+        
+        return $response;
+    }
+    
+    #[Route('/{id}/composed-image', name: 'admin_monster_composed_image', methods: ['GET'])]
+    public function composedImage(Monster $monster, \App\Service\UnsplashImageService $imageService, \App\Service\MonsterImageComposerService $composerService): Response
+    {
+        // Get the original monster image
+        if ($monster->getImgMain()) {
+            $monsterImagePath = '/' . $monster->getImgMain();
+        } else {
+            $monsterImagePath = $imageService->searchImage('monster', $monster->getName());
+
+            if (!$monsterImagePath) {
+                $monsterImagePath = $imageService->getPlaceholderImage('monster');
+            }
+        }
+        
+        // Generate composed image path
+        $outputDir = $this->getParameter('kernel.project_dir') . '/public/media/composed';
+        $outputFilename = 'monster_' . $monster->getId() . '_layout_top_image.png';
+        $outputPath = $outputDir . '/' . $outputFilename;
+        
+        // Only regenerate if file doesn't exist or is older than 1 hour (cache)
+        if (!file_exists($outputPath) || (time() - filemtime($outputPath)) > 3600) {
+            $composerService->composeImage($monsterImagePath, $outputPath);
+        }
+        
+        // Serve the composed image
+        $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($outputPath);
+        $response->headers->set('Content-Type', 'image/png');
+        $response->headers->set('Cache-Control', 'public, max-age=3600');
+        
+        return $response;
+    }
+
     #[Route('/{id}/edit', name: 'admin_monster_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Monster $monster, EntityManagerInterface $entityManager): Response
     {

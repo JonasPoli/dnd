@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ficha de Monstro - {{ monster.namePt|default(monster.name) }}</title>
+    <style>
+        :root {
+            --dnd-red: #7A200D;
+            --dnd-orange: #922610;
+            --bg-attr-name: #DED3CA;
+            --bg-attr-val: #E1E1E9;
+        }
+
+        /* Enforce A4 Paper */
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            color: #333;
+        }
+
+        /* Default Stat Block (Standard Layout) */
+        .stat-block {
+            background-color: white;
+            width: 580px; 
+            max-width: 100%;
+            padding: 25px;
+            border: 1px solid #d3d3d3;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+        
+        /* Layout Specific Variations */
+        .layout-top-image .stat-block {
+            padding-top: 15px; 
+            border-top: none; 
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .layout-top-image .top-image-container {
+            width: 100% !important;
+            max-width: 100%;
+            height: 330px; 
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid #d3d3d3;
+            border-bottom: none;
+            flex-shrink: 0; 
+            box-sizing: border-box;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        
+        .layout-top-image .top-composed-image {
+            width: 100% !important;
+            height: auto;
+            display: block;
+        }
+        
+        /* Image Left Layout Styles */
+        .layout-image-left .left-composed-image {
+            width: 350px;
+            height: 600px;
+            float: left;
+            margin-right: 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #d3d3d3;
+            object-fit: cover;
+        }
+
+        h2 {
+            font-family: 'Georgia', serif;
+            color: var(--dnd-red);
+            font-size: 23px; /* Was 27px */
+            margin: 0;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        /* ... [Existing Styles] ... */
+        .type {
+            font-style: italic;
+            font-size: 12.5px; /* Was 14.5px */
+            color: #777;
+            margin: 2px 0 10px 0;
+        }
+
+        hr {
+            border: 0;
+            height: 2px;
+            background-color: var(--dnd-orange);
+            margin: 10px 0;
+        }
+
+        .property-line {
+            margin: 5px 0;
+            font-size: 13px; /* Was 15px */
+            line-height: 1.3;
+        }
+
+        .property-line b, .property-line h4 {
+            color: var(--dnd-red);
+            font-weight: bold;
+        }
+        
+        .property-line h4 {
+            display: inline;
+            margin: 0;
+            font-size: 13px; /* Was 15px */
+        }
+        /* ... */
+
+        /* Estrutura de Atributos */
+        .ability-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .ability-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 2px 0;
+        }
+
+        .ability-table th {
+            font-size: 8px; /* Was 9px */
+            color: #999;
+            font-weight: normal;
+            text-transform: uppercase;
+            text-align: center;
+            padding-bottom: 3px;
+        }
+
+        .ability-table td {
+            padding: 2px 2px;
+            text-align: center;
+            font-size: 10px; /* FIXED as requested */
+        }
+
+        .attr-name {
+            color: var(--dnd-red);
+            font-weight: bold;
+            background-color: var(--bg-attr-name);
+            text-align: left !important;
+            padding-left: 8px !important;
+            width: 45px;
+        }
+
+        .attr-val {
+            background-color: var(--bg-attr-val);
+            color: #333;
+        }
+
+        .spacer {
+            height: 4px;
+        }
+
+        /* ... */
+        
+        h3 {
+            border-bottom: 1px solid var(--dnd-orange);
+            color: var(--dnd-red);
+            font-family: 'Georgia', serif;
+            font-size: 17px; /* Was 20px */
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        
+        @media print {
+            .print-btn {
+                display: none;
+            }
+            body {
+                background-color: white;
+                padding: 0;
+                display: block; 
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .stat-block {
+                width: 100%; 
+                max-width: none;
+                border: none;
+                box-shadow: none;
+                column-count: 2;
+                column-gap: 1cm;
+                display: block;
+                /* IMPORTANT: Ensure default padding is handled correctly or rely on body margin */
+                padding: 0; 
+            }
+            
+            /* Layout with top image: make stat-block overlay the image container */
+            .layout-top-image .stat-block {
+                padding-top: 0;
+                position: relative;
+                margin-top: -150px; /* Overlay the bottom portion of the image container */
+                background-color: white;
+                z-index: 10;
+            }
+            
+            .layout-top-image .top-image-container {
+                border: none;
+                width: 100%;
+                height: 330px; 
+                margin-bottom: 0; /* Remove margin since stat-block will overlay */
+                background-color: white !important; /* White opaque background */
+                position: relative;
+                z-index: 1;
+            }
+            
+            /* Hide the composed image in print view to show only white background */
+            .layout-top-image .top-composed-image {
+                opacity: 0;
+            }
+
+            /* Prevent awkward breaks */
+            .ability-container, 
+            .ability-group, 
+            .property-line, 
+            h2, h3, .type, hr {
+                break-inside: avoid;
+            }
+            h3 {
+                break-after: avoid;
+            }
+        }
+
+    </style>
+</head>
+<body class="{{ layout }}">
+
+    <button onclick="window.print()" class="print-btn" style="background: #7A200D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+        IMPRIMIR
+    </button>
+
+{# Logic Vars #}
+{% set mData = monster.srcJsonPt %}
+{% set name = mData.name|default(monster.namePt)|default(monster.name) %}
+{% set size = mData.size|default(monster.sizePt)|default(monster.size) %}
+{% set type = mData.type|default(monster.typePt)|default(monster.type) %}
+{% set subtype = mData.subtype|default(monster.subtypePt)|default(monster.subtype) %}
+{% set alignment = mData.alignment|default(monster.alignmentPt)|default(monster.alignment) %}
+{% set armorClass = mData.armorClass|default(monster.armorClass) %}
+{% set armorDesc = mData.armorDesc|default(monster.armorDescPt)|default(monster.armorDesc) %}
+{% set hitPoints = mData.hitPoints|default(monster.hitPoints) %}
+{% set hitDice = mData.hitDice|default(monster.hitDice) %}
+{% set speed = mData.speed|default(monster.speedJson) %}
+
+{% set strength = monster.strength %}
+{% set dexterity = monster.dexterity %}
+{% set constitution = monster.constitution %}
+{% set intelligence = monster.intelligence %}
+{% set wisdom = monster.wisdom %}
+{% set charisma = monster.charisma %}
+
+{% set dexMod = ((dexterity - 10) / 2)|round(0, 'floor') %}
+{% set initiative = dexMod %}
+{% set passiveInitiative = 10 + dexMod %}
+
+{% set saves = {
+    'Str': monster.strengthSave,
+    'Dex': monster.dexteritySave,
+    'Con': monster.constitutionSave,
+    'Int': monster.intelligenceSave,
+    'Wis': monster.wisdomSave,
+    'Cha': monster.charismaSave
+} %}
+
+{% set skills = mData.skills|default(monster.skillsJson) %}
+{% set damageImmunities = mData.damageImmunities|default(monster.damageImmunities) %}
+{% set damageResistances = mData.damageResistances|default(monster.damageResistances) %}
+{% set damageVulnerabilities = mData.damageVulnerabilities|default(monster.damageVulnerabilities) %}
+{% set conditionImmunities = mData.conditionImmunities|default(monster.conditionImmunities) %}
+{% set senses = mData.senses|default(monster.senses) %}
+{% set languages = mData.languages|default(monster.languages) %}
+{% set challengeRating = mData.challengeRating|default(monster.challengeRating) %}
+{% set crToXp = {
+    '0': 10, '1/8': 25, '1/4': 50, '1/2': 100, '1': 200, '2': 450, '3': 700, '4': 1100, '5': 1800,
+    '6': 2300, '7': 2900, '8': 3900, '9': 5000, '10': 5900, '11': 7200, '12': 8400, '13': 10000,
+    '14': 11500, '15': 13000, '16': 15000, '17': 18000, '18': 20000, '19': 22000, '20': 25000,
+    '21': 33000, '22': 41000, '23': 50000, '24': 62000, '25': 75000, '26': 90000, '27': 105000,
+    '28': 120000, '29': 135000, '30': 155000
+} %}
+{% set xp = mData.xp|default(crToXp[challengeRating ~ ""]|default(0)) %} 
+{% set crNum = challengeRating == '1/8' ? 0.125 : (challengeRating == '1/4' ? 0.25 : (challengeRating == '1/2' ? 0.5 : challengeRating)) %}
+{% set proficiencyBonus = 2 + ((crNum - 1) / 4)|round(0, 'ceil') %}
+{% if proficiencyBonus < 2 %}{% set proficiencyBonus = 2 %}{% endif %}
+
+{% set specialAbilities = mData.specialAbilities|default(monster.specialAbilitiesJson) %}
+{% set actions = mData.actions|default(monster.actionsJson) %}
+{% set reactions = mData.reactions|default(monster.reactionsJson) %}
+{% set legendaryActions = mData.legendaryActions|default(monster.legendaryActionsJson) %}
+{% set legendaryDesc = mData.legendaryDesc|default(monster.legendaryDesc) %}
+{% set descMd = mData.description|default(monster.descriptionMdPt)|default(monster.descriptionMd) %}
+
+    {# Top Image Layout Block - OUTSIDE stat-block #}
+    {% if layout == 'layout_top_image' and image_url %}
+        <div class="top-image-container" style="width: 100%;">
+            <img src="{{ image_url }}" class="top-composed-image" style="width: 100%;" alt="{{ name }}">
+        </div>
+    {% endif %}
+    
+    <div class="stat-block">
+
+    {# Image Left Layout - Image INSIDE stat-block #}
+    {% if layout == 'layout_image_left' and image_url %}
+        <img src="{{ image_url }}" class="left-composed-image" alt="{{ name }}">
+    {% endif %}
+
+    <h2>{{ name }}</h2>
+    <div class="type">{{ size }} {{ type }} ({{ subtype|default(type) }}), {{ alignment }}</div>
+    
+    <hr>
+    
+    {# ... (Body stats follow - CA, PV, Attributes...) ... #}
+    <div class="property-line">
+        <b>CA</b> {{ armorClass }} {% if armorDesc %}({{ armorDesc }}){% endif %} <span style="float: right;"><b>Iniciativa</b> {{ initiative >= 0 ? '+' : '' }}{{ initiative }} ({{ passiveInitiative }})</span>
+    </div>
+    <div class="property-line"><b>PV</b> {{ hitPoints }} {% if hitDice %}({{ hitDice }}){% endif %}</div>
+    <div class="property-line"><b>Deslocamento</b> 
+        {% if speed is iterable %}
+            {% for type, val in speed %}
+                {{ type == 'walk' ? '9 m' : type }} ({{ val }} ft.){% if not loop.last %}, {% endif %}
+            {% endfor %}
+        {% else %}
+            {{ speed }}
+        {% endif %}
+    </div>
+
+
+
+    <!-- Ability Scores Layout -->
+    <div class="ability-container">
+        <!-- Group 1: FOR & INT -->
+        <div class="ability-group">
+            <table class="ability-table">
+                <tr><th></th> <th></th><th>MOD</th> <th>RES</th></tr>
+                <!-- STR -->
+                {% set mod = ((strength - 10) / 2)|round(0, 'floor') %}
+                {% set save = saves.Str is not null ? saves.Str : mod %}
+                <tr><td class="attr-name">FOR</td> <td class="attr-val">{{ strength }}</td> <td class="attr-val">{{ mod >= 0 ? '+' : '' }}{{ mod }}</td> <td class="attr-val">{{ save >= 0 ? '+' : '' }}{{ save }}</td></tr>
+                
+                <tr class="spacer"><td></td></tr>
+                
+                <!-- INT -->
+                {% set mod = ((intelligence - 10) / 2)|round(0, 'floor') %}
+                {% set save = saves.Int is not null ? saves.Int : mod %}
+                <tr><td class="attr-name">INT</td> <td class="attr-val">{{ intelligence }}</td> <td class="attr-val">{{ mod >= 0 ? '+' : '' }}{{ mod }}</td> <td class="attr-val">{{ save >= 0 ? '+' : '' }}{{ save }}</td></tr>
+            </table>
+        </div>
+
+        <!-- Group 2: DES & SAB -->
+        <div class="ability-group">
+            <table class="ability-table">
+                <tr><th></th><th></th> <th>MOD</th> <th>RES</th></tr>
+                <!-- DEX -->
+                {% set mod = ((dexterity - 10) / 2)|round(0, 'floor') %}
+                {% set save = saves.Dex is not null ? saves.Dex : mod %}
+                <tr><td class="attr-name">DES</td> <td class="attr-val">{{ dexterity }}</td> <td class="attr-val">{{ mod >= 0 ? '+' : '' }}{{ mod }}</td> <td class="attr-val">{{ save >= 0 ? '+' : '' }}{{ save }}</td></tr>
+                
+                <tr class="spacer"><td></td></tr>
+                
+                <!-- WIS -->
+                {% set mod = ((wisdom - 10) / 2)|round(0, 'floor') %}
+                {% set save = saves.Wis is not null ? saves.Wis : mod %}
+                <tr><td class="attr-name">SAB</td> <td class="attr-val">{{ wisdom }}</td> <td class="attr-val">{{ mod >= 0 ? '+' : '' }}{{ mod }}</td> <td class="attr-val">{{ save >= 0 ? '+' : '' }}{{ save }}</td></tr>
+            </table>
+        </div>
+
+        <!-- Group 3: CON & CAR -->
+        <div class="ability-group">
+            <table class="ability-table">
+                <tr><th></th><th></th> <th>MOD</th> <th>RES</th></tr>
+                <!-- CON -->
+                {% set mod = ((constitution - 10) / 2)|round(0, 'floor') %}
+                {% set save = saves.Con is not null ? saves.Con : mod %}
+                <tr><td class="attr-name">CON</td> <td class="attr-val">{{ constitution }}</td> <td class="attr-val">{{ mod >= 0 ? '+' : '' }}{{ mod }}</td> <td class="attr-val">{{ save >= 0 ? '+' : '' }}{{ save }}</td></tr>
+                
+                <tr class="spacer"><td></td></tr>
+                
+                <!-- CHA -->
+                {% set mod = ((charisma - 10) / 2)|round(0, 'floor') %}
+                {% set save = saves.Cha is not null ? saves.Cha : mod %}
+                <tr><td class="attr-name">CAR</td> <td class="attr-val">{{ charisma }}</td> <td class="attr-val">{{ mod >= 0 ? '+' : '' }}{{ mod }}</td> <td class="attr-val">{{ save >= 0 ? '+' : '' }}{{ save }}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <hr>
+    
+    {% if skills %}
+    <div class="property-line"><b>Perícias</b> 
+        {% for skill, val in skills %}
+            {{ skill }} {{ val >= 0 ? '+' : '' }}{{ val }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if damageVulnerabilities %}
+    <div class="property-line"><b>Vulnerabilidades</b> {{ damageVulnerabilities }}</div>
+    {% endif %}
+    
+    {% if damageResistances %}
+    <div class="property-line"><b>Resistências</b> {{ damageResistances }}</div>
+    {% endif %}
+    
+    {% if damageImmunities %}
+    <div class="property-line"><b>Imunidades</b> {{ damageImmunities }}</div>
+    {% endif %}
+    
+    {% if conditionImmunities %}
+    <div class="property-line"><b>Imunidade a Condição</b> {{ conditionImmunities }}</div>
+    {% endif %}
+
+    {% if senses %}
+    <div class="property-line"><b>Sentidos</b> {{ senses }}</div>
+    {% endif %}
+    
+    {% if languages %}
+    <div class="property-line"><b>Idiomas</b> {{ languages }}</div>
+    {% endif %}
+    
+    <div class="property-line"><b>ND</b> {{ challengeRating }} ({{ xp }} XP; Bônus de Proficiência {{ proficiencyBonus >= 0 ? '+' : '' }}{{ proficiencyBonus }})</div>
+    
+    <!-- Inline Image (for non-top layout) -->
+    {% if layout != 'layout_top_image' and layout != 'layout_image_left' and image_url %}
+    <div style="text-align: center; margin: 20px 0;">
+         <img src="{{ image_url }}" alt="{{ name }}" style="max-height: 250px; max-width: 100%; border-radius: 4px; border: 1px solid #ddd;">
+    </div>
+    {% endif %}
+
+    <!-- Remainder of Content -->
+    {% if specialAbilities %}
+        <div style="margin-top: 15px;">
+            {% for ability in specialAbilities %}
+                <div class="property-line">
+                    <b>{{ ability.name }}.</b> {{ ability.desc }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if actions %}
+        <h3>Ações</h3>
+        {% for action in actions %}
+            <div class="property-line">
+                <b>{{ action.name }}.</b> {{ action.desc }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if monster.bonusActionsJson %}
+        <h3>Ações Bônus</h3>
+        {% for action in monster.bonusActionsJson %}
+            <div class="property-line">
+                <b>{{ action.name }}.</b> {{ action.desc }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if reactions %}
+        <h3>Reações</h3>
+        {% for action in reactions %}
+            <div class="property-line">
+                <b>{{ action.name }}.</b> {{ action.desc }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if legendaryActions %}
+        <h3>Ações Lendárias</h3>
+        {% if legendaryDesc %}
+            <p>{{ legendaryDesc }}</p>
+        {% endif %}
+        {% for action in legendaryActions %}
+            <div class="property-line">
+                <b>{{ action.name }}.</b> {{ action.desc }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if descMd %}
+        <h3>Descrição</h3>
+        <div style="font-size: 11.5px; line-height: 1.5;"> <!-- Was 13.5px -->
+            {{ descMd|markdown_to_html|raw }}
+        </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
