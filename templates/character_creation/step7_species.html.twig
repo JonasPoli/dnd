@@ -103,6 +103,27 @@
                     
                     {# Future: Dynamic Traits List #}
                     {# Currently traits are often embedded in description or separate entities which we don't strictly have linking yet in a structured way for this view apart from description #}
+
+                    {# Human Origin Feat Selection (Right Column) #}
+                    <div id="human-origin-feat-container" class="mt-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 hidden">
+                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2 uppercase tracking-wide flex items-center gap-2">
+                            {{ ux_icon('lucide:star', {class: 'w-4 h-4 text-amber-500'}) }}
+                            Talento de Origem
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Humanos recebem um talento adicional de sua escolha.</p>
+                        <select name="human_origin_feat" class="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:ring-emerald-500 focus:border-emerald-500 p-2.5">
+                            <option value="">Selecione um talento...</option>
+                            {% for feat in origin_feats %}
+                                {% set isSelected = false %}
+                                {% for cf in character.feats %}
+                                    {% if cf.id == feat.id %}
+                                        {% set isSelected = true %}
+                                    {% endif %}
+                                {% endfor %}
+                                <option value="{{ feat.id }}" {{ isSelected ? 'selected' : '' }}>{{ feat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -165,6 +186,16 @@
         if (input.dataset.hasSubraces === 'true') {
             const subContainer = document.getElementById('subraces-' + input.value);
             if (subContainer) subContainer.classList.remove('hidden');
+        }
+
+        // Show Human Feat if applicable (Right Column)
+        const humanFeatContainer = document.getElementById('human-origin-feat-container');
+        if (humanFeatContainer) {
+            if (input.dataset.name === 'Humano') {
+                humanFeatContainer.classList.remove('hidden');
+            } else {
+                humanFeatContainer.classList.add('hidden');
+            }
         }
     }
 

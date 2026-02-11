@@ -605,4 +605,66 @@ class Character
 
         return $this;
     }
+
+    public function getProficiencyCount(string $skillName): int
+    {
+        $count = 0;
+
+        // Check chosen skills (Class, etc.)
+        foreach ($this->skills as $skill) {
+            if ($skill->getName() === $skillName) {
+                $count++;
+            }
+        }
+
+        // Check Background skills
+        if ($this->background) {
+            if ($this->background->getSkill1()?->getName() === $skillName) {
+                $count++;
+            }
+            if ($this->background->getSkill2()?->getName() === $skillName) {
+                $count++;
+            }
+        }
+
+        // Cap at 2 (Expertise simulation)
+        return min($count, 2);
+    }
+
+    /**
+     * @return Collection<int, Skill>
+     */
+    public function getAllProficientSkills(): Collection
+    {
+        $allSkills = new ArrayCollection();
+
+        // Add chosen skills
+        foreach ($this->skills as $skill) {
+            if (!$allSkills->contains($skill)) {
+                $allSkills->add($skill);
+            }
+        }
+
+        // Add background skills
+        if ($this->background) {
+            if ($s1 = $this->background->getSkill1()) {
+                if (!$allSkills->contains($s1)) {
+                    $allSkills->add($s1);
+                }
+            }
+            if ($s2 = $this->background->getSkill2()) {
+                if (!$allSkills->contains($s2)) {
+                    $allSkills->add($s2);
+                }
+            }
+        }
+        
+        // Sort by name for display consistency
+        $iterator = $allSkills->getIterator();
+        $iterator->uasort(function ($a, $b) {
+            return strcmp($a->getName(), $b->getName());
+        });
+
+        return new ArrayCollection(iterator_to_array($iterator));
+    }
 }

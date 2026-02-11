@@ -263,15 +263,11 @@
                                 {% if attr_skills[attrName] is defined and attr_skills[attrName]|length > 0 %}
                                     <div class="mt-1 space-y-0.5">
                                         {% for skillName in attr_skills[attrName] %}
-                                            {% set isProf = false %}
-                                            {% for s in character.skills %}
-                                                {% if s.name == skillName %}
-                                                    {% set isProf = true %}
-                                                {% endif %}
-                                            {% endfor %}
+                                            {% set profCount = character.getProficiencyCount(skillName) %}
+                                            {% set isProf = profCount > 0 %}
                                             
-                                            {# Calculate Bonus: Mod + 2 (Proficiency) #}
-                                            {% set skillBonus = mod + (isProf ? 2 : 0) %}
+                                            {# Calculate Bonus: Mod + (Proficiency * Count) #}
+                                            {% set skillBonus = mod + (profCount * 2) %}
                                             {% set skillBonusStr = skillBonus >= 0 ? '+' ~ skillBonus : skillBonus %}
 
                                             <div class="flex items-center justify-between" style="font-size: 7px;">
@@ -332,9 +328,10 @@
                         {# Calculate #}
                         {% set attrVal = 10 %}{% for a in character.characterAttributes %}{% if a.attribute.name == skill.attr %}{% set attrVal = a.value %}{% endif %}{% endfor %}
                         {% set mod = ((attrVal - 10) / 2)|round(0, 'floor') %}
-                        {% set isProf = false %}{% for s in character.skills %}{% if s.name == skill.name %}{% set isProf = true %}{% endif %}{% endfor %}
+                        {% set profCount = character.getProficiencyCount(skill.name) %}
+                        {% set isProf = profCount > 0 %}
                         {# Prof Bonus is fixed at 2 for level 1 mainly, but using global 2 for now as inferred from template #}
-                        {% set passive = 10 + mod + (isProf ? 2 : 0) %}
+                        {% set passive = 10 + mod + (profCount * 2) %}
                         
                         <div class="dnd-box p-1 flex flex-col items-center">
                             <div class="dnd-box-header w-full">{{ skill.label }} PASSIVA</div>
@@ -380,8 +377,9 @@
                         <div class="dnd-box-header">PERCEPÇÃO PASSIVA</div>
                         {% set wisScore = 10 %}{% for a in character.characterAttributes %}{% if a.attribute.name == 'Sabedoria' %}{% set wisScore = a.value %}{% endif %}{% endfor %}
                         {% set wisMod = ((wisScore - 10) / 2)|round(0, 'floor') %}
-                        {% set isPercProf = false %}{% for s in character.skills %}{% if s.name == 'Percepção' %}{% set isPercProf = true %}{% endif %}{% endfor %}
-                        <div class="text-center font-bold mt-1" style="font-size: 16px;">{{ 10 + wisMod + (isPercProf ? 2 : 0) }}</div>
+                        {% set percProfCount = character.getProficiencyCount('Percepção') %}
+                        {% set isPercProf = percProfCount > 0 %}
+                        <div class="text-center font-bold mt-1" style="font-size: 16px;">{{ 10 + wisMod + (percProfCount * 2) }}</div>
                     </div>
                 </div>
 

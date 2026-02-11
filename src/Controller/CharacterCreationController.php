@@ -391,7 +391,7 @@ class CharacterCreationController extends AbstractController
     }
 
     #[Route('/step/7/{id}', name: 'app_character_creation_step7', methods: ['GET', 'POST'])]
-    public function step7(Request $request, Character $character, \App\Repository\SpeciesRepository $speciesRepository, \App\Repository\SubraceRepository $subraceRepository): Response
+    public function step7(Request $request, Character $character, \App\Repository\SpeciesRepository $speciesRepository, \App\Repository\SubraceRepository $subraceRepository, \App\Repository\FeatRepository $featRepository): Response
     {
         if (!$character->getClassDef()) {
             return $this->redirectToRoute('app_character_creation_step1', ['id' => $character->getId()]);
@@ -399,28 +399,44 @@ class CharacterCreationController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $speciesId = $request->request->get('species');
-            $subraceId = $request->request->get('subrace_' . $speciesId); // Get subrace specific to selected species
+            $subraceId = $request->request->get('subrace_' . $speciesId);
+            $originFeatId = $request->request->get('human_origin_feat');
 
             if ($speciesId) {
                 $species = $speciesRepository->find($speciesId);
                 
-                // Validate if species has subraces but none selected
+                // Cleanup existing Origin Feats (from previous Human selection)
+                // We check feats in character->getFeats() and remove if type is Origin
+                // This assumes only Human adds Origin feats in this step.
+                foreach ($character->getFeats() as $feat) {
+                    if (str_contains(strtolower($feat->getType() ?? ''), 'origem') || str_contains(strtolower($feat->getType() ?? ''), 'origin')) {
+                        $character->removeFeat($feat);
+                    }
+                }
+                
+                // Validate subrace
                 $hasSubraces = $species->getSubraces()->count() > 0;
                 
                 if ($hasSubraces && !$subraceId) {
                     $this->addFlash('error', "A espécie {$species->getName()} requer a escolha de uma sub-espécie.");
-                    // Return to render view with error
                 } else {
                     $character->setSpecies($species);
                     
                     if ($subraceId) {
                         $subrace = $subraceRepository->find($subraceId);
-                         // Security check: ensure subrace belongs to species
                         if ($subrace->getSpecies() === $species) {
                              $character->setSubrace($subrace);
                         }
                     } else {
                         $character->setSubrace(null);
+                    }
+
+                    // Handle Human Origin Feat
+                    if ($species->getName() === 'Humano' && $originFeatId) {
+                        $feat = $featRepository->find($originFeatId);
+                        if ($feat) {
+                            $character->addFeat($feat);
+                        }
                     }
 
                     $this->entityManager->flush();
@@ -432,29 +448,21 @@ class CharacterCreationController extends AbstractController
         }
 
         $species = $speciesRepository->findBy([], ['name' => 'ASC']);
-
-        // Determine Previous Route (Back Button Logic)
-        // Now that Step 5 (Cantrips) and Step 6 (Spells) are always accessible (for Feat support),
-        // the previous step from 7 is always 6.
-        $prevRoute = 'app_character_creation_step6'; 
         
-        /* 
-        Legacy Check (Removed):
-        $classLevel = $character->getClassDef() ? $this->classLevelRepository->findOneBy(['classDef' => $character->getClassDef(), 'level' => 1]) : null;
-        if ($classLevel) {
-            if (($classLevel->getSpellsPrepared() ?? 0) > 0) {
-                $prevRoute = 'app_character_creation_step6';
-            } elseif (($classLevel->getCantripsKnown() ?? 0) > 0) {
-                $prevRoute = 'app_character_creation_step5';
-            }
-        }
-        */
+        // Fetch Origin Feats for Human selection
+        $allFeats = $featRepository->findBy(['isActive' => true], ['name' => 'ASC']);
+        $originFeats = array_filter($allFeats, fn($f) => str_contains(strtolower($f->getType() ?? ''), 'origem') || str_contains(strtolower($f->getType() ?? ''), 'origin'));
+
+
+        // Determine Previous Route
+        $prevRoute = 'app_character_creation_step6'; 
 
         return $this->render('character_creation/step7_species.html.twig', [
             'character' => $character,
             'species_list' => $species,
             'current_species' => $character->getSpecies(),
             'current_subrace' => $character->getSubrace(),
+            'origin_feats' => $originFeats,
             'prev_route' => $prevRoute
         ]);
     }
