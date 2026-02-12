@@ -237,7 +237,7 @@
                     </div>
                 </div>
 
-                {# Features #}
+                 {# Features #}
                  <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
                      <div class="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                         <h3 class="font-bold text-slate-800 dark:text-white text-lg">Características de Origem & Classe</h3>
@@ -258,6 +258,46 @@
                         {% else %}
                              <div class="p-8 text-center text-slate-400">
                                 Nenhuma característica encontrada para este nível.
+                             </div>
+                        {% endfor %}
+                    </div>
+                 </div>
+
+                 {# Feats #}
+                 <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                     <div class="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
+                        {{ ux_icon('lucide:star', {class: 'w-5 h-5 text-amber-500'}) }}
+                        <h3 class="font-bold text-slate-800 dark:text-white text-lg">Talentos</h3>
+                    </div>
+                    <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {# Merge Character Feats + Background Feat if any #}
+                        {% set feats_to_show = [] %}
+                        {% if character.background and character.background.feat %}
+                             {% set feats_to_show = feats_to_show|merge([character.background.feat]) %}
+                        {% endif %}
+                        {% for f in character.feats %}
+                             {% set is_dup = false %}
+                             {% for existing in feats_to_show %}{% if existing.id == f.id %}{% set is_dup = true %}{% endif %}{% endfor %}
+                             {% if not is_dup %}
+                                {% set feats_to_show = feats_to_show|merge([f]) %}
+                             {% endif %}
+                        {% endfor %}
+
+                        {% for feat in feats_to_show %}
+                             <div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h4 class="font-bold text-slate-800 dark:text-white">{{ feat.name }}</h4>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
+                                        {{ feat.type|default('Geral') }}
+                                    </span>
+                                </div>
+                                <div class="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
+                                    {{ feat.descriptionMd|markdown_to_html }}
+                                </div>
+                             </div>
+                        {% else %}
+                             <div class="p-8 text-center text-slate-400">
+                                Nenhum talento adquirido.
                              </div>
                         {% endfor %}
                     </div>

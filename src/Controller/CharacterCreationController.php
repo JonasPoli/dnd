@@ -23,6 +23,7 @@ class CharacterCreationController extends AbstractController
         private \App\Repository\ClassLevelRepository $classLevelRepository,
         private \App\Repository\SpellRepository $spellRepository,
         private \App\Repository\TrinketRepository $trinketRepository,
+        private \App\Repository\FeatRepository $featRepository,
     ) {}
 
     #[Route('/', name: 'app_character_creation_index')]
@@ -41,6 +42,7 @@ class CharacterCreationController extends AbstractController
         if ($request->isMethod('POST')) {
             $classId = $request->request->get('class_def');
             $trinketId = $request->request->get('trinket_id');
+            $featId = $request->request->get('feat_id');
 
             if ($classId) {
                 $classDef = $this->classDefRepository->find($classId);
@@ -59,6 +61,24 @@ class CharacterCreationController extends AbstractController
                      if ($trinket) {
                          $character->setTrinket($trinket);
                      }
+                }
+
+                // Handle Feat Selection (Class Step Feat)
+                // Remove existing feats of type 'Estilo de Luta' to prevent accumulation if class changes or re-selection
+                foreach ($character->getFeats() as $existingFeat) {
+                    if (str_contains(strtolower($existingFeat->getType() ?? ''), 'estilo de luta')) {
+                        $character->removeFeat($existingFeat);
+                    }
+                }
+
+                if ($featId) {
+                    // Only add Fighting Style if class is Guerreiro
+                    if ($classDef->getName() === 'Guerreiro') {
+                        $feat = $this->featRepository->find($featId);
+                        if ($feat) {
+                            $character->addFeat($feat);
+                        }
+                    }
                 }
 
                 // Only reset if class actually changed
@@ -86,11 +106,32 @@ class CharacterCreationController extends AbstractController
 
         $classes = $this->classDefRepository->findAll();
         $trinkets = $this->trinketRepository->findAll();
+        
+        // Fetch valid Feats for Step 1
+        // Filter for feats with type 'Estilo de Luta'
+        $allFeats = $this->featRepository->findBy(['isActive' => true], ['name' => 'ASC']);
+        $availableFeats = array_filter($allFeats, function($f) {
+            $type = strtolower($f->getType() ?? '');
+            return str_contains($type, 'estilo de luta');
+        });
+        
+        // Determine currently selected feat (if any)
+        $currentFeat = null;
+        if ($character) {
+            foreach ($character->getFeats() as $f) {
+                if (str_contains(strtolower($f->getType() ?? ''), 'estilo de luta')) {
+                    $currentFeat = $f;
+                    break; 
+                }
+            }
+        }
 
         return $this->render('character_creation/step1_class.html.twig', [
             'character' => $character,
             'classes' => $classes,
             'trinkets' => $trinkets,
+            'available_feats' => $availableFeats,
+            'current_feat' => $currentFeat,
             'current_class' => $character?->getClassDef(),
         ]);
     }

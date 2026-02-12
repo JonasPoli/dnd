@@ -81,6 +81,25 @@
                                 </div>
                             </div>
 
+                            {# Feat Selection (Estilo de Luta) - Only for Guerreiro #}
+                            {% if class.name == 'Guerreiro' %}
+                            <div class="bg-violet-50 dark:bg-slate-800 rounded-xl p-4 border border-violet-100 dark:border-slate-700">
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-violet-900 dark:text-violet-300 mb-2">Estilo de Luta</div>
+                                <p class="text-xs text-slate-500 mb-2">Escolha um Estilo de Luta para seu personagem.</p>
+                                
+                                <select onchange="updateFeatSelection(this.value)" class="w-full text-sm rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-violet-500 py-2 pl-2 pr-8" id="feat-select-{{ class.id }}">
+                                    <option value="">Selecione um estilo...</option>
+                                    {% for feat in available_feats|default([]) %}
+                                        <option value="{{ feat.id }}" {% if current_feat and current_feat.id == feat.id %}selected{% endif %} 
+                                                data-desc="{{ feat.descriptionMd|e('html_attr') }}">
+                                            {{ feat.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div id="feat-description-{{ class.id }}" class="mt-3 text-xs text-slate-600 dark:text-slate-400 bg-white/50 dark:bg-black/20 p-2 rounded-lg hidden"></div>
+                            </div>
+                            {% endif %}
+
                             {# Content Tabs/Sections #}
                             <div class="space-y-6">
                                 {% if class.descriptionMd %}
@@ -120,6 +139,9 @@
 
             {# Trinket Selection #}
             <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 z-10 relative">
+                {# Hidden Input for Feat #}
+                <input type="hidden" name="feat_id" id="hidden_feat_id" value="{{ current_feat ? current_feat.id : '' }}">
+
                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2 flex items-center gap-2">
                     {{ ux_icon('lucide:gem', {class: 'w-3 h-3'}) }}
                     Bugiganga Inicial
@@ -158,6 +180,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
+    // Global state to track selected feat across class switches
+    let globalSelectedFeatId = "{{ current_feat ? current_feat.id : '' }}";
+
     function updateClassDetails(classId) {
         const template = document.getElementById('details-' + classId);
         const container = document.getElementById('class-details-container');
@@ -173,8 +198,56 @@
                 }
             });
 
+            // Restore Feat Selection State
+            const featSelect = container.querySelector('#feat-select-' + classId);
+            if (featSelect) {
+                // If we have a global selection, try to set it
+                if (globalSelectedFeatId) {
+                    featSelect.value = globalSelectedFeatId;
+                    // Trigger visual update for description
+                    updateFeatSelection(globalSelectedFeatId, featSelect); 
+                }
+                
+                // Override the onchange to pass reference correctly if needed, 
+                // but the inline onchange="updateFeatSelection(this.value)" works if function is global.
+                // We just need to make sure updateFeatSelection updates the hidden input AND global state.
+            }
+
             // Hide instruction if shown (optional, or keep it)
              if (instruction) instruction.style.display = 'none';
+        }
+    }
+
+    function updateFeatSelection(val, selectEl = null) {
+        // Update global state
+        globalSelectedFeatId = val;
+        
+        // Update hidden input
+        const hiddenInput = document.getElementById('hidden_feat_id');
+        if (hiddenInput) hiddenInput.value = val;
+
+        // If selectEl is not passed, find it in the current container
+        if (!selectEl) {
+            // Find the visible select in the right column
+            const container = document.getElementById('class-details-container');
+            selectEl = container.querySelector('select[id^="feat-select-"]');
+        }
+
+        if (selectEl) {
+            // Find description
+            const containerDiv = selectEl.closest('div'); // The parent div
+            const descDiv = containerDiv.querySelector('div[id^="feat-description-"]');
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            
+            if (descDiv) {
+                if (val && selectedOption.dataset.desc) {
+                    descDiv.innerHTML = marked.parse(selectedOption.dataset.desc);
+                    descDiv.classList.remove('hidden');
+                } else {
+                    descDiv.classList.add('hidden');
+                    descDiv.innerHTML = '';
+                }
+            }
         }
     }
 
