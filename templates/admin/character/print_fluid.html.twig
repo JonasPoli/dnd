@@ -1,465 +1,688 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ character.name }} - Ficha de Personagem</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'dnd-red': '#58180D',
-                        'dnd-gold': '#C9AD6A',
-                    },
-                    fontFamily: {
-                        serif: ['Georgia', 'serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @media print {
-            @page { 
-                size: A4; 
-                margin: 10mm 10mm 10mm 10mm; 
-            }
-            body { 
-                print-color-adjust: exact; 
-                -webkit-print-color-adjust: exact;
-            }
-            .no-print { display: none !important; }
-            tr { break-inside: avoid; }
-            .box-avoid-break { break-inside: avoid; }
-        }
+	<head>
+		<meta charset="UTF-8">
+		<title>{{ character.name }}
+			- Ficha de Personagem</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+theme: {
+extend: {
+colors: {
+'dnd-red': '#58180D',
+'dnd-gold': '#C9AD6A'
+},
+fontFamily: {
+serif: ['Georgia', 'serif']
+}
+}
+}
+}
+		</script>
+		<style>
+			@media print {
+				@page {
+					size: A4;
+					margin: 10mm;
+				}
+				body {
+					print-color-adjust: exact;
+					-webkit-print-color-adjust: exact;
+					background-color: white !important;
+					width: 100% !important;
+				}
+				.no-print {
+					display: none !important;
+				}
+				tr {
+					break-inside: avoid;
+				}
+				.box-avoid-break {
+					break-inside: avoid;
+				}
+			}
 
-        body { 
-            background: #fff; 
-            font-family: Arial, sans-serif; 
-            color: #000;
-            line-height: 1.3;
-        }
+			body {
+				background: #fff;
+				font-family: Arial, sans-serif;
+				color: #000;
+				line-height: 1.3;
+			}
 
-        /* Tipografia */
-        .char-name { font-size: 1.6rem; line-height: 1.2; }
-        .label-sm { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #000; font-weight: bold; }
-        
-        /* Markdown Style for Descriptions */
-        .prose p { margin-bottom: 0.5em; text-align: justify; font-size: 9px; }
-        .prose ul { list-style-type: disc; padding-left: 1.2em; font-size: 9px; }
-        
-        /* Box Styles */
-        .dnd-box {
-            border: 2px solid #000;
-            border-radius: 6px;
-            background: white;
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            position: relative;
-        }
-        .dnd-box-header {
-            background: #f0f0f0;
-            padding: 2px 6px;
-            font-weight: bold;
-            border-bottom: 1px solid #000;
-            text-align: center;
-            font-family: Georgia, serif;
-            text-transform: uppercase;
-            font-size: 9px;
-            color: #000;
-        }
-        
-        /* Checkboxes */
-        .diamond-check {
-            width: 8px; height: 8px; border: 1px solid #000; transform: rotate(45deg); display: inline-block;
-        }
-        .diamond-check.filled { background: #000; }
-        .circle-check {
-             width: 10px; height: 10px; border: 1.5px solid #000; border-radius: 50%; display: inline-block;
-        }
+			/* Tipografia */
+			.char-name {
+				font-size: 1.6rem;
+				line-height: 1.2;
+			}
+			.label-sm {
+				font-size: 9px;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				color: #000;
+				font-weight: bold;
+			}
 
-        .running-header {
-            position: fixed; top: -10mm; left: 0; right: 0; height: 10mm;
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 9px; color: #000; border-bottom: 1px solid #000;
-        }
-        
-        /* Clearfix for floats */
-        .clearfix::after {
-            content: "";
-            clear: both;
-            display: table;
-        }
-    </style>
-</head>
-<body class="p-4 max-w-[210mm] mx-auto text-[9px] text-black">
+			/* Markdown Style for Descriptions */
+			.prose p {
+				margin-bottom: 0.5em;
+				text-align: justify;
+				font-size: 9px;
+			}
+			.prose ul {
+				list-style-type: disc;
+				padding-left: 1.2em;
+				font-size: 9px;
+			}
 
-    {# CALCULATE MODIFIERS #}
-    {% set attribute_map = {'Força': 'strength', 'Destreza': 'dexterity', 'Constituição': 'constitution', 'Inteligência': 'intelligence', 'Sabedoria': 'wisdom', 'Carisma': 'charisma'} %}
-    {% set modifiers = {} %}
-    {% set scores = {} %}
-    {% for label, key in attribute_map %}
-        {% set score = 10 %}{% for a in character.characterAttributes %}{% if a.attribute.name == label %}{% set score = a.value %}{% endif %}{% endfor %}
-        {% set scores = scores|merge({(key): score}) %}
-        {% set modifiers = modifiers|merge({(key): ((score - 10) / 2)|round(0, 'floor')}) %}
-    {% endfor %}
+			/* Box Styles */
+			.dnd-box {
+				border: 2px solid #000;
+				border-radius: 6px;
+				background: white;
+				padding: 0.5rem;
+				margin-bottom: 0.5rem;
+				position: relative;
+			}
+			.dnd-box-header {
+				background: #f0f0f0;
+				padding: 2px 6px;
+				font-weight: bold;
+				border-bottom: 1px solid #000;
+				text-align: center;
+				font-family: Georgia, serif;
+				text-transform: uppercase;
+				font-size: 9px;
+				color: #000;
+			}
 
-    <div class="no-print fixed top-4 right-4 z-50">
-        <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg mr-2">Imprimir</button>
-        <button onclick="window.close()" class="bg-white text-gray-700 px-6 py-2 rounded-lg font-bold shadow-lg">Fechar</button>
-    </div>
+			/* Checkboxes */
+			.diamond-check {
+				width: 8px;
+				height: 8px;
+				border: 1px solid #000;
+				transform: rotate(45deg);
+				display: inline-block;
+			}
+			.diamond-check.filled {
+				background: #000;
+			}
+			.circle-check {
+				width: 10px;
+				height: 10px;
+				border: 1.5px solid #000;
+				border-radius: 50%;
+				display: inline-block;
+			}
 
-    {# Running Header #}
-    <div class="running-header invisible print:visible">
-        <span class="font-bold uppercase">{{ character.name }}</span>
-        <span>D&D 2024</span>
-    </div>
+			/* Clearfix for floats */
+			.clearfix::after {
+				content: "";
+				clear: both;
+				display: table;
+			}
 
-    {# HEADER (P1) #}
-    <header class="mb-3 border-b-2 border-black pb-2">
-        <div class="flex justify-between items-end">
-            <div class="w-1/3">
-                <h1 class="char-name font-serif font-bold text-black border-b border-black mb-0.5 inline-block pr-8 uppercase">{{ character.name }}</h1>
-                <div class="label-sm">NOME DO PERSONAGEM</div>
-            </div>
-            <div class="w-2/3 grid grid-cols-4 gap-2 text-right">
-                <div class="border-b border-black pb-1"><div class="font-bold text-sm leading-tight">{{ character.classDef.name }} {{ character.level }}</div><div class="label-sm">CLASSE E NÍVEL</div></div>
-                <div class="border-b border-black pb-1"><div class="font-bold text-sm leading-tight">{{ character.subclassDef.name|default('-') }}</div><div class="label-sm">SUBCLASSE</div></div>
-                <div class="border-b border-black pb-1"><div class="font-bold text-sm leading-tight">{{ character.background ? character.background.name : 'Nenhum' }}</div><div class="label-sm">ANTECEDENTE</div></div>
-                <div class="border-b border-black pb-1"><div class="font-bold text-sm leading-tight">{{ character.species.name }}</div><div class="label-sm">ESPÉCIE</div></div>
-                <div class="border-b border-black pb-1"><div class="font-bold text-sm leading-tight">{{ character.alignment|default('-') }}</div><div class="label-sm">ALINHAMENTO</div></div>
-                <div class="border-b border-black pb-1"><div class="font-bold text-sm leading-tight">Médio</div><div class="label-sm">TAMANHO</div></div>
-                <div class="border-b border-black pb-1 col-span-2"><div class="font-bold text-sm leading-tight">{{ character.player_name|default('Jogador') }}</div><div class="label-sm">NOME DO JOGADOR</div></div>
-            </div>
-        </div>
-    </header>
+			th.p-3 {
+				padding: 1px !important;
+			}
+			th.p-4 {
+				padding: 2px !important;
+			}
 
-    {# --- TOP SECTION: 2 COLUMNS --- #}
-    <div class="clearfix mb-4">
-        
-        {# LEFT COLUMN #}
-        <div class="float-left w-[32%] pr-2 flex flex-col gap-1">
-             {# Attributes and Skills #}
-             {% set attrs = [['Força', 'Inteligência'], ['Destreza', 'Sabedoria'], ['Constituição', 'Carisma']] %}
-             {% set attr_skills = {
+			td.p-3 {
+				padding: 1px !important;
+			}
+			h2 {
+				font-size: 15px !important;
+				padding-top: 10px !important;
+			}
+
+			h3 {
+				font-size: 15px;
+				margin-top: 10px;
+			}
+		</style>
+	</head>
+	<body
+		class=" mx-auto text-[9px] text-black">
+
+		{# CALCULATE MODIFIERS #}
+		{% set attribute_map = {'Força': 'strength', 'Destreza': 'dexterity', 'Constituição': 'constitution', 'Inteligência': 'intelligence', 'Sabedoria': 'wisdom', 'Carisma': 'charisma'} %}
+		{% set modifiers = {} %}
+		{% set scores = {} %}
+		{% for label, key in attribute_map %}
+			{% set score = 10 %}
+			{% for a in character.characterAttributes %}
+				{% if a.attribute.name == label %}
+					{% set score = a.value %}
+				{% endif %}
+			{% endfor %}
+			{% set scores = scores|merge({(key): score}) %}
+			{% set modifiers = modifiers|merge({(key): ((score - 10) / 2)|round(0, 'floor')}) %}
+		{% endfor %}
+
+		<div class="no-print fixed top-4 right-4 z-50">
+			<button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg mr-2">Imprimir</button>
+			<button onclick="window.close()" class="bg-white text-gray-700 px-6 py-2 rounded-lg font-bold shadow-lg">Fechar</button>
+		</div>
+
+
+		<div
+			class="sheet-page page-break p-0 pt-10">
+			{# Header #}
+			<div class="flex justify-between items-start mb-2">
+				<div class="w-1/3">
+					<div class="character-name font-serif font-bold mb-1" style="font-size: 1.4rem;">{{ character.name|upper }}</div>
+					<div style="font-size: 8px;" class="font-bold uppercase text-gray-500">NOME DO PERSONAGEM</div>
+				</div>
+				<div class="w-2/3 grid grid-cols-3 gap-3">
+					<div class="dnd-box p-1">
+						<div class="class-definition font-bold text-center" style="font-size: 10px;">{{ character.classDef.name }}
+							{{ character.level }}</div>
+						<div class="text-center uppercase" style="font-size: 7px; color: #666;">CLASSE</div>
+					</div>
+					<div class="dnd-box p-1">
+						<div class="species-definition font-bold text-center" style="font-size: 10px;">{{ character.species.name }}</div>
+						<div class="text-center uppercase" style="font-size: 7px; color: #666;">ESPÉCIE</div>
+					</div>
+					<div class="dnd-box p-1">
+						<div class="subclass-definition font-bold text-center" style="font-size: 10px;">{{ character.subclassDef.name|default('-') }}</div>
+						<div class="text-center uppercase" style="font-size: 7px; color: #666;">SUBCLASSE</div>
+					</div>
+				</div>
+			</div>
+
+
+			{# --- TOP SECTION: 2 COLUMNS --- #}
+			<div
+				class="clearfix mb-4">
+
+
+				{# LEFT COLUMN #}
+				<div
+					class="float-left w-[32%] pr-2 flex flex-col gap-1">
+					{# Attributes and Skills #}
+					{% set attrs = [['Força', 'Inteligência'], ['Destreza', 'Sabedoria'], ['Constituição', 'Carisma']] %}
+					{% set attr_skills = {
                 'Força': ['Atletismo'], 'Destreza': ['Acrobacia', 'Furtividade', 'Prestidigitação'], 'Constituição': [],
                 'Inteligência': ['Arcanismo', 'História', 'Investigação', 'Natureza', 'Religião'],
                 'Sabedoria': ['Adestrar Animais', 'Intuição', 'Medicina', 'Percepção', 'Sobrevivência'],
                 'Carisma': ['Atuação', 'Enganação', 'Intimidação', 'Persuasão']
             } %}
-            {% for row in attrs %}
-                <div class="grid grid-cols-2 gap-1 box-avoid-break">
-                    {% for attrName in row %}
-                        {% set score = 10 %}{% for a in character.characterAttributes %}{% if a.attribute.name == attrName %}{% set score = a.value %}{% endif %}{% endfor %}
-                        {% set modRaw = ((score - 10) / 2)|round(0, 'floor') %}
-                        <div class="dnd-box p-1 flex flex-col h-full">
-                                <div class="flex items-center justify-between border-b border-black pb-1 mb-1">
-                                    <div class="text-[9px] font-bold">{{ attrName|upper }}</div>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex flex-col items-center">
-                                            <span class="font-serif font-bold text-lg leading-none">{{ modRaw >= 0 ? '+'~modRaw : modRaw }}</span>
-                                            <span class="text-[9px] text-black font-bold border border-black rounded px-1">{{ score }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {# Skills inside the box #}
-                                <div class="space-y-0.5 is-skill-list flex-1">
-                                    {# Saving Throw #}
-                                    {% set isSave = character.classDef.profSkills is defined and ('Salva: ' ~ attrName) in character.classDef.profSkills %}
-                                    <div class="flex items-center justify-between text-[9px]">
-                                        <div class="flex items-center gap-1"><div class="w-1.5 h-1.5 border border-black rounded-full {{ isSave ? 'bg-black' : '' }}"></div><span>Salvaguarda</span></div>
-                                        <div class="font-mono font-bold">{{ (modRaw + (isSave ? character.proficiencyBonus|default(2) : 0)) >= 0 ? '+' : '' }}{{ modRaw + (isSave ? character.proficiencyBonus|default(2) : 0) }}</div>
-                                    </div>
-                                    
-                                    {% if attr_skills[attrName] is defined %}
-                                        {% for skillName in attr_skills[attrName] %}
-                                            {% set isProf = false %}{% for s in character.skills %}{% if s.name == skillName %}{% set isProf = true %}{% endif %}{% endfor %}
-                                            <div class="flex items-center justify-between text-[9px]">
-                                                <div class="flex items-center gap-1"><div class="w-1.5 h-1.5 border border-black rounded-full {{ isProf ? 'bg-black' : '' }}"></div><span>{{ skillName }}</span></div>
-                                                <div class="font-mono font-bold">{{ (modRaw + (isProf ? character.proficiencyBonus|default(2) : 0)) >= 0 ? '+' : '' }}{{ modRaw + (isProf ? character.proficiencyBonus|default(2) : 0) }}</div>
-                                            </div>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-            
-            <div class="dnd-box p-1 flex items-center justify-between box-avoid-break">
-                <span class="text-[9px] font-bold">PROFICIÊNCIA</span>
-                <span class="font-serif font-bold text-base">+{{ character.proficiencyBonus|default(2) }}</span>
-            </div>
-             <div class="dnd-box p-1 flex items-center justify-between box-avoid-break">
-                <span class="text-[9px] font-bold">INSPIRAÇÃO</span>
-                 <div class="w-4 h-4 rounded-full border-2 border-black"></div>
-            </div>
-            <div class="dnd-box p-1.5 mt-0.5 box-avoid-break">
-                <div class="dnd-box-header text-[9px]">EQUIPAMENTO & PERÍCIAS</div>
-                <div class="mt-0.5 leading-tight text-[9px] space-y-0.5">
-                    <div><span class="font-bold uppercase">ARMADURAS:</span> {{ character.classDef.profArmor|default('-')|replace({"\n":", "}) }}</div>
-                    <div><span class="font-bold uppercase">ARMAS:</span> {{ character.classDef.profWeapons|default('-')|replace({"\n":", "}) }}</div>
-                    <div><span class="font-bold uppercase">FERRAMENTAS:</span> {{ character.classDef.profTools|default('-')|replace({"\n":", "}) }}</div>
-                    <div><span class="font-bold uppercase">IDIOMAS:</span> {% set langs = [] %}{% for l in character.languages %}{% set langs = langs|merge([l.name]) %}{% endfor %}{{ langs|join(', ') }}</div>
-                </div>
-            </div>
-            
-            {# APPEARANCE (Aparência) #}
-            {% if character.imagePath %}
-            <div class="dnd-box p-2 box-avoid-break">
-                <div class="dnd-box-header mb-1">Aparência</div>
-                <div class="flex justify-center h-40">
-                    <img src="{{ vich_uploader_asset(character, 'imageFile') }}" class="object-contain h-full">
-                </div>
-            </div>
-            {% endif %}
+					{% for row in attrs %}
+						<div class="grid grid-cols-2 gap-1 box-avoid-break">
+							{% for attrName in row %}
+								{% set score = 10 %}
+								{% for a in character.characterAttributes %}
+									{% if a.attribute.name == attrName %}
+										{% set score = a.value %}
+									{% endif %}
+								{% endfor %}
+								{% set modRaw = ((score - 10) / 2)|round(0, 'floor') %}
+								<div class="dnd-box p-1 flex flex-col h-full">
+									<div class="flex items-center justify-between border-b border-black pb-1 mb-1">
+										<div class="text-[9px] font-bold">{{ attrName|upper }}</div>
+										<div class="flex items-center gap-2">
+											<div class="flex flex-col items-center">
+												<span class="font-serif font-bold text-lg leading-none">{{ modRaw >= 0 ? '+'~modRaw : modRaw }}</span>
+												<span class="text-[9px] text-black font-bold border border-black rounded px-1">{{ score }}</span>
+											</div>
+										</div>
+									</div>
 
-            {# BACKGROUND (Antecedente) #}
-            {% if character.background %}
-            <div class="dnd-box mb-2 box-avoid-break">
-                <div class="dnd-box-header">{{ character.background.name }} (Antecedente)</div>
-                <div class="p-2 text-[9px] leading-relaxed prose prose-sm max-w-none">
-                    {{ character.background.descriptionMd|markdown_to_html|raw }}
-                    
-                    <div class="mt-3 pt-2 border-t border-black">
-                        <div class="font-bold text-black uppercase tracking-wide mb-1 text-[9px]">Aumento de Atributos</div>
-                        <div class="flex flex-wrap gap-1">
-                            {% if character.attributeBonuses %}
-                                {% for attr, val in character.attributeBonuses %}
-                                    {% if val > 0 %}
-                                    <span class="px-2 py-0.5 bg-white rounded border border-black font-bold text-black text-[9px]">
-                                        {{ attr }} +{{ val }}
-                                    </span>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                 <span class="text-black italic text-[9px]">Nenhum bônus selecionado.</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+									{# Skills inside the box #}
+									<div
+										class="space-y-0.5 is-skill-list flex-1">
+										{# Saving Throw #}
+										{% set isSave = character.classDef.profSkills is defined and ('Salva: ' ~ attrName) in character.classDef.profSkills %}
+										<div class="flex items-center justify-between text-[9px]">
+											<div class="flex items-center gap-1">
+												<div class="w-1.5 h-1.5 border border-black rounded-full {{ isSave ? 'bg-black' : '' }}"></div>
+												<span>Salvaguarda</span>
+											</div>
+											<div class="font-mono font-bold">{{ (modRaw + (isSave ? character.proficiencyBonus|default(2) : 0)) >= 0 ? '+' : '' }}{{ modRaw + (isSave ? character.proficiencyBonus|default(2) : 0) }}</div>
+										</div>
 
-            {# SPECIES (Espécie) - Left Column #}
-            {% if character.species %}
-            <div class="dnd-box mb-2 box-avoid-break">
-                <div class="dnd-box-header">{{ character.species.name }} (Espécie)</div>
-                <div class="p-2 text-[9px] leading-relaxed species-content prose prose-sm max-w-none">
-                    {{ character.species.descriptionMd|markdown_to_html|raw }}
-                </div>
-            </div>
-            {% endif %}
-        </div>
+										{% if attr_skills[attrName] is defined %}
+											{% for skillName in attr_skills[attrName] %}
+												{% set isProf = false %}
+												{% for s in character.skills %}
+													{% if s.name == skillName %}
+														{% set isProf = true %}
+													{% endif %}
+												{% endfor %}
+												<div class="flex items-center justify-between text-[9px]">
+													<div class="flex items-center gap-1">
+														<div class="w-1.5 h-1.5 border border-black rounded-full {{ isProf ? 'bg-black' : '' }}"></div>
+														<span>{{ skillName }}</span>
+													</div>
+													<div class="font-mono font-bold">{{ (modRaw + (isProf ? character.proficiencyBonus|default(2) : 0)) >= 0 ? '+' : '' }}{{ modRaw + (isProf ? character.proficiencyBonus|default(2) : 0) }}</div>
+												</div>
+											{% endfor %}
+										{% endif %}
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					{% endfor %}
 
-        {# RIGHT COLUMN #}
-        <div class="float-right w-[67%] pl-2 flex flex-col gap-3">
+					<div class="dnd-box p-1 flex items-center justify-between box-avoid-break">
+						<span class="text-[9px] font-bold">PROFICIÊNCIA</span>
+						<span class="font-serif font-bold text-base">+{{ character.proficiencyBonus|default(2) }}</span>
+					</div>
+					<div class="dnd-box p-1 flex items-center justify-between box-avoid-break">
+						<span class="text-[9px] font-bold">INSPIRAÇÃO</span>
+						<div class="w-4 h-4 rounded-full border-2 border-black"></div>
+					</div>
+					<div class="dnd-box p-1.5 mt-0.5 box-avoid-break">
+						<div class="dnd-box-header text-[9px]">EQUIPAMENTO & PERÍCIAS</div>
+						<div class="mt-0.5 leading-tight text-[9px] space-y-0.5">
+							<div>
+								<span class="font-bold uppercase">ARMADURAS:</span>
+								{{ character.classDef.profArmor|default('-')|replace({"\n":", "}) }}</div>
+							<div>
+								<span class="font-bold uppercase">ARMAS:</span>
+								{{ character.classDef.profWeapons|default('-')|replace({"\n":", "}) }}</div>
+							<div>
+								<span class="font-bold uppercase">FERRAMENTAS:</span>
+								{{ character.classDef.profTools|default('-')|replace({"\n":", "}) }}</div>
+							<div>
+								<span class="font-bold uppercase">IDIOMAS:</span>
+								{% set langs = [] %}
+								{% for l in character.languages %}
+									{% set langs = langs|merge([l.name]) %}
+								{% endfor %}
+								{{ langs|join(', ') }}</div>
+						</div>
+					</div>
 
-            {# 1. Combat Stats #}
-             <div class="grid grid-cols-3 gap-3 mb-1 box-avoid-break">
-                <div class="dnd-box flex flex-col items-center p-2"><div class="label-sm">CLASSE DE ARMADURA</div><div class="text-2xl font-bold">{{ 10 + modifiers['dexterity'] }}</div></div>
-                <div class="dnd-box flex flex-col items-center p-2"><div class="label-sm">INICIATIVA</div><div class="text-2xl font-bold">{{ modifiers['dexterity'] >= 0 ? '+' : '' }}{{ modifiers['dexterity'] }}</div></div>
-                <div class="dnd-box flex flex-col items-center p-2"><div class="label-sm">DESLOCAMENTO</div><div class="text-2xl font-bold">9m</div></div>
-            </div>
+					{# APPEARANCE (Aparência) #}
+					{% if character.imagePath %}
+						<div class="dnd-box p-2 box-avoid-break">
+							<div class="dnd-box-header mb-1">Aparência</div>
+							<div class="flex justify-center h-40">
+								<img src="{{ vich_uploader_asset(character, 'imageFile') }}" class="object-contain h-full">
+							</div>
+						</div>
+					{% endif %}
 
-            {# 2. HP Box (Verified) #}
-            {% set conMod = modifiers['constitution']|default(0) %}
-            {% set maxHp = character.classDef.hitDie + conMod + ((character.classDef.hitDie / 2 + 1 + conMod) * (character.level - 1)) %}
-            <div class="dnd-box p-3 box-avoid-break">
-                 <div class="flex justify-between items-center mb-2">
-                    <div class="text-center w-1/3"><div class="label-sm text-black">PONTOS DE VIDA MÁXIMOS</div><div class="text-sm font-bold text-black">{{ maxHp|round }}</div></div>
-                    <div class="text-center w-1/3 border-x border-black"><div class="label-sm">PONTOS DE VIDA ATUAIS</div><div class="text-3xl font-bold py-1">{{ maxHp|round }}</div></div>
-                     <div class="text-center w-1/3"><div class="label-sm">PONTOS DE VIDA TEMPORÁRIOS</div><div class="h-6 border-b border-black mx-8"></div></div>
-                 </div>
-                 <div class="flex justify-between items-center border-t border-black pt-1">
-                    <div class="w-1/2 text-center border-r border-black pr-4"><div class="label-sm">DADOS DE VIDA</div><div class="text-lg font-bold">1d{{ character.classDef.hitDie }}</div><div class="text-[9px] text-black">Total: {{ character.level }}</div></div>
-                    <div class="w-1/2 text-center pl-4"><div class="label-sm">TESTES DE MORTE</div><div class="flex justify-center gap-4 mt-1 text-[10px]"><div class="flex items-center gap-1">SUCESSOS: <span>◯</span><span>◯</span><span>◯</span></div><div class="flex items-center gap-1">FALHAS: <span>◯</span><span>◯</span><span>◯</span></div></div></div>
-                 </div>
-            </div>
+					{# BACKGROUND (Antecedente) #}
+					{% if character.background %}
+						<div class="dnd-box mb-2 box-avoid-break">
+							<div class="dnd-box-header">{{ character.background.name }}
+								(Antecedente)</div>
+							<div class="p-2 text-[9px] leading-relaxed prose prose-sm max-w-none">
+								{{ character.background.descriptionMd|parse_markdown_tables|markdown_to_html|raw }}
 
-            {# 3. Attacks Box #}
-            <div class="dnd-box p-0 box-avoid-break">
-                <div class="dnd-box-header">Ataques e Conjuração</div>
-                <table class="w-full text-[9px]">
-                    <thead class="bg-gray-100 border-b border-black">
-                        <tr><th class="p-1 text-left pl-2">Nome</th><th class="p-1 text-center w-16">Bônus</th><th class="p-1 text-center w-20">Dano/Tipo</th></tr>
-                    </thead>
-                    <tbody class="divide-y divide-black">
-                        {% for item in character.inventory %}{% if (item.typePt == 'Arma') or (item.type|lower == 'weapon') %}
-                            <tr>
-                                <td class="p-1 pl-2"><div class="font-bold">{{ item.namePt|default(item.name) }}</div>{% if item.weaponRange %}<div class="text-[9px] text-black">Alcance: {{ item.weaponRange }}</div>{% endif %}</td>
-                                <td class="p-1 text-center">+{{ (modifiers['dexterity'] + character.proficiencyBonus|default(2)) }}</td>
-                                <td class="p-1 text-center text-[9px]"><div class="font-bold">{{ item.damageDice|default('-') }}</div><div class="text-black">{{ item.damageTypePt|default(item.damageType)|slice(0,3) }}</div></td>
-                            </tr>
-                        {% endif %}{% endfor %}
-                        {% for spellData in character.characterSpells %}{% set spell = spellData.spell %}{% if spell.level == 0 and ('dano' in spell.descriptionMdPt|default('')|lower) %}
-                             <tr>
-                                <td class="p-1 pl-2"><div class="font-bold text-black">{{ spell.namePt|default(spell.name) }}</div></td>
-                                <td class="p-1 text-center">CD {{ 8 + modifiers['intelligence'] + character.proficiencyBonus|default(2) }}</td>
-                                <td class="p-1 text-center text-[9px]">Ver Desc.</td>
-                            </tr>
-                        {% endif %}{% endfor %}
-                    </tbody>
-                </table>
-            </div>
+								<div class="mt-3 pt-2 border-t border-black">
+									<div class="font-bold text-black uppercase tracking-wide mb-1 text-[9px]">Aumento de Atributos</div>
+									<div class="flex flex-wrap gap-1">
+										{% if character.attributeBonuses %}
+											{% for attr, val in character.attributeBonuses %}
+												{% if val > 0 %}
+													<span class="px-2 py-0.5 bg-white rounded border border-black font-bold text-black text-[9px]">
+														{{ attr }}
+														+{{ val }}
+													</span>
+												{% endif %}
+											{% endfor %}
+										{% else %}
+											<span class="text-black italic text-[9px]">Nenhum bônus selecionado.</span>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endif %}
 
-            {# 4. CLASS FEATURES (SUMMARY) #}
-            <div class="dnd-box p-2 flex flex-col gap-2 box-avoid-break">
-                <div class="dnd-box-header">CARACTERÍSTICAS DE CLASSE (RESUMO)</div>
-                {% if hpText %}
-                    <div class="p-1 border border-black rounded">
-                         <div class="text-[9px] text-black whitespace-pre-line leading-tight">{{ hpText|replace({'**': ''}) }}</div>
-                    </div>
-                {% endif %}
-                {% if classTableHeaders|length > 0 %}
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-[9px] border-collapse text-center">
-                            <thead><tr>{% for h in classTableHeaders %}<th class="border border-black bg-gray-100 px-1">{{ h }}</th>{% endfor %}</tr></thead>
-                            <tbody>{% for row in classTableRows %}<tr>{% for c in row %}<td class="border border-black px-1">{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
-                        </table>
-                    </div>
-                {% endif %}
-                <div class="text-[9px]">
-                    <div><span class="font-bold">Armaduras:</span> {{ proficiencies.armor }}</div>
-                    <div><span class="font-bold">Armas:</span> {{ proficiencies.weapons }}</div>
-                </div>
-                <!-- Features List (Summary) -->
-                <div class="space-y-1.5 mt-1">
-                    {% for feature in features %}
-                        <div class="box-avoid-break">
-                            <div class="font-bold text-[9px] border-b border-black">{{ feature.name }}</div>
-                            <div class="text-[9px] text-black leading-tight prose prose-sm max-w-none">{{ feature.descriptionMd|markdown_to_html }}</div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
+					{# SPECIES (Espécie) - Left Column #}
+					{% if character.species %}
+						<div class="dnd-box mb-2 box-avoid-break">
+							<div class="dnd-box-header">{{ character.species.name }}
+								(Espécie)</div>
+							<div class="p-2 text-[9px] leading-relaxed species-content prose prose-sm max-w-none">
+								{{ character.species.descriptionMd|parse_markdown_tables|markdown_to_html|raw }}
+							</div>
+						</div>
+					{% endif %}
+				</div>
 
-            {# 5 A. SPELLS #}
-            {% if character.characterSpells|length > 0 %}
-            <div class="dnd-box p-2 box-avoid-break relative">
-                <div class="dnd-box-header mb-1">Magias</div>
-                {# Slots #}
-                <div class="mb-2 text-[9px] flex flex-wrap gap-3 justify-center">
-                    {% for level in 1..9 %}
-                        <div class="flex items-center gap-1"><span class="font-bold text-black">N{{ level }}</span><div class="flex gap-0.5">{% for i in 1..(level <= 3 ? 4 : 2) %}<div class="circle-check"></div>{% endfor %}</div></div>
-                    {% endfor %}
-                </div>
-                {# List table #}
-                <table class="w-full text-[9px] border-collapse mt-2">
-                     <thead><tr class="bg-gray-100 border-b border-black"><th class="text-left font-bold w-[3%]">Nvl</th><th class="text-left font-bold w-[25%]">Nome</th><th class="text-left font-bold w-[10%]">Tempo</th><th class="text-left font-bold w-[10%]">Alcance</th><th class="text-left font-bold w-[10%]">Duração</th><th class="text-center font-bold w-[4%]">V</th><th class="text-center font-bold w-[4%]">S</th><th class="text-center font-bold w-[4%]">M</th><th class="text-center font-bold w-[4%]">Conc.</th><th class="text-center font-bold w-[4%]">Ritual</th></tr></thead>
-                     <tbody>
-                        {% for spellData in character.characterSpells %}
-                            {% set spell = spellData.spell %}
-                            <tr class="box-avoid-break">
-                                <td class="py-0.5 border border-black text-center">{{ spell.level }}</td>
-                                <td class="py-0.5 border border-black font-bold px-1">{{ spell.namePt|default(spell.name) }}</td>
-                                <td class="py-0.5 border border-black px-1 truncate">{{ spell.castingTime }}</td>
-                                <td class="py-0.5 border border-black px-1 truncate">{{ spell.spellRange }}</td>
-                                <td class="py-0.5 border border-black px-1 truncate">{{ spell.duration }}</td>
-                                <td class="text-center border border-black p-0"><div class="diamond-check {{ spell.isVerbal ? 'filled' : '' }} mx-auto"></div></td>
-                                <td class="text-center border border-black p-0"><div class="diamond-check {{ spell.isSomatic ? 'filled' : '' }} mx-auto"></div></td>
-                                <td class="text-center border border-black p-0"><div class="diamond-check {{ spell.isMaterial ? 'filled' : '' }} mx-auto"></div></td>
-                                <td class="text-center border border-black p-0"><div class="diamond-check {{ spell.isConcentration ? 'filled' : '' }} mx-auto"></div></td>
-                                <td class="text-center border border-black p-0"><div class="diamond-check {{ spell.isRitual ? 'filled' : '' }} mx-auto"></div></td>
-                            </tr>
-                            <tr class="border-b border-black box-avoid-break"><td colspan="10" class="px-1 pb-1 pt-0 text-[9px] text-black italic leading-tight">{{ spell.descriptionMdPt|default(spell.descriptionMd)|striptags|slice(0, 300) }}</td></tr>
-                        {% endfor %}
-                     </tbody>
-                </table>
-            </div>
-            {% endif %}
+				{# RIGHT COLUMN #}
+				<div
+					class="float-right w-[67%] pl-2 flex flex-col gap-3">
 
-            {# 5 B. EQUIPMENT #}
-             <div class="dnd-box p-3">
-                 <div class="dnd-box-header mb-2">Equipamento</div>
-                 <div class="space-y-1 text-[9px]">
-                     {% set totalCost = 0 %}{% set totalWeight = 0 %}
-                     {% for item in character.inventory %}
-                         {% set totalCost = totalCost + item.costGp|default(0) %}{% set totalWeight = totalWeight + item.weightKg|default(0) %}
-                         <div class="grid grid-cols-[1fr_auto_auto] gap-2 border-b border-dashed border-black pb-1 items-start box-avoid-break">
-                            <div class="leading-tight">
-                                <div class="font-bold">{{ item.namePt|default(item.name) }}</div>
-                                {% if item.descriptionMdPt or item.descriptionMd %}
-                                    <div class="text-[9px] text-black">{{ item.descriptionMdPt|default(item.descriptionMd)|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="text-right text-black text-[9px] w-12">{{ item.weightKg|default('0') }} kg</div>
-                            <div class="text-right text-black text-[9px] w-12">{{ item.costGp|default('0') }} PO</div>
-                         </div>
-                     {% endfor %}
-                     <div class="flex justify-end gap-4 border-t border-black pt-2 font-bold bg-white p-1 box-avoid-break">
-                        <span>Total:</span><span>{{ totalWeight }} kg</span><span>{{ totalCost }} PO</span>
-                     </div>
-                 </div>
-            </div>
+					{# 1. Combat Stats #}
+					<div class="grid grid-cols-3 gap-3 mb-1 box-avoid-break">
+						<div class="dnd-box flex flex-col items-center p-2">
+							<div class="label-sm">CLASSE DE ARMADURA</div>
+							<div class="text-2xl font-bold">{{ 10 + modifiers['dexterity'] }}</div>
+						</div>
+						<div class="dnd-box flex flex-col items-center p-2">
+							<div class="label-sm">INICIATIVA</div>
+							<div class="text-2xl font-bold">{{ modifiers['dexterity'] >= 0 ? '+' : '' }}{{ modifiers['dexterity'] }}</div>
+						</div>
+						<div class="dnd-box flex flex-col items-center p-2">
+							<div class="label-sm">DESLOCAMENTO</div>
+							<div class="text-2xl font-bold">9m</div>
+						</div>
+					</div>
 
-        </div> {# End Right Column #}
-    </div> {# End Clearfix/Columns #}
+					{# 2. HP Box (Verified) #}
+					{% set conMod = modifiers['constitution']|default(0) %}
+					{% set maxHp = character.classDef.hitDie + conMod + ((character.classDef.hitDie / 2 + 1 + conMod) * (character.level - 1)) %}
+					<div class="dnd-box p-3 box-avoid-break">
+						<div class="flex justify-between items-center mb-2">
+							<div class="text-center w-1/3">
+								<div class="label-sm text-black">PONTOS DE VIDA MÁXIMOS</div>
+								<div class="text-sm font-bold text-black">{{ maxHp|round }}</div>
+							</div>
+							<div class="text-center w-1/3 border-x border-black">
+								<div class="label-sm">PONTOS DE VIDA ATUAIS</div>
+								<div class="text-3xl font-bold py-1">{{ maxHp|round }}</div>
+							</div>
+							<div class="text-center w-1/3">
+								<div class="label-sm">PONTOS DE VIDA TEMPORÁRIOS</div>
+								<div class="h-6 border-b border-black mx-8"></div>
+							</div>
+						</div>
+						<div class="flex justify-between items-center border-t border-black pt-1">
+							<div class="w-1/2 text-center border-r border-black pr-4">
+								<div class="label-sm">DADOS DE VIDA</div>
+								<div class="text-lg font-bold">1d{{ character.classDef.hitDie }}</div>
+								<div class="text-[9px] text-black">Total:
+									{{ character.level }}</div>
+							</div>
+							<div class="w-1/2 text-center pl-4">
+								<div class="label-sm">TESTES DE MORTE</div>
+								<div class="flex justify-center gap-4 mt-1 text-[10px]">
+									<div class="flex items-center gap-1">SUCESSOS:
+										<span>◯</span>
+										<span>◯</span>
+										<span>◯</span>
+									</div>
+									<div class="flex items-center gap-1">FALHAS:
+										<span>◯</span>
+										<span>◯</span>
+										<span>◯</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					{# 3. Attacks Box #}
+					<div class="dnd-box p-0 box-avoid-break">
+						<div class="dnd-box-header">Ataques e Conjuração</div>
+						<table class="w-full text-[9px]">
+							<thead class="bg-gray-100 border-b border-black">
+								<tr>
+									<th class="p-1 text-left pl-2">Nome</th>
+									<th class="p-1 text-center w-16">Bônus</th>
+									<th class="p-1 text-center w-20">Dano/Tipo</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-black">
+								{% for item in character.inventory %}
+									{% if (item.typePt == 'Arma') or (item.type|lower == 'weapon') %}
+										<tr>
+											<td class="p-1 pl-2">
+												<div class="font-bold">{{ item.namePt|default(item.name) }}</div>
+												{% if item.weaponRange %}
+													<div class="text-[9px] text-black">Alcance:
+														{{ item.weaponRange }}</div>
+												{% endif %}
+											</td>
+											<td class="p-1 text-center">+{{ (modifiers['dexterity'] + character.proficiencyBonus|default(2)) }}</td>
+											<td class="p-1 text-center text-[9px]">
+												<div class="font-bold">{{ item.damageDice|default('-') }}</div>
+												<div class="text-black">{{ item.damageTypePt|default(item.damageType)|slice(0,3) }}</div>
+											</td>
+										</tr>
+									{% endif %}
+								{% endfor %}
+								{% for spellData in character.characterSpells %}
+									{% set spell = spellData.spell %}
+									{% if spell.level == 0 and ('dano' in spell.descriptionMdPt|default('')|lower) %}
+										<tr>
+											<td class="p-1 pl-2">
+												<div class="font-bold text-black">{{ spell.namePt|default(spell.name) }}</div>
+											</td>
+											<td class="p-1 text-center">CD
+												{{ 8 + modifiers['intelligence'] + character.proficiencyBonus|default(2) }}</td>
+											<td class="p-1 text-center text-[9px]">Ver Desc.</td>
+										</tr>
+									{% endif %}
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+
+					{# 4. CLASS FEATURES (SUMMARY) #}
+					<div class="dnd-box p-2 flex flex-col gap-2 box-avoid-break">
+						<div class="dnd-box-header">CARACTERÍSTICAS DE CLASSE (RESUMO)</div>
+						{% if hpText %}
+							<div class="p-1 border border-black rounded">
+								<div class="text-[9px] text-black whitespace-pre-line leading-tight">{{ hpText|replace({'**': ''}) }}</div>
+							</div>
+						{% endif %}
+						{% if classTableHeaders|length > 0 %}
+							<div class="overflow-x-auto">
+								<table class="w-full text-[9px] border-collapse text-center">
+									<thead>
+										<tr>
+											{% for h in classTableHeaders %}
+												<th class="border border-black bg-gray-100 px-1">{{ h }}</th>
+											{% endfor %}
+										</tr>
+									</thead>
+									<tbody>
+										{% for row in classTableRows %}
+											<tr>
+												{% for c in row %}
+													<td class="border border-black px-1">{{ c }}</td>
+												{% endfor %}
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endif %}
+						<div class="text-[9px]">
+							<div>
+								<span class="font-bold">Armaduras:</span>
+								{{ proficiencies.armor }}</div>
+							<div>
+								<span class="font-bold">Armas:</span>
+								{{ proficiencies.weapons }}</div>
+						</div>
+						<!-- Features List (Summary) -->
+						<div class="space-y-1.5 mt-1">
+							{% for feature in features %}
+								<div class="box-avoid-break">
+									<div class="font-bold text-[9px] border-b border-black">{{ feature.name }}</div>
+									<div class="text-[9px] text-black leading-tight prose prose-sm max-w-none">{{ feature.descriptionMd|parse_markdown_tables|markdown_to_html|raw }}</div>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+
+					{# 5 A. SPELLS #}
+					{% if character.characterSpells|length > 0 %}
+						<div class="dnd-box p-2 box-avoid-break relative">
+							<div class="dnd-box-header mb-1">Magias</div>
+							{# Slots #}
+							<div class="mb-2 text-[9px] flex flex-wrap gap-3 justify-center">
+								{% for level in 1..9 %}
+									<div class="flex items-center gap-1">
+										<span class="font-bold text-black">N{{ level }}</span>
+										<div class="flex gap-0.5">
+											{% for i in 1..(level <= 3 ? 4 : 2) %}
+												<div class="circle-check"></div>
+											{% endfor %}
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+							{# List table #}
+							<table class="w-full text-[9px] border-collapse mt-2">
+								<thead>
+									<tr class="bg-gray-100 border-b border-black">
+										<th class="text-left font-bold w-[3%]">Nvl</th>
+										<th class="text-left font-bold w-[25%]">Nome</th>
+										<th class="text-left font-bold w-[10%]">Tempo</th>
+										<th class="text-left font-bold w-[10%]">Alcance</th>
+										<th class="text-left font-bold w-[10%]">Duração</th>
+										<th class="text-center font-bold w-[4%]">V</th>
+										<th class="text-center font-bold w-[4%]">S</th>
+										<th class="text-center font-bold w-[4%]">M</th>
+										<th class="text-center font-bold w-[4%]">Conc.</th>
+										<th class="text-center font-bold w-[4%]">Ritual</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for spellData in character.characterSpells %}
+										{% set spell = spellData.spell %}
+										<tr class="box-avoid-break">
+											<td class="py-0.5 border border-black text-center">{{ spell.level }}</td>
+											<td class="py-0.5 border border-black font-bold px-1">{{ spell.namePt|default(spell.name) }}</td>
+											<td class="py-0.5 border border-black px-1 truncate">{{ spell.castingTime }}</td>
+											<td class="py-0.5 border border-black px-1 truncate">{{ spell.spellRange }}</td>
+											<td class="py-0.5 border border-black px-1 truncate">{{ spell.duration }}</td>
+											<td class="text-center border border-black p-0">
+												<div class="diamond-check {{ spell.isVerbal ? 'filled' : '' }} mx-auto"></div>
+											</td>
+											<td class="text-center border border-black p-0">
+												<div class="diamond-check {{ spell.isSomatic ? 'filled' : '' }} mx-auto"></div>
+											</td>
+											<td class="text-center border border-black p-0">
+												<div class="diamond-check {{ spell.isMaterial ? 'filled' : '' }} mx-auto"></div>
+											</td>
+											<td class="text-center border border-black p-0">
+												<div class="diamond-check {{ spell.isConcentration ? 'filled' : '' }} mx-auto"></div>
+											</td>
+											<td class="text-center border border-black p-0">
+												<div class="diamond-check {{ spell.isRitual ? 'filled' : '' }} mx-auto"></div>
+											</td>
+										</tr>
+										<tr class="border-b border-black box-avoid-break">
+											<td colspan="10" class="px-1 pb-1 pt-0 text-[9px] text-black italic leading-tight">{{ spell.descriptionMdPt|default(spell.descriptionMd)|striptags|slice(0, 300) }}</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% endif %}
+
+					{# 5 B. EQUIPMENT #}
+					<div class="dnd-box p-3">
+						<div class="dnd-box-header mb-2">Equipamento</div>
+						<div class="space-y-1 text-[9px]">
+							{% set totalCost = 0 %}{% set totalWeight = 0 %}
+							{% for item in character.inventory %}
+								{% set totalCost = totalCost + item.costGp|default(0) %}{% set totalWeight = totalWeight + item.weightKg|default(0) %}
+								<div class="grid grid-cols-[1fr_auto_auto] gap-2 border-b border-dashed border-black pb-1 items-start box-avoid-break">
+									<div class="leading-tight">
+										<div class="font-bold">{{ item.namePt|default(item.name) }}</div>
+										{% if item.descriptionMdPt or item.descriptionMd %}
+											<div class="text-[9px] text-black">{{ item.descriptionMdPt|default(item.descriptionMd)|striptags }}</div>
+										{% endif %}
+									</div>
+									<div class="text-right text-black text-[9px] w-12">{{ item.weightKg|default('0') }}
+										kg</div>
+									<div class="text-right text-black text-[9px] w-12">{{ item.costGp|default('0') }}
+										PO</div>
+								</div>
+							{% endfor %}
+							<div class="flex justify-end gap-4 border-t border-black pt-2 font-bold bg-white p-1 box-avoid-break">
+								<span>Total:</span>
+								<span>{{ totalWeight }}
+									kg</span>
+								<span>{{ totalCost }}
+									PO</span>
+							</div>
+						</div>
+					</div>
+
+				</div>
+				{# End Right Column #}
+			</div>
+			{# End Clearfix/Columns #}
 
 
-    {# --- BOTTOM SECTION: FULL WIDTH --- #}
-    <div class="w-full mt-4 mb-4 box-avoid-break text-[11px]">
-        
-        {# HISTORY #}
-        <div class="mb-4">
-            <h2 class="font-serif font-bold text-lg border-b-2 border-black mb-2">HISTÓRIA</h2>
-            <div class="text-[11px] leading-relaxed prose prose-sm max-w-none text-justify">
-                {{ character.origin|default('...')|markdown_to_html }}
-            </div>
-        </div>
+			{# --- BOTTOM SECTION: FULL WIDTH --- #}
+			<div
+				class="w-full mt-4 mb-4 box-avoid-break text-[11px]">
 
-        {# FEATS (ORIGIN & OTHERS) #}
-        {% set feats_to_show = [] %}
-        {% if character.background.feat %}
-                {% set feats_to_show = feats_to_show|merge([{
+				{# HISTORY #}
+				<div class="mb-4">
+					<h2 class="font-serif font-bold text-lg border-b-2 border-black mb-2">HISTÓRIA</h2>
+					<div class="text-[11px] leading-relaxed prose prose-sm max-w-none text-justify columns-2 gap-6" style="column-rule: 1px solid #e5e7eb;">
+						{{ character.origin|default('...')|parse_markdown_tables|markdown_to_html|raw }}
+					</div>
+				</div>
+
+				{# FEATS (ORIGIN & OTHERS) #}
+				{% set feats_to_show = [] %}
+				{% if character.background.feat %}
+					{% set feats_to_show = feats_to_show|merge([{
                     'name': character.background.feat.namePt|default(character.background.feat.name),
                     'type': 'Origem', 
                     'description': character.background.feat.descriptionMdPt|default(character.background.feat.descriptionMd)
                 }]) %}
-        {% endif %}
-        {% for f in character.feats %}
-                {% set feats_to_show = feats_to_show|merge([{
+				{% endif %}
+				{% for f in character.feats %}
+					{% set feats_to_show = feats_to_show|merge([{
                     'name': f.namePt|default(f.name), 
                     'type': f.type|default('Talento'), 
                     'description': f.descriptionMdPt|default(f.descriptionMd)
                 }]) %}
-        {% endfor %}
+				{% endfor %}
 
-        {% for feat in feats_to_show %}
-        <div class="mb-4">
-            <h2 class="font-serif font-bold text-lg border-b-2 border-black mb-2">{{ feat.name|upper }} <span class="text-[11px] text-black font-sans font-normal ml-2">({{ feat.type|upper }})</span></h2>
-            <div class="text-[11px] leading-relaxed prose prose-sm max-w-none text-justify">
-                {{ feat.description|markdown_to_html|raw }}
-            </div>
-        </div>
-        {% endfor %}
+				{% for feat in feats_to_show %}
+					<div class="mb-4">
+						<h2 class="font-serif font-bold text-lg border-b-2 border-black mb-2">{{ feat.name|upper }}
+							<span class="text-[11px] text-black font-sans font-normal ml-2">({{ feat.type|upper }})</span>
+						</h2>
+						<div class="text-[11px] leading-relaxed prose prose-sm max-w-none text-justify columns-2 gap-6" style="column-rule: 1px solid #e5e7eb;">
+							{{ feat.description|parse_markdown_tables|markdown_to_html|raw }}
+						</div>
+					</div>
+				{% endfor %}
 
-        {# SKILLS TEXT #}
-        {% for skill in character.skills %}
-        <div class="mb-4">
-            <h2 class="font-serif font-bold text-lg border-b-2 border-black mb-2">{{ skill.name|upper }} <span class="text-[11px] text-black font-sans font-normal ml-2">(PERÍCIA)</span></h2>
-            <div class="text-[11px] leading-relaxed text-justify">
-                <div class="mb-1 italic text-black">Atributo Base: {{ skill.attribute.name }}</div>
-                {% if skill.description %}<div class="mb-2 italic">{{ skill.description }}</div>{% endif %}
-                <div class="markdown-content prose prose-sm max-w-none">
-                    {{ skill.descriptionMd|markdown_to_html|raw }}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-        
-        {# CLASS DESCRIPTION (LAST) #}
-        <div class="mb-4">
-            <h2 class="font-serif font-bold text-xl border-b-2 border-black mb-3">{{ character.classDef.name|upper }} <span class="text-[11px] text-black font-sans font-normal ml-2">(DESCRIÇÃO E CARACTERÍSTICAS)</span></h2>
-            {# Force 2 columns for text if it's long, or full width if preferred. Keeping 2-col for readability on wide page #}
-            <div class="text-[11px] leading-relaxed prose prose-sm max-w-none text-justify columns-2 gap-6" style="column-rule: 1px solid #e5e7eb;">
-                {{ character.classDef.descriptionMd|default('')|markdown_to_html|raw }}
-            </div>
-        </div>
-    </div>
+				{# SKILLS TEXT #}
+				{% for skill in character.skills %}
+					<div class="mb-4">
+						<h2 class="font-serif font-bold text-lg border-b-2 border-black mb-2">{{ skill.name|upper }}
+							<span class="text-[11px] text-black font-sans font-normal ml-2">(PERÍCIA)</span>
+						</h2>
 
-    <div class="hidden print:block fixed bottom-0 left-0 right-0 text-center text-[9px] text-black p-2 border-t border-black mt-4">Ficha gerada em {{ "now"|date("d/m/Y H:i") }}</div>
-</body>
+
+						{# Force 2 columns for text if it's long, or full width if preferred. Keeping 2-col for readability on wide page #}
+						<div class="text-[11px] leading-relaxed prose prose-sm max-w-none text-justify columns-2 gap-6" style="column-rule: 1px solid #e5e7eb;">
+							<div class="mb-1 italic text-black">Atributo Base:
+								{{ skill.attribute.name }}</div>
+							{% if skill.description %}
+								<div class="mb-2 italic">{{ skill.description }}</div>
+							{% endif %}
+							<div class="markdown-content prose prose-sm max-w-none">
+								{{ skill.descriptionMd|parse_markdown_tables|markdown_to_html|raw }}
+							</div>
+						</div>
+
+					</div>
+				{% endfor %}
+
+				{# CLASS DESCRIPTION (LAST) #}
+				<div class="mb-4">
+					<h2 class="font-serif font-bold text-xl border-b-2 border-black mb-3">{{ character.classDef.name|upper }}
+						<span class="text-[11px] text-black font-sans font-normal ml-2">(DESCRIÇÃO E CARACTERÍSTICAS)</span>
+					</h2>
+					{# Force 2 columns for text if it's long, or full width if preferred. Keeping 2-col for readability on wide page #}
+					<div class="text-[11px] leading-relaxed prose prose-sm max-w-none text-justify columns-2 gap-6" style="column-rule: 1px solid #e5e7eb;">
+						{{ character.classDef.descriptionMd|default('')|parse_markdown_tables|markdown_to_html|raw }}
+					</div>
+				</div>
+			</div>
+		</body>
+	</body>
 </html>

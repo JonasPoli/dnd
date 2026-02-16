@@ -1,77 +1,95 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block header_title %}Personagens{% endblock %}
+{% block header_title %}Personagens
+{% endblock %}
 
 {% block body %}
-<div class="mb-8 flex items-center justify-between">
-    <div>
-        <h1 class="text-2xl font-bold dark:text-white">Gerenciamento de Personagens</h1>
-        <p class="text-slate-500 text-sm">Visualize e gerencie as instâncias de personagens criadas.</p>
-    </div>
-    <div class="flex gap-2">
-        <a href="{{ path('app_character_creation_index') }}" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 transition-all flex items-center space-x-2" data-turbo="false">
-            {{ ux_icon('lucide:wand-2', {class: 'w-5 h-5'}) }}
-            <span>Criação Guiada (Wizard)</span>
-        </a>
-        <a href="{{ path('admin_character_new') }}" class="bg-slate-100 text-slate-600 px-6 py-3 rounded-2xl font-bold hover:bg-slate-200 transition-all flex items-center space-x-2">
-            {{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
-            <span>Novo (Manual)</span>
-        </a>
-    </div>
-</div>
+	<div class="mb-8 flex items-center justify-between">
+		<div>
+			<h1 class="text-2xl font-bold dark:text-white">Gerenciamento de Personagens</h1>
+			<p class="text-slate-500 text-sm">Visualize e gerencie as instâncias de personagens criadas.</p>
+		</div>
+		<div class="flex gap-2">
+			<a href="{{ path('app_character_creation_index') }}" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 transition-all flex items-center space-x-2" data-turbo="false">
+				{{ ux_icon('lucide:wand-2', {class: 'w-5 h-5'}) }}
+				<span>Criação Guiada (Wizard)</span>
+			</a>
+			<a href="{{ path('admin_character_new') }}" class="bg-slate-100 text-slate-600 px-6 py-3 rounded-2xl font-bold hover:bg-slate-200 transition-all flex items-center space-x-2">
+				{{ ux_icon('lucide:plus', {class: 'w-5 h-5'}) }}
+				<span>Novo (Manual)</span>
+			</a>
+		</div>
+	</div>
 
-<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border overflow-hidden shadow-sm">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left">
-            <thead>
-                <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-border">
-                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome / Nível</th>
-                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Raça / Classe</th>
-                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Criado em</th>
-                    <th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Ações</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-                {% for character in characters %}
-                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td class="px-8 py-5">
-                            <div class="font-bold text-slate-900 dark:text-white">{{ character.name }}</div>
-                            <div class="text-xs text-slate-400">Nível {{ character.level }}</div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <div class="text-sm font-medium">{{ character.species.name ?? 'Sem Raça' }}</div>
-                            <div class="text-xs text-slate-400">{{ character.classDef.name ?? 'Sem Classe' }}</div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <span class="text-xs text-slate-500">{{ character.createdAt|date('d/m/Y H:i') }}</span>
-                        </td>
-                        <td class="px-8 py-5 text-right">
-                            <div class="flex items-center justify-end space-x-3">
-                                <a href="{{ path('admin_character_show', {'id': character.id}) }}" class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors" title="Visualizar Ficha">
-                                    {{ ux_icon('lucide:book-open', {class: 'w-5 h-5'}) }}
-                                </a>
-                                <a href="{{ path('admin_character_edit', {'id': character.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors" data-turbo="false">
-                                    {{ ux_icon('lucide:edit-3', {class: 'w-5 h-5'}) }}
-                                </a>
-                                <a href="{{ path('admin_character_print', {'id': character.id}) }}" target="_blank" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors" title="Imprimir Ficha (Padrão)">
-                                    {{ ux_icon('lucide:printer', {class: 'w-5 h-5'}) }}
-                                </a>
-                                <a href="{{ path('admin_character_print_fluid', {'id': character.id}) }}" target="_blank" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors" title="Imprimir Ficha (Fluida/Contínua)">
-                                    {{ ux_icon('lucide:scroll-text', {class: 'w-5 h-5'}) }}
-                                </a>
-                                {{ include('admin/character/_delete_form.html.twig') }}
-                            </div>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="4" class="px-8 py-12 text-center text-slate-400">
-                            Nenhum personagem encontrado.
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+	<div class="bg-white dark:bg-slate-900 rounded-3xl border border-border overflow-hidden shadow-sm">
+		<div class="overflow-x-auto">
+			<table class="w-full text-left">
+				<thead>
+					<tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-border">
+						<th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome / Nível</th>
+						<th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Raça / Classe</th>
+						<th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Criado em</th>
+						<th class="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Ações</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-border">
+					{% for character in characters %}
+						<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+							<td class="px-8 py-5">
+								<div class="flex items-center gap-3">
+									{% if character.imagePath %}
+										<img src="{{ vich_uploader_asset(character, 'imageFile') }}" class="w-10 h-10 rounded-full object-cover border border-slate-200" alt="{{ character.name }}">
+									{% else %}
+										<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-300 font-bold border border-slate-200">
+											{{ character.name|slice(0,1)|upper }}
+										</div>
+									{% endif %}
+									<div>
+										<div class="font-bold text-slate-900 dark:text-white">{{ character.name }}</div>
+										<div class="text-xs text-slate-400">Nível
+											{{ character.level }}</div>
+									</div>
+								</div>
+							</td>
+							<td class="px-8 py-5">
+								<div class="text-sm font-medium">{{ character.species.name ?? 'Sem Raça' }}</div>
+								<div class="flex items-center gap-2 mt-1">
+									{% if character.classDef and character.classDef.logoName %}
+										<img src="{{ vich_uploader_asset(character.classDef, 'logoFile') }}" class="w-5 h-5 object-contain opacity-75" alt="{{ character.classDef.name }}">
+									{% endif %}
+									<div class="text-xs text-slate-400">{{ character.classDef.name ?? 'Sem Classe' }}</div>
+								</div>
+							</td>
+							<td class="px-8 py-5">
+								<span class="text-xs text-slate-500">{{ character.createdAt|date('d/m/Y H:i') }}</span>
+							</td>
+							<td class="px-8 py-5 text-right">
+								<div class="flex items-center justify-end space-x-3">
+									<a href="{{ path('admin_character_show', {'id': character.id}) }}" class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors" title="Visualizar Ficha">
+										{{ ux_icon('lucide:book-open', {class: 'w-5 h-5'}) }}
+									</a>
+									<a href="{{ path('admin_character_edit', {'id': character.id}) }}" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors" data-turbo="false">
+										{{ ux_icon('lucide:edit-3', {class: 'w-5 h-5'}) }}
+									</a>
+									<a href="{{ path('admin_character_print', {'id': character.id}) }}" target="_blank" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors" title="Imprimir Ficha (Padrão)">
+										{{ ux_icon('lucide:printer', {class: 'w-5 h-5'}) }}
+									</a>
+									<a href="{{ path('admin_character_print_fluid', {'id': character.id}) }}" target="_blank" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:text-primary transition-colors" title="Imprimir Ficha (Fluida/Contínua)">
+										{{ ux_icon('lucide:scroll-text', {class: 'w-5 h-5'}) }}
+									</a>
+									{{ include('admin/character/_delete_form.html.twig') }}
+								</div>
+							</td>
+						</tr>
+					{% else %}
+						<tr>
+							<td colspan="4" class="px-8 py-12 text-center text-slate-400">
+								Nenhum personagem encontrado.
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
 {% endblock %}
