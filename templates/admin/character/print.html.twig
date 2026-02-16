@@ -273,7 +273,7 @@ sans: ['Arial', 'Helvetica', 'sans-serif']
 						<div class="text-center uppercase" style="font-size: 7px; color: #666;">CLASSE</div>
 					</div>
 					<div class="dnd-box p-1">
-						<div class="species-definition font-bold text-center" style="font-size: 10px;">{{ character.species.name }}</div>
+						<div class="species-definition font-bold text-center" style="font-size: 10px;">{{ character.species.name }}{{ character.subrace ? ' (' ~ character.subrace.name ~ ')' : '' }}</div>
 						<div class="text-center uppercase" style="font-size: 7px; color: #666;">ESPÉCIE</div>
 					</div>
 					<div class="dnd-box p-1">
