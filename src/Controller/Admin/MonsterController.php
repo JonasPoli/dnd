@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Asset\Packages;
 
 #[Route('/admin/monster')]
 #[IsGranted('ROLE_USER')]
@@ -142,14 +143,18 @@ class MonsterController extends AbstractController
         return $this->render('admin/monster/new.html.twig', [
             'monster' => $monster,
             'form' => $form->createView(),
-        ]);
+        ], new Response(null, $form->isSubmitted() && !$form->isValid() ? 422 : 200));
     }
 
     #[Route('/{id}', name: 'admin_monster_show', methods: ['GET'])]
-    public function show(Monster $monster, \App\Service\UnsplashImageService $imageService): Response
+    public function show(Monster $monster, \App\Service\UnsplashImageService $imageService, \Vich\UploaderBundle\Templating\Helper\UploaderHelper $uploaderHelper, Packages $packages): Response
     {
         if ($monster->getImgMain()) {
-            $imageUrl = '/' . $monster->getImgMain();
+            if (str_starts_with($monster->getImgMain(), 'uploads/')) {
+                $imageUrl = $packages->getUrl($monster->getImgMain());
+            } else {
+                $imageUrl = $uploaderHelper->asset($monster, 'imageFile');
+            }
         } else {
             $imageUrl = $imageService->searchImage('monster', $monster->getName());
 
@@ -165,10 +170,14 @@ class MonsterController extends AbstractController
     }
 
     #[Route('/{id}/print', name: 'admin_monster_print', methods: ['GET'])]
-    public function print(Request $request, Monster $monster, \App\Service\UnsplashImageService $imageService): Response
+    public function print(Request $request, Monster $monster, \App\Service\UnsplashImageService $imageService, \Vich\UploaderBundle\Templating\Helper\UploaderHelper $uploaderHelper, Packages $packages): Response
     {
         if ($monster->getImgMain()) {
-            $imageUrl = '/' . $monster->getImgMain();
+            if (str_starts_with($monster->getImgMain(), 'uploads/')) {
+                $imageUrl = $packages->getUrl($monster->getImgMain());
+            } else {
+                $imageUrl = $uploaderHelper->asset($monster, 'imageFile');
+            }
         } else {
             $imageUrl = $imageService->searchImage('monster', $monster->getName());
 
@@ -180,34 +189,59 @@ class MonsterController extends AbstractController
         // Layout Logic System
         // Get layout from query param, default to 'standard' (or 'layout_top_image' if we prefer)
         // User requested buttons for both
-        $layout = $request->query->get('layout', 'standard'); 
-        
+        $layout = $request->query->get('layout', 'standard');
+
+        // Determine default dimensions based on layout
+        $defaultHeight = ($layout === 'layout_image_left') ? 1200 : 600;
+        $defaultWidth = ($layout === 'layout_image_left') ? 700 : 1200;
+
+        $height = $request->query->getInt('height', $defaultHeight);
+        $width = $request->query->getInt('width', $defaultWidth);
+
         // For top image layout, use the composed image URL
         if ($layout === 'layout_top_image') {
-            $imageUrl = $this->generateUrl('admin_monster_composed_image', ['id' => $monster->getId()]);
+            $imageUrl = $this->generateUrl('admin_monster_composed_image', [
+                'id' => $monster->getId(),
+                'height' => $height,
+                'width' => $width
+            ]);
         }
-        
+
         // For image-left layout, use the composed image-left URL
         if ($layout === 'layout_image_left') {
-            $imageUrl = $this->generateUrl('admin_monster_composed_image_left', ['id' => $monster->getId()]);
+            $imageUrl = $this->generateUrl('admin_monster_composed_image_left', [
+                'id' => $monster->getId(),
+                'height' => $height,
+                'width' => $width
+            ]);
         }
-        
+
         $charCount = strlen($monster->getDescriptionMdPt() ?? '') + strlen(json_encode($monster->getSrcJsonPt()));
-        
+
         return $this->render('admin/monster/print.html.twig', [
             'monster' => $monster,
             'image_url' => $imageUrl,
             'layout' => $layout,
-            'charCount' => $charCount
+            'charCount' => $charCount,
+            'height' => $height,
+            'width' => $width
         ]);
     }
-    
+
     #[Route('/{id}/composed-image-left', name: 'admin_monster_composed_image_left', methods: ['GET'])]
-    public function composedImageLeft(Monster $monster, \App\Service\UnsplashImageService $imageService, \App\Service\MonsterImageComposerService $composerService): Response
+    public function composedImageLeft(Request $request, Monster $monster, \App\Service\UnsplashImageService $imageService, \App\Service\MonsterImageComposerService $composerService, \Vich\UploaderBundle\Templating\Helper\UploaderHelper $uploaderHelper, Packages $packages): Response
     {
+        $height = $request->query->getInt('height', 1200);
+        $width = $request->query->getInt('width', 700);
+
         // Get the original monster image
         if ($monster->getImgMain()) {
-            $monsterImagePath = '/' . $monster->getImgMain();
+            // We pass the web path (e.g. /media/...) because ComposerService prepends public path if it starts with /
+            if (str_starts_with($monster->getImgMain(), 'uploads/')) {
+                $monsterImagePath = $packages->getUrl($monster->getImgMain());
+            } else {
+                $monsterImagePath = $uploaderHelper->asset($monster, 'imageFile');
+            }
         } else {
             $monsterImagePath = $imageService->searchImage('monster', $monster->getName());
 
@@ -215,33 +249,52 @@ class MonsterController extends AbstractController
                 $monsterImagePath = $imageService->getPlaceholderImage('monster');
             }
         }
-        
-        // Generate composed image path with left layout dimensions (350x600)
+
+        // Generate composed image path with left layout dimensions (relative to height)
         $outputDir = $this->getParameter('kernel.project_dir') . '/public/media/composed';
-        $outputFilename = 'monster_' . $monster->getId() . '_layout_image_left.png';
+        $outputFilename = 'monster_' . $monster->getId() . '_layout_image_left_w' . $width . '_h' . $height . '.png';
         $outputPath = $outputDir . '/' . $outputFilename;
-        
-        // Only regenerate if file doesn't exist or is older than 1 hour (cache)
-        if (!file_exists($outputPath) || (time() - filemtime($outputPath)) > 3600) {
-            // Set dimensions for image-left layout (350x600)
-            $composerService->setDimensions(700, 1200);
-            $composerService->composeImage($monsterImagePath, $outputPath);
+
+        // Check for test mode
+        if ($request->query->getBoolean('test')) {
+            $composerService->setDimensions($width, $height);
+            $debugData = $composerService->getCompositionDebugData($monsterImagePath);
+            return $this->json($debugData);
         }
-        
+
+        // Only regenerate if file doesn't exist or is older than 1 hour (cache)
+        $force = isset($_GET['force']);
+        if ($force || !file_exists($outputPath) || (time() - filemtime($outputPath)) > 3600 || filesize($outputPath) < 100) {
+            // Set dimensions for image-left layout (default 700x1200, ratio ~0.5833)
+            $composerService->setDimensions($width, $height);
+            try {
+                $composerService->composeImage($monsterImagePath, $outputPath);
+            } catch (\Exception $e) {
+                // Fallback to placeholder or handle error
+            }
+        }
+
         // Serve the composed image
         $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($outputPath);
         $response->headers->set('Content-Type', 'image/png');
         $response->headers->set('Cache-Control', 'public, max-age=3600');
-        
+
         return $response;
     }
-    
+
     #[Route('/{id}/composed-image', name: 'admin_monster_composed_image', methods: ['GET'])]
-    public function composedImage(Monster $monster, \App\Service\UnsplashImageService $imageService, \App\Service\MonsterImageComposerService $composerService): Response
+    public function composedImage(Request $request, Monster $monster, \App\Service\UnsplashImageService $imageService, \App\Service\MonsterImageComposerService $composerService, \Vich\UploaderBundle\Templating\Helper\UploaderHelper $uploaderHelper, Packages $packages): Response
     {
+        $height = $request->query->getInt('height', 600);
+        $width = $request->query->getInt('width', 1200);
+
         // Get the original monster image
         if ($monster->getImgMain()) {
-            $monsterImagePath = '/' . $monster->getImgMain();
+            if (str_starts_with($monster->getImgMain(), 'uploads/')) {
+                $monsterImagePath = $packages->getUrl($monster->getImgMain());
+            } else {
+                $monsterImagePath = $uploaderHelper->asset($monster, 'imageFile');
+            }
         } else {
             $monsterImagePath = $imageService->searchImage('monster', $monster->getName());
 
@@ -249,22 +302,36 @@ class MonsterController extends AbstractController
                 $monsterImagePath = $imageService->getPlaceholderImage('monster');
             }
         }
-        
+
         // Generate composed image path
         $outputDir = $this->getParameter('kernel.project_dir') . '/public/media/composed';
-        $outputFilename = 'monster_' . $monster->getId() . '_layout_top_image.png';
+        $outputFilename = 'monster_' . $monster->getId() . '_layout_top_image_w' . $width . '_h' . $height . '.png';
         $outputPath = $outputDir . '/' . $outputFilename;
-        
-        // Only regenerate if file doesn't exist or is older than 1 hour (cache)
-        if (!file_exists($outputPath) || (time() - filemtime($outputPath)) > 3600) {
-            $composerService->composeImage($monsterImagePath, $outputPath);
+
+        // Check for test mode
+        if ($request->query->getBoolean('test')) {
+            $composerService->setDimensions($width, $height);
+            $debugData = $composerService->getCompositionDebugData($monsterImagePath);
+            return $this->json($debugData);
         }
-        
+
+        // Force regeneration for debugging if query param present, or standard cache check
+        // Also regenerate if file is too small (meaning failed generation previously)
+        $force = isset($_GET['force']);
+        if ($force || !file_exists($outputPath) || (time() - filemtime($outputPath)) > 3600 || filesize($outputPath) < 100) {
+            try {
+                $composerService->setDimensions($width, $height);
+                $composerService->composeImage($monsterImagePath, $outputPath);
+            } catch (\Exception $e) {
+                // Fallback to placeholder or handle error
+            }
+        }
+
         // Serve the composed image
         $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($outputPath);
         $response->headers->set('Content-Type', 'image/png');
         $response->headers->set('Cache-Control', 'public, max-age=3600');
-        
+
         return $response;
     }
 
@@ -283,7 +350,7 @@ class MonsterController extends AbstractController
         return $this->render('admin/monster/edit.html.twig', [
             'monster' => $monster,
             'form' => $form->createView(),
-        ]);
+        ], new Response(null, $form->isSubmitted() && !$form->isValid() ? 422 : 200));
     }
 
     #[Route('/{id}', name: 'admin_monster_delete', methods: ['POST'])]

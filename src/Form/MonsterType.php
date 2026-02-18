@@ -12,9 +12,20 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichImageType;
+
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use App\Repository\MonsterRepository;
 
 class MonsterType extends AbstractType
 {
+    private MonsterRepository $monsterRepository;
+
+    public function __construct(MonsterRepository $monsterRepository)
+    {
+        $this->monsterRepository = $monsterRepository;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -25,16 +36,63 @@ class MonsterType extends AbstractType
             ->add('name')
             ->add('namePt', TextType::class, ['required' => false, 'label' => 'Name (PT)'])
             ->add('ruleSlug')
-            ->add('size')
-            ->add('sizePt', TextType::class, ['required' => false, 'label' => 'Size (PT)'])
-            ->add('type')
-            ->add('typePt', TextType::class, ['required' => false, 'label' => 'Type (PT)'])
-            ->add('subtype', TextType::class, ['required' => false])
-            ->add('subtypePt', TextType::class, ['required' => false, 'label' => 'Subtype (PT)'])
-            ->add('group', TextType::class, ['required' => false, 'label' => 'Monster Group'])
-            ->add('groupPt', TextType::class, ['required' => false, 'label' => 'Monster Group (PT)'])
-            ->add('alignment')
-            ->add('alignmentPt', TextType::class, ['required' => false, 'label' => 'Alignment (PT)'])
+            ->add('size', ChoiceType::class, [
+                'required' => false,
+                'choices' => $this->monsterRepository->getDistinctValues('size'),
+                'placeholder' => 'Selecione ou deixe vazio',
+                'label' => 'Size'
+            ])
+            ->add('sizePt', ChoiceType::class, [
+                'required' => false,
+                'label' => 'Size (PT)',
+                'choices' => $this->monsterRepository->getDistinctValues('sizePt'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
+            ->add('type', ChoiceType::class, [
+                'required' => false,
+                'choices' => $this->monsterRepository->getDistinctValues('type'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
+            ->add('typePt', ChoiceType::class, [
+                'required' => false,
+                'label' => 'Type (PT)',
+                'choices' => $this->monsterRepository->getDistinctValues('typePt'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
+            ->add('subtype', ChoiceType::class, [
+                'required' => false,
+                'choices' => $this->monsterRepository->getDistinctValues('subtype'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
+            ->add('subtypePt', ChoiceType::class, [
+                'required' => false,
+                'label' => 'Subtype (PT)',
+                'choices' => $this->monsterRepository->getDistinctValues('subtypePt'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
+            ->add('group', ChoiceType::class, [
+                'required' => false,
+                'label' => 'Monster Group',
+                'choices' => $this->monsterRepository->getDistinctValues('monsterGroup'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
+            ->add('groupPt', ChoiceType::class, [
+                'required' => false,
+                'label' => 'Monster Group (PT)',
+                'choices' => $this->monsterRepository->getDistinctValues('monsterGroupPt'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
+            ->add('alignment', ChoiceType::class, [
+                'required' => false,
+                'choices' => $this->monsterRepository->getDistinctValues('alignment'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
+            ->add('alignmentPt', ChoiceType::class, [
+                'required' => false,
+                'label' => 'Alignment (PT)',
+                'choices' => $this->monsterRepository->getDistinctValues('alignmentPt'),
+                'placeholder' => 'Selecione ou deixe vazio'
+            ])
             ->add('challengeRating')
             ->add('armorClass', IntegerType::class, ['required' => false])
             ->add('armorDesc', TextType::class, ['required' => false])
@@ -78,7 +136,11 @@ class MonsterType extends AbstractType
             ->add('reactionsJson', TextareaType::class, ['required' => false, 'label' => 'Reactions (JSON)', 'attr' => ['rows' => 5]])
             ->add('legendaryActionsJson', TextareaType::class, ['required' => false, 'label' => 'Legendary Actions (JSON)', 'attr' => ['rows' => 5]])
             ->add('environments', TextareaType::class, ['required' => false, 'label' => 'Environments (JSON)'])
-            ->add('imgMain', TextType::class, ['required' => false])
+            ->add('imageFile', VichImageType::class, [
+                'required' => false,
+                'allow_delete' => true,
+                'download_uri' => true,
+            ])
             ->add('pageNo', IntegerType::class, ['required' => false])
             ->add('spellList', TextareaType::class, ['required' => false, 'label' => 'Spell List (JSON)'])
             ->add('srcJson', TextareaType::class, ['required' => false, 'label' => 'Sources (JSON)'])
@@ -87,22 +149,8 @@ class MonsterType extends AbstractType
                 'class' => RulesSource::class,
                 'choice_label' => 'name',
             ])
-            ->add('removeImage', \Symfony\Component\Form\Extension\Core\Type\CheckboxType::class, [
-                'mapped' => false,
-                'required' => false,
-                'label' => 'Remover Imagem Atual',
-                'help' => 'Marque para excluir a imagem associada a este monstro.',
-            ])
         ;
 
-        $builder->addEventListener(\Symfony\Component\Form\FormEvents::POST_SUBMIT, function (\Symfony\Component\Form\FormEvent $event) {
-            $data = $event->getData();
-            $form = $event->getForm();
-
-            if ($form->get('removeImage')->getData()) {
-                $data->setImgMain(null);
-            }
-        });
 
         $jsonTransformer = new CallbackTransformer(
             function ($array) {
@@ -136,6 +184,7 @@ class MonsterType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Monster::class,
+            'csrf_protection' => false,
         ]);
     }
 }

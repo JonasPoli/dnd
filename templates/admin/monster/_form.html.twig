@@ -1,90 +1,105 @@
-{{ form_start(form) }}
+{{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+    <div class="text-red-500 mb-4">
+        {{ form_errors(form) }}
+    </div>
     {# Basic Information Section #}
     <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border p-6 mb-6">
-        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-slate-900 dark:text-white">
-            {{ ux_icon('lucide:info', {class: 'w-5 h-5 text-primary'}) }}
-            <span>Informações Básicas</span>
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold flex items-center space-x-2 text-slate-900 dark:text-white">
+                {{ ux_icon('lucide:info', {class: 'w-5 h-5 text-primary'}) }}
+                <span>Informações Básicas</span>
+            </h3>
+            <div class="flex items-center">
+                {{ form_row(form.isActive, {
+                    'label_attr': {'class': 'text-sm font-bold text-slate-700 dark:text-slate-300 mr-2'},
+                    'attr': {'class': 'w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary'}
+                }) }}
+            </div>
+        </div>
+        <div class="space-y-4">
+            {# Name #}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ form_row(form.name, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
-            </div>
-            <div>
                 {{ form_row(form.namePt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
-            <div>
-                {{ form_row(form.ruleSlug, {
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
-                }) }}
-            </div>
-            <div>
+
+            {# Rules Source & Page & Slug #}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {{ form_row(form.rulesSource, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
-            </div>
-            <div>
-                {{ form_row(form.type, {
+                {{ form_row(form.pageNo, {
+                    'label': 'Página',
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
+                 {{ form_row(form.ruleSlug, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
-            <div>
+
+            {# Type #}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{ form_row(form.type, {
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                }) }}
                 {{ form_row(form.typePt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
-            <div>
+
+            {# Subtype #}
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ form_row(form.subtype, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
-            </div>
-            <div>
                 {{ form_row(form.subtypePt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
-            <div>
+
+            {# Group #}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ form_row(form.group, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
-            </div>
-            <div>
                 {{ form_row(form.groupPt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
-            <div>
+
+            {# Size #}
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ form_row(form.size, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
-            </div>
-            <div>
                 {{ form_row(form.sizePt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
             </div>
-            <div>
+
+            {# Alignment #}
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ form_row(form.alignment, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
                 }) }}
-            </div>
-            <div>
                 {{ form_row(form.alignmentPt, {
                     'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
                     'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
@@ -100,35 +115,30 @@
             <span>Imagem</span>
         </h3>
         
-        <div class="flex flex-col md:flex-row gap-6 items-start">
-            {% if form.vars.value.imgMain %}
-                <div class="w-full md:w-48 flex-shrink-0">
-                    <div class="relative group">
-                        <img src="/{{ form.vars.value.imgMain }}" alt="Monster Image" class="w-full h-48 object-cover rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center text-white text-xs font-bold text-center p-2">
-                            {{ form.vars.value.imgMain }}
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-            
             <div class="flex-grow space-y-4 w-full">
-                {{ form_row(form.imgMain, {
-                    'label': 'Caminho da Imagem',
-                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm font-mono'}
-                }) }}
-                
-                {% if form.removeImage is defined %}
-                    <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/50">
-                        {{ form_row(form.removeImage, {
-                            'label_attr': {'class': 'text-sm font-bold text-red-700 dark:text-red-400 ml-2'},
-                            'attr': {'class': 'w-4 h-4 text-red-600 rounded bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:ring-red-500'}
-                        }) }}
+                {% set monster = form.vars.value %}
+                {% set imagePath = null %}
+                {% if monster.imgMain %}
+                    {% if monster.imgMain starts with 'uploads/' %}
+                        {% set imagePath = asset(monster.imgMain) %}
+                    {% else %}
+                        {% set imagePath = vich_uploader_asset(monster, 'imageFile') %}
+                    {% endif %}
+                {% endif %}
+
+                {% if imagePath %}
+                    <div class="mb-4">
+                        <img src="{{ imagePath }}" class="max-w-[200px] max-h-[200px] rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm" alt="Monster Image" />
                     </div>
                 {% endif %}
+
+                {{ form_row(form.imageFile, {
+                    'label': 'Image',
+                    'label_attr': {'class': 'block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2'},
+                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm font-mono'},
+                    'download_uri': false
+                }) }}
             </div>
-        </div>
     </div>
 
     {# Combat Stats Section #}
@@ -156,15 +166,14 @@
             </div>
             <div>
                  <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Armor Desc</label>
-                {{ form_widget(form.armorDesc, {
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
-                }) }}
-            </div>
-             <div>
-                 <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Armor Desc (PT)</label>
-                {{ form_widget(form.armorDescPt, {
-                    'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
-                }) }}
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {{ form_widget(form.armorDesc, {
+                        'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                    }) }}
+                    {{ form_widget(form.armorDescPt, {
+                        'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none'}
+                    }) }}
+                 </div>
             </div>
             <div>
                 <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
@@ -324,8 +333,10 @@
             {{ form_row(form.legendaryActionsJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 4}}) }}
             
             {{ form_row(form.spellList, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 6}}) }}
-            {{ form_row(form.srcJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
-            {{ form_row(form.srcJsonPt, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{ form_row(form.srcJson, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
+                {{ form_row(form.srcJsonPt, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
+            </div>
 
             {{ form_row(form.environments, {'attr': {'class': 'block w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono text-xs', 'rows': 2}}) }}
         </div>

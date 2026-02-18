@@ -10,3 +10,9 @@ vich_uploader:
             uri_prefix: /media/characters
             upload_destination: '%kernel.project_dir%/public/media/characters'
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+        monster_image:
+            uri_prefix: /media/monsters
+            upload_destination: '%kernel.project_dir%/public/media/monsters'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+

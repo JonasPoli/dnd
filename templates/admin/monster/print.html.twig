@@ -48,9 +48,9 @@
         }
         
         .layout-top-image .top-image-container {
-            width: 100% !important;
+            width: {{ width is defined ? (width * 0.55)|round(0, 'ceil') : 660 }}px;
             max-width: 100%;
-            height: 330px; 
+            height: {{ height is defined ? (height * 0.55)|round : 330 }}px;
             position: relative;
             overflow: hidden;
             border-radius: 8px 8px 0 0;
@@ -58,6 +58,9 @@
             border-bottom: none;
             flex-shrink: 0; 
             box-sizing: border-box;
+            margin-left: auto;
+            margin-right: auto;
+        }
             display: flex;
             align-items: flex-start;
             justify-content: center;
@@ -71,8 +74,8 @@
         
         /* Image Left Layout Styles */
         .layout_image_left .left-composed-image {
-            width: 350px;
-            height: 600px;
+            width: {{ width is defined ? (width * 0.5)|round : 350 }}px;
+            /* height: {{ height is defined ? (height * 0.5)|round : 600 }}px; */
             float: left;
             margin-right: 20px;
             margin-bottom: 10px;
@@ -182,6 +185,34 @@
             font-weight: normal;
         }
 
+        /* Generic Markdown Tables within Stat Block - Global Scope */
+        .stat-block table:not(.ability-table) {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        .stat-block table:not(.ability-table) th {
+            background-color: #f0f0f0 !important;
+            text-align: left;
+            padding: 4px;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            color: var(--dnd-red);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .stat-block table:not(.ability-table) td {
+            padding: 4px;
+            border: 1px solid #ccc;
+            vertical-align: top;
+        }
+        .stat-block table:not(.ability-table) tr:nth-child(even) {
+            background-color: #f2f2f2 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
         .print-btn {
             position: fixed;
             top: 20px;
@@ -225,7 +256,7 @@
             .layout-top-image .top-image-container {
                 border: none;
                 width: 100%;
-                height: 330px; 
+                height: {{ height is defined ? (height * 0.55)|round : 330 }}px;
                 margin-bottom: 0; /* Remove margin since stat-block will overlay */
                 background-color: white !important; /* White opaque background */
                 position: relative;
@@ -237,11 +268,14 @@
                 opacity: 0;
             }
 
+
+
             /* Prevent awkward breaks */
             .ability-container, 
             .ability-group, 
             .property-line, 
-            h2, h3, .type, hr {
+            h2, h3, .type, hr,
+            .stat-block table {
                 break-inside: avoid;
             }
             h3 {
@@ -458,7 +492,7 @@
         <div style="margin-top: 15px;">
             {% for ability in specialAbilities %}
                 <div class="property-line">
-                    <b>{{ ability.name }}.</b> {{ ability.desc }}
+                    <b>{{ ability.name }}.</b> {{ ability.desc|parse_markdown_tables|markdown_to_html|raw }}
                 </div>
             {% endfor %}
         </div>
@@ -468,7 +502,7 @@
         <h3>Ações</h3>
         {% for action in actions %}
             <div class="property-line">
-                <b>{{ action.name }}.</b> {{ action.desc }}
+                <b>{{ action.name }}.</b> {{ action.desc|parse_markdown_tables|markdown_to_html|raw }}
             </div>
         {% endfor %}
     {% endif %}
@@ -477,7 +511,7 @@
         <h3>Ações Bônus</h3>
         {% for action in monster.bonusActionsJson %}
             <div class="property-line">
-                <b>{{ action.name }}.</b> {{ action.desc }}
+                <b>{{ action.name }}.</b> {{ action.desc|parse_markdown_tables|markdown_to_html|raw }}
             </div>
         {% endfor %}
     {% endif %}
@@ -486,7 +520,7 @@
         <h3>Reações</h3>
         {% for action in reactions %}
             <div class="property-line">
-                <b>{{ action.name }}.</b> {{ action.desc }}
+                <b>{{ action.name }}.</b> {{ action.desc|parse_markdown_tables|markdown_to_html|raw }}
             </div>
         {% endfor %}
     {% endif %}
@@ -494,11 +528,11 @@
     {% if legendaryActions %}
         <h3>Ações Lendárias</h3>
         {% if legendaryDesc %}
-            <p>{{ legendaryDesc }}</p>
+            <p>{{ legendaryDesc|parse_markdown_tables|markdown_to_html|raw }}</p>
         {% endif %}
         {% for action in legendaryActions %}
             <div class="property-line">
-                <b>{{ action.name }}.</b> {{ action.desc }}
+                <b>{{ action.name }}.</b> {{ action.desc|parse_markdown_tables|markdown_to_html|raw }}
             </div>
         {% endfor %}
     {% endif %}
@@ -506,7 +540,7 @@
     {% if descMd %}
         <h3>Descrição</h3>
         <div style="font-size: 11.5px; line-height: 1.5;"> <!-- Was 13.5px -->
-            {{ descMd|markdown_to_html|raw }}
+            {{ descMd|parse_markdown_tables|markdown_to_html|raw }}
         </div>
     {% endif %}
 
