@@ -58,6 +58,7 @@ class MigrateMonsterImagesCommand extends Command
             }
         }
 
+        // Part 1: Move files from uploads/ to media/monsters/
         $query = $this->entityManager->getRepository(Monster::class)
             ->createQueryBuilder('m')
             ->where('m.imgMain LIKE :pattern')
@@ -77,17 +78,16 @@ class MigrateMonsterImagesCommand extends Command
                 continue;
             }
 
-            // Check if it's in the old location (redundant check but safe)
             if (str_contains($currentPath, 'uploads/monsters')) {
                 $sourceFile = $publicDir . '/' . ltrim($currentPath, '/');
                 $filename = basename($currentPath);
                 $destFile = $mediaDir . '/' . $filename;
-                $newDbPath = 'media/monsters/' . $filename;
+                // DATABASE FIX: Store ONLY the filename, VichUploader adds the prefix
+                $newDbPath = $filename; 
 
                 if (!$this->filesystem->exists($sourceFile)) {
-                    // Check if it already exists in destination
                      if ($this->filesystem->exists($destFile)) {
-                         $io->warning("Source missing ($sourceFile) but found in destination. Updating DB only.");
+                         $io->warning("Source missing ($sourceFile) but found in destination. Updating DB to filename.");
                          if (!$dryRun) {
                              $monster->setImgMain($newDbPath);
                              $count++;
@@ -97,17 +97,14 @@ class MigrateMonsterImagesCommand extends Command
                         $errors++;
                     }
                 } else {
-                    // File exists in source
                     $io->text("Migrating: {$monster->getName()} (ID: {$monster->getId()})");
                     $io->text("  Source: $currentPath");
-                    $io->text("  Dest:   $newDbPath");
+                    $io->text("  Dest:   $mediaDir/$newDbPath");
+                    $io->text("  DB:     $newDbPath");
 
                     if (!$dryRun) {
                         try {
-                            // Move file
-                            $this->filesystem->rename($sourceFile, $destFile, true); // true = overwrite
-                            
-                            // Update DB
+                            $this->filesystem->rename($sourceFile, $destFile, true);
                             $monster->setImgMain($newDbPath);
                             $count++;
                         } catch (\Exception $e) {
@@ -125,18 +122,61 @@ class MigrateMonsterImagesCommand extends Command
             if (!$dryRun) {
                 if (($i % $batchSize) === 0) {
                     $this->entityManager->flush();
-                    $this->entityManager->clear(); // Detach all objects from Doctrine!
+                    $this->entityManager->clear(); 
                 }
             }
             $i++;
+        }
+        
+        if (!$dryRun) {
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+        }
+
+        // Part 2: Fix existing paths that incorrectly contain 'media/monsters/'
+        $io->section("Checking for double paths (media/monsters/ prefix)...");
+        
+        $queryFix = $this->entityManager->getRepository(Monster::class)
+            ->createQueryBuilder('m')
+            ->where('m.imgMain LIKE :pattern')
+            ->setParameter('pattern', 'media/monsters/%')
+            ->getQuery();
+
+        $fixedCount = 0;
+        $j = 0;
+        
+        foreach ($queryFix->toIterable() as $monster) {
+             $currentPath = $monster->getImgMain();
+             // Strip the prefix
+             $newPath = str_replace('media/monsters/', '', $currentPath);
+             
+             // Ensure no lingering leading slashes if any
+             $newPath = ltrim($newPath, '/');
+             
+             if ($currentPath !== $newPath) {
+                 $io->text("Fixing path for {$monster->getName()}: '$currentPath' -> '$newPath'");
+                 
+                 if (!$dryRun) {
+                     $monster->setImgMain($newPath);
+                     $fixedCount++;
+                     
+                     if (($j % $batchSize) === 0) {
+                        $this->entityManager->flush();
+                        $this->entityManager->clear();
+                    }
+                 } else {
+                     $fixedCount++;
+                 }
+             }
+             $j++;
         }
 
         if (!$dryRun) {
             $this->entityManager->flush();
             $this->entityManager->clear();
-            $io->success("Migration complete. Processed $count images. Errors: $errors. Skipped: $skipped.");
+            $io->success("Migration complete.\nMoved/Updated: $count\nPath Fixes: $fixedCount\nErrors: $errors\nSkipped: $skipped");
         } else {
-            $io->success("Dry run complete. Would process $count images. Errors: $errors. Skipped: $skipped.");
+            $io->success("Dry run complete.\nWould Move/Update: $count\nWould Fix Paths: $fixedCount\nErrors: $errors\nSkipped: $skipped");
         }
 
         return Command::SUCCESS;
