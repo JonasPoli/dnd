@@ -20,7 +20,7 @@
                                    class="peer sr-only species-radio" 
                                    {% if current_species and current_species.id == sp.id %}checked{% endif %}
                                    data-name="{{ sp.name }}"
-                                   data-description="{{ sp.descriptionMd|escape }}"
+                                   data-description="{{ sp.descriptionMd|json_encode|e('html_attr') }}"
                                    data-size="{{ sp.size }}"
                                    data-speed="{{ sp.speedWalk }}"
                                    data-has-subraces="{{ sp.subraces|length > 0 ? 'true' : 'false' }}"
@@ -47,7 +47,7 @@
                                                {% if current_subrace and current_subrace.id == sub.id %}checked{% endif %}
                                                data-parent-species="{{ sp.id }}"
                                                data-name="{{ sub.name }}"
-                                               data-description="{{ sub.descriptionMd|escape }}"
+                                               data-description="{{ sub.descriptionMd|json_encode|e('html_attr') }}"
                                                data-size="{{ sp.size }}"
                                                data-speed="{{ sp.speedWalk }}"
                                                onchange="updateSubracePreview(this)">
@@ -159,6 +159,17 @@
 </script>
 
 <script>
+    function parseDescription(jsonString) {
+        try {
+            // Remove potential surrounding quotes if somehow double encoded, 
+            // but standard JSON.parse on encoded string should work directly if valid JSON
+            return JSON.parse(jsonString || '""');
+        } catch (e) {
+            console.error('Error parsing description:', e);
+            return jsonString; // Fallback to raw string
+        }
+    }
+
     function updatePreview(input) {
         const title = document.getElementById('preview-title');
         const desc = document.getElementById('preview-description');
@@ -177,7 +188,8 @@
         size.textContent = input.dataset.size;
         speed.textContent = input.dataset.speed;
         
-        renderMarkdown(desc, input.dataset.description);
+        const description = parseDescription(input.dataset.description);
+        renderMarkdown(desc, description);
 
         // Toggle Subraces Visibility
         // Hide all subrace containers first
@@ -215,7 +227,8 @@
         
         title.innerHTML = input.dataset.name + ' <span class="text-lg font-normal text-slate-400">(' + document.querySelector(`input[name="species"][value="${input.dataset.parentSpecies}"]`).dataset.name + ')</span>';
         
-        renderMarkdown(desc, input.dataset.description);
+        const description = parseDescription(input.dataset.description);
+        renderMarkdown(desc, description);
     }
 
     function renderMarkdown(element, content) {

@@ -5,8 +5,12 @@ namespace App\Entity;
 use App\Repository\MonsterRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: MonsterRepository::class)]
+#[Vich\Uploadable]
 #[ORM\UniqueConstraint(name: 'UNIQ_SOURCE_MONSTER', fields: ['rulesSource', 'ruleSlug'])]
 class Monster
 {
@@ -20,12 +24,15 @@ class Monster
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank(message: 'A fonte de regras é obrigatória.')]
     private ?RulesSource $rulesSource = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'O slug da regra é obrigatório.')]
     private ?string $ruleSlug = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'O nome é obrigatório.')]
     private ?string $name = null;
 
     #[ORM\Column(length: 50, nullable: true)]
@@ -180,6 +187,12 @@ class Monster
 
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $imgMain = null;
+
+    #[Vich\UploadableField(mapping: 'monster_image', fileNameProperty: 'imgMain')]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $srcJson = [];
@@ -718,6 +731,32 @@ class Monster
     {
         $this->imgMain = $imgMain;
         return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getNamePt(): ?string
